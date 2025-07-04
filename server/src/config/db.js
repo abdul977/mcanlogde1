@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
-dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), '../../../.env') });
+dotenv.config({ path: join(dirname(fileURLToPath(import.meta.url)), '../../.env') });
 
 export const connectToDb = async () => {
   try {

@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 import mongoose from "mongoose";
 
 // Set MongoDB URI directly
-const MONGODB_URI = "mongodb+srv://abdulmuminibrahim74:salis977@cluster0.41c1t.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const MONGODB_URI = "mongodb+srv://abdul977:salis977@cluster0.s6mmj.mongodb.net/mcanlogde?retryWrites=true&w=majority&appName=Cluster0";
 
 const events = [
   {
