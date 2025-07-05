@@ -61,6 +61,7 @@ import MyBookings from "./pages/User/MyBookings";
 import UserMessages from "./pages/User/UserMessages";
 import AdminMessages from "./pages/Admin/AdminMessages";
 import { SocketProvider } from "./context/SocketContext";
+import WhatsAppFloatingButton from "./components/WhatsAppFloatingButton";
 
 function App() {
   return (
@@ -180,6 +181,9 @@ function App() {
           </span>
         </div>
       </div>
+
+      {/* WhatsApp-Style Floating Chat Button */}
+      <WhatsAppFloatingButton />
       </div>
     </SocketProvider>
   );

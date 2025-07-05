@@ -555,9 +555,8 @@ const AllResources = () => {
                     </div>
                   ))}
                 </div>
-
+              </>
             )}
-          </div>
 
           {/* Summary */}
           {!loading && filteredResources.length > 0 && (

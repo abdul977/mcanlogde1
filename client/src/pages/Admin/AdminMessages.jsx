@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { FaComments, FaUser, FaSearch, FaSync, FaEnvelope, FaEnvelopeOpen, FaBars, FaTimes } from "react-icons/fa";
+import { FaComments, FaUser, FaSearch, FaSync, FaEnvelope, FaEnvelopeOpen, FaBars, FaTimes, FaWhatsapp } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
-import MessagingSystem from "../../components/MessagingSystem";
+import WhatsAppChat from "../../components/WhatsAppChat";
 
 const AdminMessages = () => {
   const [users, setUsers] = useState([]);
@@ -12,7 +12,7 @@ const AdminMessages = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
-  const [showMessaging, setShowMessaging] = useState(false);
+  const [showWhatsAppChat, setShowWhatsAppChat] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [auth] = useAuth();
@@ -89,11 +89,11 @@ const AdminMessages = () => {
 
   const handleStartConversation = (user) => {
     setSelectedUser(user);
-    setShowMessaging(true);
+    setShowWhatsAppChat(true);
   };
 
-  const handleCloseMessaging = () => {
-    setShowMessaging(false);
+  const handleCloseWhatsAppChat = () => {
+    setShowWhatsAppChat(false);
     setSelectedUser(null);
     // Refresh conversations and unread count
     fetchConversations();
@@ -172,6 +172,13 @@ const AdminMessages = () => {
                     {unreadCount} unread
                   </div>
                 )}
+                <button
+                  onClick={() => setShowWhatsAppChat(true)}
+                  className="flex items-center gap-2 px-4 py-2 bg-[#25D366] text-white rounded-lg hover:bg-[#20b858] transition duration-300"
+                >
+                  <FaWhatsapp />
+                  WhatsApp View
+                </button>
                 <button
                   onClick={() => {
                     fetchUsers();
@@ -296,12 +303,10 @@ const AdminMessages = () => {
         </div>
       </div>
 
-      {/* Messaging Modal */}
-      <MessagingSystem
-        isOpen={showMessaging}
-        onClose={handleCloseMessaging}
-        recipientId={selectedUser?._id}
-        recipientName={selectedUser?.name}
+      {/* WhatsApp-Style Chat Interface */}
+      <WhatsAppChat
+        isOpen={showWhatsAppChat}
+        onClose={handleCloseWhatsAppChat}
       />
     </div>
   );
