@@ -33,18 +33,18 @@ const Banner = () => {
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center text-white h-full px-4">
-        <div className="flex items-center mb-6">
-          <FaMosque className="text-4xl mr-3" />
-          <h1 className="text-4xl sm:text-5xl font-bold text-center">
+        <div className="flex flex-col sm:flex-row items-center justify-center mb-6">
+          <FaMosque className="text-3xl sm:text-4xl mb-2 sm:mb-0 sm:mr-3 text-mcan-light" />
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-center">
             Welcome to MCAN Lodge
           </h1>
         </div>
 
-        <p className="text-xl sm:text-2xl mt-4 text-center max-w-3xl">
+        <p className="text-lg sm:text-xl lg:text-2xl mt-4 text-center max-w-4xl mx-auto px-4">
           Find comfortable and halal-friendly accommodation for Muslim corps members
         </p>
 
-        <p className="text-lg sm:text-xl mt-2 text-center text-mcan-light italic">
+        <p className="text-sm sm:text-lg lg:text-xl mt-4 text-center text-mcan-light italic max-w-3xl mx-auto px-4">
           "And whoever emigrates for the cause of Allah will find on the earth many locations and abundance" - (4:100)
         </p>
 

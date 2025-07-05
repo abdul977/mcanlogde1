@@ -212,100 +212,171 @@ const AllServices = () => {
                 </Link>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Service
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Features
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Order
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredServices.map((service) => (
-                      <tr key={service._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            {service.image && (
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Service
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Category
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Features
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Order
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredServices.map((service) => (
+                        <tr key={service._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              {service.image && (
+                                <img
+                                  src={service.image}
+                                  alt={service.title}
+                                  className="h-10 w-10 rounded-lg object-cover mr-3"
+                                />
+                              )}
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">
+                                  {service.title}
+                                </div>
+                                <div className="text-sm text-gray-500 truncate max-w-xs">
+                                  {service.description}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(service.category)}`}>
+                              {service.category}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(service.status)}`}>
+                              {service.status}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">
+                              {service.features?.length || 0} features
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {service.displayOrder}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex space-x-2">
+                              <Link
+                                to={`/services/${service.slug}`}
+                                className="text-blue-600 hover:text-blue-900"
+                                title="View Service"
+                              >
+                                <FaEye />
+                              </Link>
+                              <Link
+                                to={`/admin/edit-service/${service._id}`}
+                                className="text-indigo-600 hover:text-indigo-900"
+                                title="Edit Service"
+                              >
+                                <FaEdit />
+                              </Link>
+                              <button
+                                onClick={() => handleDelete(service._id, service.title)}
+                                className="text-red-600 hover:text-red-900"
+                                title="Delete Service"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="lg:hidden space-y-4">
+                  {filteredServices.map((service) => (
+                    <div key={service._id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                      <div className="p-6">
+                        <div className="flex items-start space-x-4">
+                          {service.image && (
+                            <div className="h-16 w-16 flex-shrink-0">
                               <img
                                 src={service.image}
                                 alt={service.title}
-                                className="h-10 w-10 rounded-lg object-cover mr-3"
+                                className="h-16 w-16 rounded-lg object-cover"
                               />
-                            )}
-                            <div>
-                              <div className="text-sm font-medium text-gray-900">
-                                {service.title}
-                              </div>
-                              <div className="text-sm text-gray-500 truncate max-w-xs">
-                                {service.description}
-                              </div>
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                              {service.title}
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                              {service.description}
+                            </p>
+
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(service.category)}`}>
+                                {service.category}
+                              </span>
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(service.status)}`}>
+                                {service.status}
+                              </span>
+                              <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
+                                Order: {service.displayOrder}
+                              </span>
+                              <span className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                                {service.features?.length || 0} features
+                              </span>
+                            </div>
+
+                            <div className="flex space-x-3">
+                              <Link
+                                to={`/services/${service.slug}`}
+                                className="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2"
+                                title="View Service"
+                              >
+                                <FaEye className="w-5 h-5" />
+                              </Link>
+                              <Link
+                                to={`/admin/edit-service/${service._id}`}
+                                className="text-indigo-600 hover:text-indigo-900 transition-colors duration-200 p-2"
+                                title="Edit Service"
+                              >
+                                <FaEdit className="w-5 h-5" />
+                              </Link>
+                              <button
+                                onClick={() => handleDelete(service._id, service.title)}
+                                className="text-red-600 hover:text-red-900 transition-colors duration-200 p-2"
+                                title="Delete Service"
+                              >
+                                <FaTrash className="w-5 h-5" />
+                              </button>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(service.category)}`}>
-                            {service.category}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(service.status)}`}>
-                            {service.status}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">
-                            {service.features?.length || 0} features
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {service.displayOrder}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <Link
-                              to={`/services/${service.slug}`}
-                              className="text-blue-600 hover:text-blue-900"
-                              title="View Service"
-                            >
-                              <FaEye />
-                            </Link>
-                            <Link
-                              to={`/admin/edit-service/${service._id}`}
-                              className="text-indigo-600 hover:text-indigo-900"
-                              title="Edit Service"
-                            >
-                              <FaEdit />
-                            </Link>
-                            <button
-                              onClick={() => handleDelete(service._id, service.title)}
-                              className="text-red-600 hover:text-red-900"
-                              title="Delete Service"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 

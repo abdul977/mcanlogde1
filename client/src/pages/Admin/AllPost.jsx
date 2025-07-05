@@ -95,13 +95,36 @@ const AllPost = () => {
   }, []);
   return (
     <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
+      <div className="flex flex-col lg:flex-row">
+        <div className="hidden lg:block lg:ml-[4rem]">
           <Navbar />
         </div>
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 lg:p-8">
           {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+          {/* Mobile Header */}
+          <div className="lg:hidden bg-white rounded-lg shadow-lg p-4 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-2 rounded-lg">
+                  <FaHome className="text-white text-lg" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-bold text-gray-800">Accommodations</h1>
+                  <p className="text-sm text-gray-600">Manage listings</p>
+                </div>
+              </div>
+              <Link
+                to="/admin/add-accommodation"
+                className="bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white px-4 py-2 rounded-lg hover:opacity-90 transition duration-300 flex items-center space-x-1"
+              >
+                <FaPlus className="text-sm" />
+                <span className="text-sm">Add</span>
+              </Link>
+            </div>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden lg:block bg-white rounded-lg shadow-lg p-6 mb-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
@@ -128,7 +151,7 @@ const AllPost = () => {
               <FaFilter className="text-mcan-primary" />
               <h3 className="text-lg font-semibold text-gray-800">Filters</h3>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div className="relative">
                 <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input
@@ -136,13 +159,13 @@ const AllPost = () => {
                   placeholder="Search accommodations..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
+                  className="w-full pl-10 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary text-base"
                 />
               </div>
               <select
                 value={filterGender}
                 onChange={(e) => setFilterGender(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary text-base"
               >
                 <option value="">All Genders</option>
                 <option value="brothers">Brothers Only</option>
@@ -152,7 +175,7 @@ const AllPost = () => {
               <select
                 value={filterAvailability}
                 onChange={(e) => setFilterAvailability(e.target.value)}
-                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
+                className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary text-base"
               >
                 <option value="">All Status</option>
                 <option value="true">Available</option>
@@ -164,7 +187,7 @@ const AllPost = () => {
                   setFilterGender("");
                   setFilterAvailability("");
                 }}
-                className="px-4 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-300"
+                className="px-4 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-300 font-medium touch-target"
               >
                 Clear Filters
               </button>

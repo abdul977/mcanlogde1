@@ -11,7 +11,7 @@ const Footer = () => {
     <footer className="bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Main Footer Content */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* MCAN Information */}
           <div className="col-span-1">
             <div className="flex items-center mb-6">
@@ -137,15 +137,15 @@ const Footer = () => {
         </div>
 
         {/* Bottom Footer */}
-        <div className="mt-16 pt-8 border-t border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="mt-12 lg:mt-16 pt-6 lg:pt-8 border-t border-gray-200">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="text-center md:text-left">
               <p className="text-gray-600 text-sm">
                 © {new Date().getFullYear()} MCAN FCT Chapter. All rights reserved.
               </p>
             </div>
             <div className="text-center md:text-right">
-              <ul className="flex justify-center md:justify-end space-x-6">
+              <ul className="flex justify-center md:justify-end space-x-4 lg:space-x-6">
                 <li>
                   <Link to="/privacy" className="text-gray-600 hover:text-mcan-primary text-sm transition">
                     Privacy Policy

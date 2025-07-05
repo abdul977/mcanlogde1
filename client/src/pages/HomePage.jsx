@@ -27,12 +27,12 @@ const HomePage = () => {
       <BlogSection />
 
       {/* Islamic Quote Section */}
-      <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white py-12 mt-16">
-        <div className="max-w-4xl mx-auto text-center px-4">
-          <blockquote className="text-2xl font-medium italic mb-4">
+      <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white py-8 sm:py-12 mt-12 sm:mt-16">
+        <div className="max-w-4xl mx-auto text-center px-4 sm:px-6">
+          <blockquote className="text-lg sm:text-xl lg:text-2xl font-medium italic mb-4 leading-relaxed">
             "The world is a prison for the believer and a paradise for the disbeliever"
           </blockquote>
-          <cite className="text-sm">- Prophet Muhammad ﷺ</cite>
+          <cite className="text-sm sm:text-base opacity-90">- Prophet Muhammad ﷺ</cite>
         </div>
       </div>
 

@@ -177,11 +177,11 @@ const CreatePost = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
+      <div className="flex flex-col lg:flex-row">
+        <div className="hidden lg:block lg:ml-[4rem]">
           <Navbar />
         </div>
-        <div className="flex-1 p-8">
+        <div className="flex-1 p-4 lg:p-8">
           {/* Header */}
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div className="flex items-center space-x-3 mb-4">

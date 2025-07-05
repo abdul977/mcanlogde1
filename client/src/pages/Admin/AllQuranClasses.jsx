@@ -308,102 +308,182 @@ const AllQuranClasses = () => {
                 </Link>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Class
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Instructor
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Program
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Level
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Students
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredClasses.map((quranClass) => (
-                      <tr key={quranClass._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            {quranClass.image && (
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Class
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Instructor
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Program
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Level
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Students
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredClasses.map((quranClass) => (
+                        <tr key={quranClass._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              {quranClass.image && (
+                                <img
+                                  src={quranClass.image}
+                                  alt={quranClass.title}
+                                  className="w-10 h-10 rounded-lg object-cover mr-3"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                  }}
+                                />
+                              )}
+                              <div>
+                                <div className="text-sm font-medium text-gray-900 line-clamp-1">
+                                  {quranClass.title}
+                                </div>
+                                <div className="text-sm text-gray-500 line-clamp-1">
+                                  {quranClass.description}
+                                </div>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{quranClass.instructor?.name || "TBA"}</div>
+                            <div className="text-sm text-gray-500">{quranClass.instructor?.title}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getProgramBadge(quranClass.program)}`}>
+                              {quranClass.program}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getLevelBadge(quranClass.level)}`}>
+                              {quranClass.level}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {quranClass.enrollment?.currentStudents || 0}/{quranClass.enrollment?.maxStudents || quranClass.maxStudents || 0}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleView(quranClass._id)}
+                                className="text-blue-600 hover:text-blue-900 transition duration-300"
+                                title="View"
+                              >
+                                <FaEye />
+                              </button>
+                              <button
+                                onClick={() => handleEdit(quranClass._id)}
+                                className="text-green-600 hover:text-green-900 transition duration-300"
+                                title="Edit"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(quranClass._id, quranClass.title)}
+                                className="text-red-600 hover:text-red-900 transition duration-300"
+                                title="Delete"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="lg:hidden space-y-4">
+                  {filteredClasses.map((quranClass) => (
+                    <div key={quranClass._id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                      <div className="p-6">
+                        <div className="flex items-start space-x-4">
+                          {quranClass.image && (
+                            <div className="h-16 w-16 flex-shrink-0">
                               <img
                                 src={quranClass.image}
                                 alt={quranClass.title}
-                                className="w-10 h-10 rounded-lg object-cover mr-3"
+                                className="h-16 w-16 rounded-lg object-cover"
                                 onError={(e) => {
                                   e.target.style.display = 'none';
                                 }}
                               />
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                              {quranClass.title}
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                              {quranClass.description}
+                            </p>
+
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getProgramBadge(quranClass.program)}`}>
+                                {quranClass.program}
+                              </span>
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getLevelBadge(quranClass.level)}`}>
+                                {quranClass.level}
+                              </span>
+                              <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
+                                {quranClass.enrollment?.currentStudents || 0}/{quranClass.enrollment?.maxStudents || quranClass.maxStudents || 0} Students
+                              </span>
+                            </div>
+
+                            {quranClass.instructor && (
+                              <div className="mb-3">
+                                <div className="text-sm text-gray-900 font-medium">{quranClass.instructor.name || "TBA"}</div>
+                                {quranClass.instructor.title && (
+                                  <div className="text-sm text-gray-500">{quranClass.instructor.title}</div>
+                                )}
+                              </div>
                             )}
-                            <div>
-                              <div className="text-sm font-medium text-gray-900 line-clamp-1">
-                                {quranClass.title}
-                              </div>
-                              <div className="text-sm text-gray-500 line-clamp-1">
-                                {quranClass.description}
-                              </div>
+
+                            <div className="flex space-x-3">
+                              <button
+                                onClick={() => handleView(quranClass._id)}
+                                className="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2"
+                                title="View"
+                              >
+                                <FaEye className="w-5 h-5" />
+                              </button>
+                              <button
+                                onClick={() => handleEdit(quranClass._id)}
+                                className="text-green-600 hover:text-green-900 transition-colors duration-200 p-2"
+                                title="Edit"
+                              >
+                                <FaEdit className="w-5 h-5" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(quranClass._id, quranClass.title)}
+                                className="text-red-600 hover:text-red-900 transition-colors duration-200 p-2"
+                                title="Delete"
+                              >
+                                <FaTrash className="w-5 h-5" />
+                              </button>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{quranClass.instructor?.name || "TBA"}</div>
-                          <div className="text-sm text-gray-500">{quranClass.instructor?.title}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getProgramBadge(quranClass.program)}`}>
-                            {quranClass.program}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getLevelBadge(quranClass.level)}`}>
-                            {quranClass.level}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {quranClass.enrollment?.currentStudents || 0}/{quranClass.enrollment?.maxStudents || quranClass.maxStudents || 0}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleView(quranClass._id)}
-                              className="text-blue-600 hover:text-blue-900 transition duration-300"
-                              title="View"
-                            >
-                              <FaEye />
-                            </button>
-                            <button
-                              onClick={() => handleEdit(quranClass._id)}
-                              className="text-green-600 hover:text-green-900 transition duration-300"
-                              title="Edit"
-                            >
-                              <FaEdit />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(quranClass._id, quranClass.title)}
-                              className="text-red-600 hover:text-red-900 transition duration-300"
-                              title="Delete"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
             )}
           </div>
 

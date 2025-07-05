@@ -147,87 +147,156 @@ const AllEvents = () => {
                   </Link>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gradient-to-r from-mcan-primary/10 to-mcan-secondary/10">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Event
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Date & Location
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {events.map((event) => (
-              <tr key={event._id}>
-                <td className="px-6 py-4">
-                  <div className="flex items-center">
-                    <div className="h-12 w-12 flex-shrink-0">
-                      <img
-                        className="h-12 w-12 rounded-md object-cover"
-                        src={event.image}
-                        alt={event.title}
-                      />
-                    </div>
-                    <div className="ml-4">
-                      <div className="text-sm font-medium text-gray-900">
-                        {event.title}
+                <>
+                  {/* Desktop Table View */}
+                  <div className="hidden lg:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gradient-to-r from-mcan-primary/10 to-mcan-secondary/10">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            Event
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            Date & Location
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            Status
+                          </th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                            Actions
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {events.map((event) => (
+                          <tr key={event._id}>
+                            <td className="px-6 py-4">
+                              <div className="flex items-center">
+                                <div className="h-12 w-12 flex-shrink-0">
+                                  <img
+                                    className="h-12 w-12 rounded-md object-cover"
+                                    src={event.image}
+                                    alt={event.title}
+                                  />
+                                </div>
+                                <div className="ml-4">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {event.title}
+                                  </div>
+                                  <div className="text-sm text-gray-500">
+                                    {event.description.substring(0, 100)}...
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-gray-900">
+                                {formatDate(event.date)}
+                              </div>
+                              <div className="text-sm text-gray-500">{event.location}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(event.status)}`}>
+                                {event.status}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-sm font-medium">
+                              <div className="flex space-x-3">
+                                <button
+                                  onClick={() => window.open(`/events/${event.slug}`, '_blank')}
+                                  className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
+                                  title="View Event"
+                                >
+                                  <FaEye className="w-5 h-5" />
+                                </button>
+                                <Link
+                                  to={`/admin/edit-event/${event._id}`}
+                                  className="text-mcan-primary hover:text-mcan-secondary transition-colors duration-200"
+                                  title="Edit Event"
+                                >
+                                  <FaEdit className="w-5 h-5" />
+                                </Link>
+                                <button
+                                  onClick={() => handleDelete(event._id)}
+                                  className="text-red-600 hover:text-red-900 transition-colors duration-200"
+                                  title="Delete Event"
+                                >
+                                  <FaTrash className="w-5 h-5" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Card View */}
+                  <div className="lg:hidden space-y-4">
+                    {events.map((event) => (
+                      <div key={event._id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                        <div className="p-6">
+                          <div className="flex items-start space-x-4">
+                            <div className="h-16 w-16 flex-shrink-0">
+                              <img
+                                className="h-16 w-16 rounded-lg object-cover"
+                                src={event.image}
+                                alt={event.title}
+                              />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                                {event.title}
+                              </h3>
+                              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                                {event.description}
+                              </p>
+                              <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
+                                <div className="flex items-center">
+                                  <FaCalendar className="mr-1 text-mcan-primary" />
+                                  <span>{formatDate(event.date)}</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <FaMapMarkerAlt className="mr-1 text-mcan-primary" />
+                                  <span>{event.location}</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(event.status)}`}>
+                                  {event.status}
+                                </span>
+                                <div className="flex space-x-3">
+                                  <button
+                                    onClick={() => window.open(`/events/${event.slug}`, '_blank')}
+                                    className="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2"
+                                    title="View Event"
+                                  >
+                                    <FaEye className="w-5 h-5" />
+                                  </button>
+                                  <Link
+                                    to={`/admin/edit-event/${event._id}`}
+                                    className="text-mcan-primary hover:text-mcan-secondary transition-colors duration-200 p-2"
+                                    title="Edit Event"
+                                  >
+                                    <FaEdit className="w-5 h-5" />
+                                  </Link>
+                                  <button
+                                    onClick={() => handleDelete(event._id)}
+                                    className="text-red-600 hover:text-red-900 transition-colors duration-200 p-2"
+                                    title="Delete Event"
+                                  >
+                                    <FaTrash className="w-5 h-5" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-sm text-gray-500">
-                        {event.description.substring(0, 100)}...
-                      </div>
-                    </div>
+                    ))}
                   </div>
-                </td>
-                <td className="px-6 py-4">
-                  <div className="text-sm text-gray-900">
-                    {formatDate(event.date)}
-                  </div>
-                  <div className="text-sm text-gray-500">{event.location}</div>
-                </td>
-                <td className="px-6 py-4">
-                  <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(event.status)}`}>
-                    {event.status}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-sm font-medium">
-                  <div className="flex space-x-3">
-                    <button
-                      onClick={() => window.open(`/events/${event.slug}`, '_blank')}
-                      className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
-                      title="View Event"
-                    >
-                      <FaEye className="w-5 h-5" />
-                    </button>
-                    <Link
-                      to={`/admin/edit-event/${event._id}`}
-                      className="text-mcan-primary hover:text-mcan-secondary transition-colors duration-200"
-                      title="Edit Event"
-                    >
-                      <FaEdit className="w-5 h-5" />
-                    </Link>
-                    <button
-                      onClick={() => handleDelete(event._id)}
-                      className="text-red-600 hover:text-red-900 transition-colors duration-200"
-                      title="Delete Event"
-                    >
-                      <FaTrash className="w-5 h-5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                </>
+
               )}
             </div>
           )}

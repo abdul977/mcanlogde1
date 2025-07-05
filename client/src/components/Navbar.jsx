@@ -62,18 +62,21 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Brand Logo and Name */}
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             <img
               src={mcanLogo}
               alt="MCAN Logo"
-              className="h-16 w-auto"
+              className="h-12 sm:h-14 lg:h-16 w-auto flex-shrink-0"
               onError={(e) => {
                 e.target.src = FALLBACK_LOGO;
               }}
             />
-            <div className="text-white">
-              <h1 className="text-xl font-bold">MUSLIM CORPERS' ASSOCIATION OF NIGERIA</h1>
-              <p className="text-sm">FCT CHAPTER</p>
+            <div className="text-white min-w-0">
+              <h1 className="text-sm sm:text-base lg:text-xl font-bold leading-tight">
+                <span className="hidden sm:inline">MUSLIM CORPERS' ASSOCIATION OF NIGERIA</span>
+                <span className="sm:hidden">MCAN</span>
+              </h1>
+              <p className="text-xs sm:text-sm opacity-90">FCT CHAPTER</p>
             </div>
           </div>
 

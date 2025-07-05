@@ -320,132 +320,242 @@ const AllResources = () => {
                 </Link>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Resource
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Author
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Type
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Stats
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredResources.map((resource) => (
-                      <tr key={resource._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            {resource.thumbnail && (
+              <>
+                {/* Desktop Table View */}
+                <div className="hidden lg:block overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Resource
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Author
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Category
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Type
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Stats
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {filteredResources.map((resource) => (
+                        <tr key={resource._id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              {resource.thumbnail && (
+                                <img
+                                  src={resource.thumbnail}
+                                  alt={resource.title}
+                                  className="w-10 h-10 rounded-lg object-cover mr-3"
+                                  onError={(e) => {
+                                    e.target.style.display = 'none';
+                                  }}
+                                />
+                              )}
+                              <div>
+                                <div className="text-sm font-medium text-gray-900 line-clamp-1">
+                                  {resource.title}
+                                </div>
+                                <div className="text-sm text-gray-500 line-clamp-1">
+                                  {resource.description}
+                                </div>
+                                {resource.featured && (
+                                  <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 mt-1">
+                                    Featured
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900">{resource.author?.name || "Unknown"}</div>
+                            <div className="text-sm text-gray-500">{resource.publisher?.name}</div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(resource.category)}`}>
+                              {resource.category}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(resource.type)}`}>
+                              {resource.type}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            <div className="text-xs">
+                              <div>Views: {resource.statistics?.views || 0}</div>
+                              <div>Downloads: {resource.statistics?.downloads || 0}</div>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                            <div className="flex space-x-2">
+                              <button
+                                onClick={() => handleView(resource._id)}
+                                className="text-blue-600 hover:text-blue-900 transition duration-300"
+                                title="View"
+                              >
+                                <FaEye />
+                              </button>
+                              {resource.type === 'file' && resource.content?.fileUrl && (
+                                <a
+                                  href={resource.content.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-green-600 hover:text-green-900 transition duration-300"
+                                  title="Download"
+                                >
+                                  <FaDownload />
+                                </a>
+                              )}
+                              {resource.type === 'link' && resource.content?.externalUrl && (
+                                <a
+                                  href={resource.content.externalUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-purple-600 hover:text-purple-900 transition duration-300"
+                                  title="Visit Link"
+                                >
+                                  <FaExternalLinkAlt />
+                                </a>
+                              )}
+                              <button
+                                onClick={() => handleEdit(resource._id)}
+                                className="text-orange-600 hover:text-orange-900 transition duration-300"
+                                title="Edit"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(resource._id, resource.title)}
+                                className="text-red-600 hover:text-red-900 transition duration-300"
+                                title="Delete"
+                              >
+                                <FaTrash />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile Card View */}
+                <div className="lg:hidden space-y-4">
+                  {filteredResources.map((resource) => (
+                    <div key={resource._id} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                      <div className="p-6">
+                        <div className="flex items-start space-x-4">
+                          {resource.thumbnail && (
+                            <div className="h-16 w-16 flex-shrink-0">
                               <img
                                 src={resource.thumbnail}
                                 alt={resource.title}
-                                className="w-10 h-10 rounded-lg object-cover mr-3"
+                                className="h-16 w-16 rounded-lg object-cover"
                                 onError={(e) => {
                                   e.target.style.display = 'none';
                                 }}
                               />
-                            )}
-                            <div>
-                              <div className="text-sm font-medium text-gray-900 line-clamp-1">
-                                {resource.title}
-                              </div>
-                              <div className="text-sm text-gray-500 line-clamp-1">
-                                {resource.description}
-                              </div>
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                              {resource.title}
+                            </h3>
+                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                              {resource.description}
+                            </p>
+
+                            <div className="flex flex-wrap gap-2 mb-3">
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(resource.category)}`}>
+                                {resource.category}
+                              </span>
+                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(resource.type)}`}>
+                                {resource.type}
+                              </span>
                               {resource.featured && (
-                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 mt-1">
+                                <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                   Featured
                                 </span>
                               )}
+                              <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
+                                {resource.statistics?.views || 0} views
+                              </span>
+                              <span className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                                {resource.statistics?.downloads || 0} downloads
+                              </span>
+                            </div>
+
+                            {(resource.author?.name || resource.publisher?.name) && (
+                              <div className="mb-3">
+                                <div className="text-sm text-gray-900 font-medium">{resource.author?.name || "Unknown Author"}</div>
+                                {resource.publisher?.name && (
+                                  <div className="text-sm text-gray-500">{resource.publisher.name}</div>
+                                )}
+                              </div>
+                            )}
+
+                            <div className="flex space-x-3">
+                              <button
+                                onClick={() => handleView(resource._id)}
+                                className="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2"
+                                title="View"
+                              >
+                                <FaEye className="w-5 h-5" />
+                              </button>
+                              {resource.type === 'file' && resource.content?.fileUrl && (
+                                <a
+                                  href={resource.content.fileUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-green-600 hover:text-green-900 transition-colors duration-200 p-2"
+                                  title="Download"
+                                >
+                                  <FaDownload className="w-5 h-5" />
+                                </a>
+                              )}
+                              {resource.type === 'link' && resource.content?.externalUrl && (
+                                <a
+                                  href={resource.content.externalUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-purple-600 hover:text-purple-900 transition-colors duration-200 p-2"
+                                  title="Visit Link"
+                                >
+                                  <FaExternalLinkAlt className="w-5 h-5" />
+                                </a>
+                              )}
+                              <button
+                                onClick={() => handleEdit(resource._id)}
+                                className="text-orange-600 hover:text-orange-900 transition-colors duration-200 p-2"
+                                title="Edit"
+                              >
+                                <FaEdit className="w-5 h-5" />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(resource._id, resource.title)}
+                                className="text-red-600 hover:text-red-900 transition-colors duration-200 p-2"
+                                title="Delete"
+                              >
+                                <FaTrash className="w-5 h-5" />
+                              </button>
                             </div>
                           </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm text-gray-900">{resource.author?.name || "Unknown"}</div>
-                          <div className="text-sm text-gray-500">{resource.publisher?.name}</div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(resource.category)}`}>
-                            {resource.category}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(resource.type)}`}>
-                            {resource.type}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <div className="text-xs">
-                            <div>Views: {resource.statistics?.views || 0}</div>
-                            <div>Downloads: {resource.statistics?.downloads || 0}</div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleView(resource._id)}
-                              className="text-blue-600 hover:text-blue-900 transition duration-300"
-                              title="View"
-                            >
-                              <FaEye />
-                            </button>
-                            {resource.type === 'file' && resource.content?.fileUrl && (
-                              <a
-                                href={resource.content.fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-green-600 hover:text-green-900 transition duration-300"
-                                title="Download"
-                              >
-                                <FaDownload />
-                              </a>
-                            )}
-                            {resource.type === 'link' && resource.content?.externalUrl && (
-                              <a
-                                href={resource.content.externalUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-purple-600 hover:text-purple-900 transition duration-300"
-                                title="Visit Link"
-                              >
-                                <FaExternalLinkAlt />
-                              </a>
-                            )}
-                            <button
-                              onClick={() => handleEdit(resource._id)}
-                              className="text-orange-600 hover:text-orange-900 transition duration-300"
-                              title="Edit"
-                            >
-                              <FaEdit />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(resource._id, resource.title)}
-                              className="text-red-600 hover:text-red-900 transition duration-300"
-                              title="Delete"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
             )}
           </div>
 

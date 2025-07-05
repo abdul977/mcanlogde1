@@ -48,20 +48,35 @@ const navbarMenu = [
 
 const Navbar = ({ onItemClick }) => {
   return (
-    <div className="bg-gray-800 text-white w-[15rem] h-full min-h-[28rem] border-r border-gray-700">
-      <nav className="flex flex-col p-5 space-y-4">
-        {navbarMenu.map((item) => (
-          <Link
-            key={item.id}
-            to={item.link}
-            onClick={onItemClick}
-            className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-300"
-          >
-            <span className="mr-3 text-xl">{item.icon}</span>
-            <span className="text-md">{item.name}</span>
-          </Link>
-        ))}
+    <div className="bg-gray-800 text-white w-[15rem] h-full min-h-screen border-r border-gray-700 flex flex-col">
+      {/* Header */}
+      <div className="flex-shrink-0 p-4 border-b border-gray-700">
+        <h2 className="text-lg font-semibold text-center">MCAN Admin</h2>
+      </div>
+
+      {/* Scrollable Navigation */}
+      <nav className="flex-1 overflow-y-auto p-4">
+        <div className="space-y-2">
+          {navbarMenu.map((item) => (
+            <Link
+              key={item.id}
+              to={item.link}
+              onClick={onItemClick}
+              className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-300 text-sm"
+            >
+              <span className="mr-3 text-lg flex-shrink-0">{item.icon}</span>
+              <span className="text-sm font-medium">{item.name}</span>
+            </Link>
+          ))}
+        </div>
       </nav>
+
+      {/* Footer */}
+      <div className="flex-shrink-0 p-4 border-t border-gray-700">
+        <div className="text-xs text-gray-400 text-center">
+          MCAN Admin Panel
+        </div>
+      </div>
     </div>
   );
 };
