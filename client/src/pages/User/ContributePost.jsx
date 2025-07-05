@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaBars, FaTimes } from "react-icons/fa";
 
 const ContributePost = () => {
   const [auth] = useAuth();
@@ -16,6 +16,7 @@ const ContributePost = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [category, setCategory] = useState([]);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -84,14 +85,56 @@ const ContributePost = () => {
     fetchCategories();
   }, []);
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <div className="flex flex-col md:flex-row items-center md:items-start p-6 space-y-6 md:space-y-0 md:space-x-6 ml-20 mt-4">
-      <Navbar />
-      <form
-        onSubmit={handleSubmit}
-        className="w-full md:w-3/4 lg:w-1/2 mx-auto p-8 rounded-lg bg-white shadow-lg"
-      >
-        <h2 className="text-3xl font-semibold text-blue-600 mb-6 text-center">
+    <div className="min-h-screen bg-gray-50">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <h2 className="text-lg font-semibold text-mcan-primary">Contribute Post</h2>
+        </div>
+        <button
+          onClick={toggleMobileMenu}
+          className="text-mcan-primary hover:text-mcan-secondary transition-colors"
+        >
+          {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+        </button>
+      </div>
+
+      <div className="flex">
+        {/* Mobile Sidebar */}
+        <div className={`fixed top-0 left-0 h-full z-20 transform transition-transform duration-300 ease-in-out lg:hidden ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <Navbar onItemClick={closeMobileMenu} />
+        </div>
+
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block ml-[4rem]">
+          <Navbar />
+        </div>
+
+        {/* Mobile Overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
+            onClick={closeMobileMenu}
+          ></div>
+        )}
+
+        <div className="flex-1 p-4 lg:p-8 pt-20 lg:pt-8">
+          <form
+            onSubmit={handleSubmit}
+            className="w-full max-w-2xl mx-auto p-4 lg:p-8 rounded-lg bg-white shadow-lg"
+          >
+        <h2 className="text-2xl lg:text-3xl font-semibold text-blue-600 mb-6 text-center">
           Create a Contribution
         </h2>
         {message && (

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaPlus, FaEye, FaSync } from "react-icons/fa";
+import { FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaPlus, FaEye, FaSync, FaBars, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
 
 const AdminDashboard = () => {
   const [auth] = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [stats, setStats] = useState({
     services: 0,
     lectures: 0,
@@ -122,18 +123,56 @@ const AdminDashboard = () => {
     }
   ];
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <h2 className="text-lg font-semibold text-mcan-primary">MCAN Admin</h2>
+        </div>
+        <button
+          onClick={toggleMobileMenu}
+          className="text-mcan-primary hover:text-mcan-secondary transition-colors"
+        >
+          {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+        </button>
+      </div>
+
       <div className="flex">
-        <div className="ml-[4rem]">
+        {/* Mobile Sidebar */}
+        <div className={`fixed top-0 left-0 h-full z-20 transform transition-transform duration-300 ease-in-out lg:hidden ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <Navbar onItemClick={closeMobileMenu} />
+        </div>
+
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block ml-[4rem]">
           <Navbar />
         </div>
-        <div className="flex-1 p-8">
+
+        {/* Mobile Overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
+            onClick={closeMobileMenu}
+          ></div>
+        )}
+
+        <div className="flex-1 p-4 lg:p-8 pt-20 lg:pt-8">
           {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-800">MCAN Admin Dashboard</h1>
+          <div className="bg-white rounded-lg shadow-lg p-4 lg:p-6 mb-6">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between">
+              <div className="mb-4 lg:mb-0">
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">MCAN Admin Dashboard</h1>
                 <p className="text-gray-600 mt-2">Manage all MCAN content and activities</p>
               </div>
               <button

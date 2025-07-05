@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaHandsHelping } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaHandsHelping, FaBars, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
@@ -12,6 +12,7 @@ const AllServices = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const categories = [
     { value: "all", label: "All Categories" },

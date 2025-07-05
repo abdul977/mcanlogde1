@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaComments, FaUser, FaSync, FaEnvelope, FaPlus } from "react-icons/fa";
+import { FaComments, FaUser, FaSync, FaEnvelope, FaPlus, FaBars, FaTimes } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
@@ -13,6 +13,7 @@ const UserMessages = () => {
   const [selectedAdmin, setSelectedAdmin] = useState(null);
   const [showMessaging, setShowMessaging] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [auth] = useAuth();
 
   // Fetch conversations
@@ -107,18 +108,61 @@ const UserMessages = () => {
     });
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Mobile Header */}
+      <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <h2 className="text-lg font-semibold text-mcan-primary">Messages</h2>
+          {unreadCount > 0 && (
+            <div className="bg-red-500 text-white px-2 py-1 rounded-full text-xs">
+              {unreadCount}
+            </div>
+          )}
+        </div>
+        <button
+          onClick={toggleMobileMenu}
+          className="text-mcan-primary hover:text-mcan-secondary transition-colors"
+        >
+          {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+        </button>
+      </div>
+
       <div className="flex">
-        <div className="ml-[4rem]">
+        {/* Mobile Sidebar */}
+        <div className={`fixed top-0 left-0 h-full z-20 transform transition-transform duration-300 ease-in-out lg:hidden ${
+          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
+          <Navbar onItemClick={closeMobileMenu} />
+        </div>
+
+        {/* Desktop Sidebar */}
+        <div className="hidden lg:block ml-[4rem]">
           <Navbar />
         </div>
-        <div className="flex-1 p-8">
+
+        {/* Mobile Overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
+            onClick={closeMobileMenu}
+          ></div>
+        )}
+
+        <div className="flex-1 p-4 lg:p-8 pt-20 lg:pt-8">
           {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-800">Messages</h1>
+          <div className="bg-white rounded-lg shadow-lg p-4 lg:p-6 mb-6">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between">
+              <div className="mb-4 lg:mb-0">
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">Messages</h1>
                 <p className="text-gray-600 mt-2">Communicate with MCAN administrators</p>
               </div>
               <div className="flex items-center gap-4">

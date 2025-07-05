@@ -4,6 +4,9 @@ import { FaPrayingHands, FaMosque, FaUserCircle, FaCalendarAlt, FaMapMarkerAlt }
 import { GiPathDistance } from "react-icons/gi";
 import mcanLogo from "../../assets/mcan-logo.png";
 
+// Fallback logo URL
+const FALLBACK_LOGO = "https://www.mcanenugu.org.ng/img/core-img/logo.png";
+
 const UserDetails = () => {
   const [auth] = useAuth();
   const [prayerTimes, setPrayerTimes] = useState({
@@ -34,30 +37,37 @@ const UserDetails = () => {
   return (
     <div className="flex-1 p-8 bg-gray-50">
       {/* Header */}
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-4">
-          <img src={mcanLogo} alt="MCAN Logo" className="h-16 w-auto" />
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 lg:mb-8">
+        <div className="flex items-center space-x-3 lg:space-x-4">
+          <img
+            src={mcanLogo}
+            alt="MCAN Logo"
+            className="h-12 lg:h-16 w-auto"
+            onError={(e) => {
+              e.target.src = FALLBACK_LOGO;
+            }}
+          />
           <div>
-            <h1 className="text-2xl font-bold text-mcan-primary">MCAN Lodge Dashboard</h1>
-            <p className="text-gray-600">Welcome, {user.name}</p>
+            <h1 className="text-xl lg:text-2xl font-bold text-mcan-primary">MCAN Lodge Dashboard</h1>
+            <p className="text-gray-600 text-sm lg:text-base">Welcome, {user.name}</p>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
         {/* Prayer Times Widget */}
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-4">
-            <h2 className="text-white text-lg font-semibold flex items-center">
+          <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 lg:p-4">
+            <h2 className="text-white text-base lg:text-lg font-semibold flex items-center">
               <FaPrayingHands className="mr-2" /> Prayer Times
             </h2>
           </div>
-          <div className="p-4">
-            <div className="space-y-3">
+          <div className="p-3 lg:p-4">
+            <div className="space-y-2 lg:space-y-3">
               {Object.entries(prayerTimes).map(([prayer, time]) => (
                 <div key={prayer} className="flex justify-between items-center">
-                  <span className="capitalize text-gray-700">{prayer}</span>
-                  <span className="text-mcan-primary font-semibold">{time}</span>
+                  <span className="capitalize text-gray-700 text-sm lg:text-base">{prayer}</span>
+                  <span className="text-mcan-primary font-semibold text-sm lg:text-base">{time}</span>
                 </div>
               ))}
             </div>

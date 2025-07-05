@@ -46,7 +46,7 @@ const navbarMenu = [
   { id: 22, name: "Messages", link: "/admin/messages", icon: <FaComments /> },
 ];
 
-const Navbar = () => {
+const Navbar = ({ onItemClick }) => {
   return (
     <div className="bg-gray-800 text-white w-[15rem] h-full min-h-[28rem] border-r border-gray-700">
       <nav className="flex flex-col p-5 space-y-4">
@@ -54,6 +54,7 @@ const Navbar = () => {
           <Link
             key={item.id}
             to={item.link}
+            onClick={onItemClick}
             className="flex items-center p-3 rounded-lg hover:bg-gray-700 transition-colors duration-300"
           >
             <span className="mr-3 text-xl">{item.icon}</span>

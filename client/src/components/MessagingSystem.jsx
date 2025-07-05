@@ -93,15 +93,15 @@ const MessagingSystem = ({ isOpen, onClose, recipientId, recipientName }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-2xl h-[600px] flex flex-col">
+      <div className="bg-white rounded-lg w-full max-w-2xl h-full max-h-[600px] lg:h-[600px] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b">
           <div className="flex items-center">
             <div className="w-10 h-10 bg-mcan-primary rounded-full flex items-center justify-center mr-3">
               <FaUser className="text-white" />
             </div>
-            <div>
-              <h3 className="font-semibold text-gray-800">{recipientName}</h3>
+            <div className="min-w-0 flex-1">
+              <h3 className="font-semibold text-gray-800 truncate">{recipientName}</h3>
               <p className="text-sm text-gray-500">
                 {auth?.user?.role === 'admin' ? 'User' : 'Admin'}
               </p>
@@ -109,7 +109,7 @@ const MessagingSystem = ({ isOpen, onClose, recipientId, recipientName }) => {
           </div>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-xl"
+            className="text-gray-500 hover:text-gray-700 text-xl flex-shrink-0 ml-2"
           >
             <FaTimes />
           </button>
@@ -165,15 +165,15 @@ const MessagingSystem = ({ isOpen, onClose, recipientId, recipientName }) => {
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               placeholder="Type your message..."
-              className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+              className="flex-1 border border-gray-300 rounded-lg px-3 lg:px-4 py-2 text-sm lg:text-base focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
               disabled={sending}
             />
             <button
               type="submit"
               disabled={sending || !newMessage.trim()}
-              className="bg-mcan-primary text-white px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+              className="bg-mcan-primary text-white px-3 lg:px-4 py-2 rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center flex-shrink-0"
             >
-              <FaPaperPlane />
+              <FaPaperPlane className="text-sm lg:text-base" />
             </button>
           </div>
         </form>

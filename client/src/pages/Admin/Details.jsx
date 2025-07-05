@@ -12,23 +12,22 @@ const Details = () => {
   };
 
   return (
-    <div className="flex flex-row ml-16">
-      <Navbar />
-      <div className="p-8 bg-gray-50 mx-8 h-full flex flex-col justify-center">
-        <h2 className="text-2xl font-semibold mb-6 text-gray-800">
-          User Details
-        </h2>
+    <div className="p-4 lg:p-8 bg-gray-50 h-full flex flex-col justify-center">
+      <h2 className="text-xl lg:text-2xl font-semibold mb-6 text-gray-800">
+        Admin Details
+      </h2>
 
-        <div className="flex items-center text-gray-800 mb-4">
-          <FaUser className="mr-3 text-blue-600 text-lg" />
-          <span>
+      <div className="bg-white rounded-lg shadow-lg p-4 lg:p-6 space-y-4">
+        <div className="flex items-center text-gray-800">
+          <FaUser className="mr-3 text-blue-600 text-lg flex-shrink-0" />
+          <span className="text-sm lg:text-base">
             <strong>Name:</strong> {users.name}
           </span>
         </div>
 
         <div className="flex items-center text-gray-800">
-          <FaEnvelope className="mr-3 text-blue-600 text-lg" />
-          <span>
+          <FaEnvelope className="mr-3 text-blue-600 text-lg flex-shrink-0" />
+          <span className="text-sm lg:text-base break-all">
             <strong>Email:</strong> {users.email}
           </span>
         </div>
