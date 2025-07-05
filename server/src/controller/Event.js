@@ -267,9 +267,13 @@ export const deleteEventController = async (req, res) => {
 // Get upcoming events
 export const getUpcomingEventsController = async (req, res) => {
   try {
+    // Get current date at start of day to include events happening today
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);
+
     const events = await Event.find({
       status: "published",
-      date: { $gte: new Date() }
+      date: { $gte: currentDate }
     })
     .sort({ date: 1 })
     .limit(3);

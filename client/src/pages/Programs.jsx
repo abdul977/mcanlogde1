@@ -47,13 +47,18 @@ const Programs = () => {
         setLoading(true);
       }
 
+      console.log("Fetching upcoming events from:", `${import.meta.env.VITE_BASE_URL}/api/events/upcoming-events`);
       const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/events/upcoming-events`);
+      console.log("API Response:", data);
+
       if (data?.success) {
         setUpcomingEvents(data.events);
+        console.log("Events set:", data.events);
         if (showRefreshLoader) {
           toast.success("Events refreshed successfully!", { position: "bottom-left" });
         }
       } else {
+        console.error("API Error:", data);
         toast.error(data?.message || "Error fetching events", { position: "bottom-left" });
       }
     } catch (error) {
@@ -120,7 +125,18 @@ const Programs = () => {
                 <span className="ml-3 text-gray-600">Loading events...</span>
               </div>
             ) : upcomingEvents.length === 0 ? (
-              <p className="text-gray-500 text-center py-4">No upcoming events scheduled</p>
+              <div className="text-center py-4">
+                <p className="text-gray-500 mb-2">No upcoming events found</p>
+                <p className="text-sm text-gray-400">
+                  API URL: {import.meta.env.VITE_BASE_URL}/api/events/upcoming-events
+                </p>
+                <button
+                  onClick={() => console.log("Current events state:", upcomingEvents)}
+                  className="text-xs text-blue-500 underline mt-2"
+                >
+                  Debug: Log events state
+                </button>
+              </div>
             ) : (
               upcomingEvents.map((event) => (
                 <div key={event._id} className="border-l-4 border-mcan-primary pl-4">
