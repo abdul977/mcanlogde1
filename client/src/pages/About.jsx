@@ -2,6 +2,9 @@ import React from "react";
 import { FaQuran, FaHandshake, FaGraduationCap, FaUsers } from "react-icons/fa";
 import mcanLogo from "../assets/mcan-logo.png";
 
+// Fallback logo URL
+const FALLBACK_LOGO = "https://www.mcanenugu.org.ng/img/core-img/logo.png";
+
 const About = () => {
   const values = [
     {
@@ -54,7 +57,14 @@ const About = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Hero Section */}
         <div className="text-center mb-16">
-          <img src={mcanLogo} alt="MCAN Logo" className="h-24 mx-auto mb-6" />
+          <img
+            src={mcanLogo}
+            alt="MCAN Logo"
+            className="h-24 mx-auto mb-6"
+            onError={(e) => {
+              e.target.src = FALLBACK_LOGO;
+            }}
+          />
           <h1 className="text-4xl font-bold text-mcan-primary mb-4">About MCAN FCT</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Muslim Corpers' Association of Nigeria (MCAN) FCT Chapter is dedicated to serving

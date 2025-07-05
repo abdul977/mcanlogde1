@@ -6,6 +6,9 @@ import { toast } from "react-toastify";
 import { useAuth } from "../context/UserContext";
 import mcanLogo from "../assets/mcan-logo.png";
 
+// Fallback logo URL
+const FALLBACK_LOGO = "https://www.mcanenugu.org.ng/img/core-img/logo.png";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -55,6 +58,9 @@ const Login = () => {
             src={mcanLogo}
             alt="MCAN Logo"
             className="mx-auto h-20 w-auto mb-4"
+            onError={(e) => {
+              e.target.src = FALLBACK_LOGO;
+            }}
           />
           <h2 className="text-2xl font-bold text-white">Welcome to MCAN Lodge</h2>
           <p className="mt-2 text-white/90 text-sm">

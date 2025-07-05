@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { FaPrayingHands, FaQuran, FaMosque } from "react-icons/fa";
 import mcanLogo from "../assets/mcan-logo.png";
 
+// Fallback logo URL
+const FALLBACK_LOGO = "https://www.mcanenugu.org.ng/img/core-img/logo.png";
+
 const Register = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -105,6 +108,9 @@ const Register = () => {
             src={mcanLogo}
             alt="MCAN Logo"
             className="mx-auto h-20 w-auto mb-4"
+            onError={(e) => {
+              e.target.src = FALLBACK_LOGO;
+            }}
           />
           <h2 className="text-2xl font-bold text-white">Join MCAN Lodge</h2>
           <p className="mt-2 text-white/90 text-sm">

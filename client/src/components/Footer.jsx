@@ -3,6 +3,9 @@ import { FaMosque, FaQuran, FaPhone, FaEnvelope, FaMapMarkerAlt } from "react-ic
 import mcanLogo from "../assets/mcan-logo.png";
 import { Link } from "react-router-dom";
 
+// Fallback logo URL
+const FALLBACK_LOGO = "https://www.mcanenugu.org.ng/img/core-img/logo.png";
+
 const Footer = () => {
   return (
     <footer className="bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5 pt-16 pb-8">
@@ -12,7 +15,14 @@ const Footer = () => {
           {/* MCAN Information */}
           <div className="col-span-1">
             <div className="flex items-center mb-6">
-              <img src={mcanLogo} alt="MCAN Logo" className="h-16 w-auto" />
+              <img
+                src={mcanLogo}
+                alt="MCAN Logo"
+                className="h-16 w-auto"
+                onError={(e) => {
+                  e.target.src = FALLBACK_LOGO;
+                }}
+              />
             </div>
             <h2 className="text-mcan-primary font-bold text-lg mb-2">
               MUSLIM CORPERS' ASSOCIATION OF NIGERIA

@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import { FaMosque, FaHome, FaPrayingHands, FaQuran } from "react-icons/fa";
 import mcanLogo from "../assets/mcan-logo.png";
 
+// Fallback logo URL
+const FALLBACK_LOGO = "https://www.mcanenugu.org.ng/img/core-img/logo.png";
+
 const ThankYou = () => {
   const [showMessage, setShowMessage] = useState(false);
   const navigate = useNavigate();
@@ -30,6 +33,9 @@ const ThankYou = () => {
               src={mcanLogo}
               alt="MCAN Logo"
               className="h-20 w-auto mx-auto mb-4"
+              onError={(e) => {
+                e.target.src = FALLBACK_LOGO;
+              }}
             />
             <h1 className="text-3xl font-bold text-mcan-primary">
               Alhamdulillah!
