@@ -12,34 +12,34 @@ import {
 const router = express.Router();
 
 //routes
-// create category
+// create category (admin only)
 router.post(
   "/create-category",
-  // requireSignIn,
-  // isAdmin,
+  requireSignIn,
+  isAdmin,
   createCategoryController
 );
 
-//update category
+//update category (admin only)
 router.put(
   "/update-category/:id",
-  // requireSignIn,
-  // isAdmin,
+  requireSignIn,
+  isAdmin,
   updateCategoryController
 );
 
-//getALl category
+//getALl category (public)
 router.get("/get-category", categoryControlller);
 
-//single category
+//single category (public)
 router.get("/single-category/:slug", singleCategoryController);
 router.get("/select-category/:slug", selectedCategoryController);
 
-//delete category
+//delete category (admin only)
 router.delete(
   "/delete-category/:id",
-  // requireSignIn,
-  // isAdmin,
+  requireSignIn,
+  isAdmin,
   deleteCategoryCOntroller
 );
 
