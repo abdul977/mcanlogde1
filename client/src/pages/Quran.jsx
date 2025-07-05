@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { FaQuran, FaBook, FaUserGraduate, FaCalendar, FaClock, FaUsers, FaSync, FaMapMarkerAlt, FaVideo, FaTag, FaDollarSign, FaGraduationCap } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
+import BookingConfirmation from "../components/BookingConfirmation";
 
 const Quran = () => {
   const [classes, setClasses] = useState([]);
@@ -10,6 +13,10 @@ const Quran = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedProgram, setSelectedProgram] = useState("all");
   const [selectedLevel, setSelectedLevel] = useState("all");
+  const [auth] = useAuth();
+  const navigate = useNavigate();
+  const [showEnrollmentModal, setShowEnrollmentModal] = useState(false);
+  const [selectedClass, setSelectedClass] = useState(null);
 
   const programs = [
     { id: "all", name: "All Programs" },
@@ -87,6 +94,28 @@ const Quran = () => {
   const handleRefresh = () => {
     fetchClasses(true);
     fetchAvailableClasses();
+  };
+
+  // Handle enrollment
+  const handleEnrollment = (quranClass) => {
+    if (!auth?.token) {
+      toast.error("Please login to enroll in classes");
+      navigate("/login");
+      return;
+    }
+    setSelectedClass({
+      ...quranClass,
+      model: "QuranClass"
+    });
+    setShowEnrollmentModal(true);
+  };
+
+  const handleEnrollmentSuccess = (booking) => {
+    toast.success("Enrollment request submitted successfully!");
+    setShowEnrollmentModal(false);
+    setSelectedClass(null);
+    // Optionally navigate to user dashboard
+    navigate("/user");
   };
 
   // Filter classes by program and level
@@ -420,18 +449,33 @@ const Quran = () => {
                     </div>
                   )}
 
-                  <div className="pt-4 border-t flex justify-between items-center">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-gray-600">Language:</span>
-                      <span className="text-sm font-medium text-mcan-secondary capitalize">
-                        {quranClass.language || 'English'}
-                      </span>
+                  <div className="pt-4 border-t space-y-3">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">Language:</span>
+                        <span className="text-sm font-medium text-mcan-secondary capitalize">
+                          {quranClass.language || 'English'}
+                        </span>
+                      </div>
+                      {quranClass.enrollment?.isOpen ? (
+                        <span className="text-green-600 text-sm font-medium">Open for Enrollment</span>
+                      ) : (
+                        <span className="text-red-600 text-sm font-medium">Enrollment Closed</span>
+                      )}
                     </div>
-                    {quranClass.enrollment?.isOpen ? (
-                      <span className="text-green-600 text-sm font-medium">Open for Enrollment</span>
-                    ) : (
-                      <span className="text-red-600 text-sm font-medium">Enrollment Closed</span>
-                    )}
+
+                    {/* Enrollment Button */}
+                    <button
+                      onClick={() => handleEnrollment(quranClass)}
+                      disabled={!quranClass.enrollment?.isOpen}
+                      className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-200 ${
+                        quranClass.enrollment?.isOpen
+                          ? 'bg-mcan-primary text-white hover:opacity-90'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                    >
+                      {quranClass.enrollment?.isOpen ? 'Enroll Now' : 'Enrollment Closed'}
+                    </button>
                   </div>
                 </div>
               ))}
@@ -525,6 +569,15 @@ const Quran = () => {
           </div>
         )}
       </div>
+
+      {/* Enrollment Confirmation Modal */}
+      <BookingConfirmation
+        isOpen={showEnrollmentModal}
+        onClose={() => setShowEnrollmentModal(false)}
+        program={selectedClass}
+        bookingType="quran_class"
+        onBookingSuccess={handleEnrollmentSuccess}
+      />
     </div>
   );
 };

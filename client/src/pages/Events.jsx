@@ -1,15 +1,21 @@
 
 import React, { useState, useEffect } from "react";
 import { FaCalendar, FaClock, FaMapMarkerAlt, FaUsers, FaMosque, FaGraduationCap, FaSync } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/UserContext";
+import BookingConfirmation from "../components/BookingConfirmation";
 
 const Events = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [auth] = useAuth();
+  const navigate = useNavigate();
+  const [showEnrollmentModal, setShowEnrollmentModal] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
   const categories = [
     { id: "all", name: "All Events" },
@@ -55,6 +61,28 @@ const Events = () => {
   // Handle refresh button click
   const handleRefresh = () => {
     fetchEvents(true);
+  };
+
+  // Handle event registration
+  const handleEventRegistration = (event) => {
+    if (!auth?.token) {
+      toast.error("Please login to register for events");
+      navigate("/login");
+      return;
+    }
+    setSelectedEvent({
+      ...event,
+      model: "Event"
+    });
+    setShowEnrollmentModal(true);
+  };
+
+  const handleEnrollmentSuccess = (booking) => {
+    toast.success("Event registration submitted successfully!");
+    setShowEnrollmentModal(false);
+    setSelectedEvent(null);
+    // Optionally navigate to user dashboard
+    navigate("/user");
   };
 
   // Format date for display
@@ -207,10 +235,21 @@ const Events = () => {
                   </div>
                 </div>
 
-                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 space-y-2">
+                  <button
+                    onClick={() => handleEventRegistration(event)}
+                    disabled={event.status !== "published"}
+                    className={`w-full py-2 rounded-md font-medium transition duration-300 ${
+                      event.status === "published"
+                        ? 'bg-mcan-primary text-white hover:bg-mcan-secondary'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    }`}
+                  >
+                    {event.status === "published" ? 'Register Now' : 'Registration Closed'}
+                  </button>
                   <Link
                     to={`/events/${event.slug}`}
-                    className="block w-full text-center bg-mcan-primary text-white py-2 rounded-md hover:bg-mcan-secondary transition duration-300"
+                    className="block w-full text-center border border-mcan-primary text-mcan-primary py-2 rounded-md hover:bg-mcan-primary hover:text-white transition duration-300"
                   >
                     Learn More
                   </Link>
@@ -243,6 +282,15 @@ const Events = () => {
           </div>
         </div>
       </div>
+
+      {/* Event Registration Modal */}
+      <BookingConfirmation
+        isOpen={showEnrollmentModal}
+        onClose={() => setShowEnrollmentModal(false)}
+        program={selectedEvent}
+        bookingType="event"
+        onBookingSuccess={handleEnrollmentSuccess}
+      />
     </div>
   );
 };

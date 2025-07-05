@@ -1,10 +1,12 @@
 import React from "react";
-import { FaUser, FaPlus, FaList, FaFolder, FaMap } from "react-icons/fa";
+import { FaUser, FaPlus, FaList, FaFolder, FaMap, FaClipboardList, FaComments } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const navbarMenu = [
   { id: 1, name: "User Details", link: "/user", icon: <FaUser /> },
-  // { id: 2, name: "Contribute", link: "/user/create-post", icon: <FaList /> },
+  { id: 2, name: "My Bookings", link: "/user/bookings", icon: <FaClipboardList /> },
+  { id: 3, name: "Messages", link: "/user/messages", icon: <FaComments /> },
+  // { id: 4, name: "Contribute", link: "/user/create-post", icon: <FaList /> },
 ];
 
 const Navbar = () => {

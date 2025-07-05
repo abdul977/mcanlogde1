@@ -52,10 +52,14 @@ import EditCommunity from "./pages/Admin/EditCommunity";
 import CreateDonation from "./pages/Admin/CreateDonation";
 import AllDonations from "./pages/Admin/AllDonations";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
+import AllBookings from "./pages/Admin/AllBookings";
 import CartPage from "./pages/CartPage";
 import ThankYou from "./components/ThankYou";
 import SelectedCategory from "./pages/SelectedCategory";
 import ContributePost from "./pages/User/ContributePost";
+import MyBookings from "./pages/User/MyBookings";
+import UserMessages from "./pages/User/UserMessages";
+import AdminMessages from "./pages/Admin/AdminMessages";
 
 function App() {
   return (
@@ -105,6 +109,8 @@ function App() {
           {/* User Routes */}
           <Route path="/user" element={<UserRoutes />}>
             <Route path="" element={<UserDashboard />} />
+            <Route path="bookings" element={<MyBookings />} />
+            <Route path="messages" element={<UserMessages />} />
           </Route>
 
           {/* Admin Routes */}
@@ -136,6 +142,8 @@ function App() {
             <Route path="edit-community/:id" element={<EditCommunity />} />
             <Route path="create-donation" element={<CreateDonation />} />
             <Route path="donations" element={<AllDonations />} />
+            <Route path="bookings" element={<AllBookings />} />
+            <Route path="messages" element={<AdminMessages />} />
           </Route>
         </Routes>
       </main>

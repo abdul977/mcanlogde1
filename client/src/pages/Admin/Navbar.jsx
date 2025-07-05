@@ -1,5 +1,5 @@
 import React from "react";
-import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt, FaPen, FaBlog, FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate } from "react-icons/fa";
+import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt, FaPen, FaBlog, FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaClipboardList, FaComments } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const navbarMenu = [
@@ -40,6 +40,10 @@ const navbarMenu = [
   // Donations
   { id: 19, name: "Create Donation", link: "/admin/create-donation", icon: <FaDonate /> },
   { id: 20, name: "All Donations", link: "/admin/donations", icon: <FaDonate /> },
+
+  // Bookings & Messages
+  { id: 21, name: "All Bookings", link: "/admin/bookings", icon: <FaClipboardList /> },
+  { id: 22, name: "Messages", link: "/admin/messages", icon: <FaComments /> },
 ];
 
 const Navbar = () => {

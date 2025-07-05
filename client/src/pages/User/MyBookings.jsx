@@ -1,0 +1,325 @@
+import React, { useState, useEffect } from "react";
+import { FaCalendar, FaHome, FaBook, FaEye, FaTimes, FaSync, FaFilter, FaMapMarkerAlt, FaUsers } from "react-icons/fa";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useAuth } from "../../context/UserContext";
+import Navbar from "./Navbar";
+
+const MyBookings = () => {
+  const [bookings, setBookings] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedType, setSelectedType] = useState("all");
+  const [auth] = useAuth();
+
+  const statusOptions = [
+    { value: "all", label: "All Status" },
+    { value: "pending", label: "Pending" },
+    { value: "approved", label: "Approved" },
+    { value: "rejected", label: "Rejected" },
+    { value: "cancelled", label: "Cancelled" }
+  ];
+
+  const typeOptions = [
+    { value: "all", label: "All Types" },
+    { value: "accommodation", label: "Accommodations" },
+    { value: "quran_class", label: "Quran Classes" },
+    { value: "lecture", label: "Lectures" },
+    { value: "event", label: "Events" }
+  ];
+
+  // Fetch user's bookings
+  const fetchBookings = async (showRefreshLoader = false) => {
+    try {
+      if (showRefreshLoader) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      const params = new URLSearchParams();
+      if (selectedStatus !== "all") params.append("status", selectedStatus);
+      if (selectedType !== "all") params.append("bookingType", selectedType);
+
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/bookings/my-bookings?${params}`,
+        {
+          headers: {
+            Authorization: auth?.token
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setBookings(response.data.bookings);
+        if (showRefreshLoader) {
+          toast.success("Bookings refreshed successfully!");
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+      toast.error("Failed to fetch bookings");
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookings();
+  }, [selectedStatus, selectedType]);
+
+  // Cancel booking
+  const cancelBooking = async (bookingId) => {
+    if (!window.confirm("Are you sure you want to cancel this booking?")) {
+      return;
+    }
+
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_BASE_URL}/api/bookings/${bookingId}/cancel`,
+        {},
+        {
+          headers: {
+            Authorization: auth?.token
+          }
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Booking cancelled successfully!");
+        fetchBookings(true);
+      }
+    } catch (error) {
+      console.error("Error cancelling booking:", error);
+      toast.error("Failed to cancel booking");
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const badges = {
+      pending: "bg-yellow-100 text-yellow-800",
+      approved: "bg-green-100 text-green-800",
+      rejected: "bg-red-100 text-red-800",
+      cancelled: "bg-gray-100 text-gray-800"
+    };
+    return badges[status] || "bg-gray-100 text-gray-800";
+  };
+
+  const getTypeBadge = (type) => {
+    const badges = {
+      accommodation: "bg-blue-100 text-blue-800",
+      quran_class: "bg-purple-100 text-purple-800",
+      lecture: "bg-green-100 text-green-800",
+      event: "bg-orange-100 text-orange-800"
+    };
+    return badges[type] || "bg-gray-100 text-gray-800";
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="flex">
+        <div className="ml-[4rem]">
+          <Navbar />
+        </div>
+        <div className="flex-1 p-8">
+          {/* Header */}
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-gray-800">My Bookings</h1>
+                <p className="text-gray-600 mt-2">Track your accommodation and program bookings</p>
+              </div>
+              <button
+                onClick={() => fetchBookings(true)}
+                disabled={refreshing}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                  refreshing
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-mcan-primary text-white hover:bg-mcan-secondary'
+                }`}
+              >
+                <FaSync className={`${refreshing ? 'animate-spin' : ''}`} />
+                {refreshing ? 'Refreshing...' : 'Refresh'}
+              </button>
+            </div>
+          </div>
+
+          {/* Filters */}
+          <div className="bg-white rounded-lg shadow p-6 mb-6">
+            <div className="flex items-center gap-4">
+              <FaFilter className="text-gray-500" />
+              <div className="flex gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                  <select
+                    value={selectedStatus}
+                    onChange={(e) => setSelectedStatus(e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                  >
+                    {statusOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                  <select
+                    value={selectedType}
+                    onChange={(e) => setSelectedType(e.target.value)}
+                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                  >
+                    {typeOptions.map(option => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bookings List */}
+          <div className="space-y-6">
+            {loading ? (
+              <div className="flex justify-center items-center py-16">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mcan-primary"></div>
+                <span className="ml-3 text-gray-600">Loading bookings...</span>
+              </div>
+            ) : bookings.length === 0 ? (
+              <div className="text-center py-16 bg-white rounded-lg shadow">
+                <FaCalendar className="mx-auto text-6xl text-gray-300 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">No Bookings Found</h3>
+                <p className="text-gray-500">You haven't made any bookings yet.</p>
+              </div>
+            ) : (
+              bookings.map((booking) => (
+                <div key={booking._id} className="bg-white rounded-lg shadow p-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-3">
+                        <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getTypeBadge(booking.bookingType)}`}>
+                          {booking.bookingType.replace('_', ' ')}
+                        </span>
+                        <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusBadge(booking.status)}`}>
+                          {booking.status}
+                        </span>
+                      </div>
+
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        {booking.accommodation?.title || booking.program?.title || 'N/A'}
+                      </h3>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        {booking.bookingType === 'accommodation' && booking.accommodation && (
+                          <>
+                            <div className="flex items-center text-gray-600">
+                              <FaMapMarkerAlt className="mr-2" />
+                              <span>{booking.accommodation.location}</span>
+                            </div>
+                            <div className="flex items-center text-gray-600">
+                              <FaHome className="mr-2" />
+                              <span>{booking.accommodation.accommodationType}</span>
+                            </div>
+                            {booking.checkInDate && (
+                              <div className="flex items-center text-gray-600">
+                                <FaCalendar className="mr-2" />
+                                <span>Check-in: {formatDate(booking.checkInDate)}</span>
+                              </div>
+                            )}
+                            {booking.checkOutDate && (
+                              <div className="flex items-center text-gray-600">
+                                <FaCalendar className="mr-2" />
+                                <span>Check-out: {formatDate(booking.checkOutDate)}</span>
+                              </div>
+                            )}
+                            {booking.numberOfGuests && (
+                              <div className="flex items-center text-gray-600">
+                                <FaUsers className="mr-2" />
+                                <span>{booking.numberOfGuests} guest{booking.numberOfGuests > 1 ? 's' : ''}</span>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {booking.bookingType !== 'accommodation' && booking.program && (
+                          <>
+                            <div className="flex items-center text-gray-600">
+                              <FaBook className="mr-2" />
+                              <span>{booking.program.description?.substring(0, 100)}...</span>
+                            </div>
+                            {booking.program.instructor && (
+                              <div className="flex items-center text-gray-600">
+                                <FaUser className="mr-2" />
+                                <span>Instructor: {booking.program.instructor.name}</span>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        <div className="flex items-center text-gray-600">
+                          <FaCalendar className="mr-2" />
+                          <span>Requested: {formatDate(booking.requestDate)}</span>
+                        </div>
+                      </div>
+
+                      {booking.userNotes && (
+                        <div className="bg-gray-50 p-3 rounded-lg mb-4">
+                          <p className="text-sm text-gray-600">
+                            <strong>Your Notes:</strong> {booking.userNotes}
+                          </p>
+                        </div>
+                      )}
+
+                      {booking.adminNotes && (
+                        <div className="bg-blue-50 p-3 rounded-lg mb-4">
+                          <p className="text-sm text-blue-800">
+                            <strong>Admin Notes:</strong> {booking.adminNotes}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-col gap-2 ml-4">
+                      <button
+                        onClick={() => {/* TODO: Open booking details modal */}}
+                        className="flex items-center gap-2 px-3 py-2 text-sm bg-mcan-primary text-white rounded-lg hover:opacity-90"
+                      >
+                        <FaEye />
+                        View Details
+                      </button>
+                      
+                      {(booking.status === 'pending' || booking.status === 'approved') && (
+                        <button
+                          onClick={() => cancelBooking(booking._id)}
+                          className="flex items-center gap-2 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:opacity-90"
+                        >
+                          <FaTimes />
+                          Cancel
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default MyBookings;

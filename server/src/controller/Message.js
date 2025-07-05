@@ -1,0 +1,286 @@
+import Message from "../models/Message.js";
+import User from "../models/User.js";
+import mongoose from "mongoose";
+
+// Send a new message
+export const sendMessageController = async (req, res) => {
+  try {
+    const { recipientId, content, priority = 'normal' } = req.body;
+    const senderId = req.user._id;
+
+    if (!recipientId || !content) {
+      return res.status(400).json({
+        success: false,
+        message: "Recipient ID and content are required"
+      });
+    }
+
+    // Validate recipient exists
+    const recipient = await User.findById(recipientId);
+    if (!recipient) {
+      return res.status(404).json({
+        success: false,
+        message: "Recipient not found"
+      });
+    }
+
+    // Generate thread ID
+    const threadId = Message.generateThreadId(senderId, recipientId);
+
+    // Create message
+    const message = new Message({
+      sender: senderId,
+      recipient: recipientId,
+      content: content.trim(),
+      threadId,
+      priority,
+      messageType: 'text'
+    });
+
+    await message.save();
+
+    // Populate sender and recipient info
+    await message.populate([
+      { path: 'sender', select: 'name email role' },
+      { path: 'recipient', select: 'name email role' }
+    ]);
+
+    res.status(201).json({
+      success: true,
+      message: "Message sent successfully",
+      data: message
+    });
+
+  } catch (error) {
+    console.error("Error sending message:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error sending message",
+      error: error.message
+    });
+  }
+};
+
+// Get conversation between two users
+export const getConversationController = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.user._id;
+    const { page = 1, limit = 50 } = req.query;
+
+    // Validate the other user exists
+    const otherUser = await User.findById(userId);
+    if (!otherUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    const skip = (page - 1) * limit;
+
+    // Get conversation messages
+    const messages = await Message.getConversation(
+      currentUserId,
+      userId,
+      { limit: parseInt(limit), skip, sort: { createdAt: 1 } }
+    );
+
+    // Mark messages as read for current user
+    const threadId = Message.generateThreadId(currentUserId, userId);
+    await Message.markAsRead(threadId, currentUserId);
+
+    // Get total count for pagination
+    const total = await Message.countDocuments({ threadId });
+
+    res.status(200).json({
+      success: true,
+      messages,
+      otherUser: {
+        _id: otherUser._id,
+        name: otherUser.name,
+        email: otherUser.email,
+        role: otherUser.role
+      },
+      pagination: {
+        current: parseInt(page),
+        total: Math.ceil(total / limit),
+        count: messages.length,
+        totalMessages: total
+      }
+    });
+
+  } catch (error) {
+    console.error("Error fetching conversation:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching conversation",
+      error: error.message
+    });
+  }
+};
+
+// Get user's conversations list
+export const getUserConversationsController = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const conversations = await Message.getUserConversations(userId);
+
+    // Process conversations to get the other participant info
+    const processedConversations = conversations.map(conv => {
+      const lastMessage = conv.lastMessage;
+      const isCurrentUserSender = lastMessage.sender.toString() === userId.toString();
+      
+      // Get the other participant
+      const otherParticipant = isCurrentUserSender 
+        ? conv.recipientInfo[0] 
+        : conv.senderInfo[0];
+
+      return {
+        threadId: conv._id,
+        otherUser: {
+          _id: otherParticipant._id,
+          name: otherParticipant.name,
+          email: otherParticipant.email,
+          role: otherParticipant.role
+        },
+        lastMessage: {
+          content: lastMessage.content,
+          createdAt: lastMessage.createdAt,
+          isFromCurrentUser: isCurrentUserSender,
+          messageType: lastMessage.messageType,
+          priority: lastMessage.priority
+        },
+        unreadCount: conv.unreadCount
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      conversations: processedConversations
+    });
+
+  } catch (error) {
+    console.error("Error fetching conversations:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching conversations",
+      error: error.message
+    });
+  }
+};
+
+// Get unread message count
+export const getUnreadCountController = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const unreadCount = await Message.getUnreadCount(userId);
+
+    res.status(200).json({
+      success: true,
+      unreadCount
+    });
+
+  } catch (error) {
+    console.error("Error fetching unread count:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching unread count",
+      error: error.message
+    });
+  }
+};
+
+// Mark messages as read
+export const markMessagesAsReadController = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.user._id;
+
+    const threadId = Message.generateThreadId(currentUserId, userId);
+    const result = await Message.markAsRead(threadId, currentUserId);
+
+    res.status(200).json({
+      success: true,
+      message: "Messages marked as read",
+      modifiedCount: result.modifiedCount
+    });
+
+  } catch (error) {
+    console.error("Error marking messages as read:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error marking messages as read",
+      error: error.message
+    });
+  }
+};
+
+// Get all users for admin messaging (admin only)
+export const getAllUsersForMessagingController = async (req, res) => {
+  try {
+    const { search, role, page = 1, limit = 20 } = req.query;
+    const currentUserId = req.user._id;
+
+    const filter = { _id: { $ne: currentUserId } };
+    
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    if (role) {
+      filter.role = role;
+    }
+
+    const skip = (page - 1) * limit;
+
+    const users = await User.find(filter)
+      .select('name email role createdAt')
+      .sort({ name: 1 })
+      .limit(parseInt(limit))
+      .skip(skip);
+
+    const total = await User.countDocuments(filter);
+
+    // Get unread message counts for each user
+    const usersWithUnreadCounts = await Promise.all(
+      users.map(async (user) => {
+        const threadId = Message.generateThreadId(currentUserId, user._id);
+        const unreadCount = await Message.countDocuments({
+          threadId,
+          recipient: currentUserId,
+          isRead: false
+        });
+
+        return {
+          ...user.toObject(),
+          unreadCount
+        };
+      })
+    );
+
+    res.status(200).json({
+      success: true,
+      users: usersWithUnreadCounts,
+      pagination: {
+        current: parseInt(page),
+        total: Math.ceil(total / limit),
+        count: users.length,
+        totalUsers: total
+      }
+    });
+
+  } catch (error) {
+    console.error("Error fetching users for messaging:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching users",
+      error: error.message
+    });
+  }
+};

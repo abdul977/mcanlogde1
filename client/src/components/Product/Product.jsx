@@ -27,6 +27,7 @@ import Spinner from "../Spinner";
 import { useCart } from "../../context/Cart";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
+import BookingConfirmation from "../BookingConfirmation";
 
 const Product = () => {
   const params = useParams();
@@ -39,19 +40,20 @@ const Product = () => {
   const [auth] = useAuth();
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
 
   const handleCheckIn = () => {
     if (!auth?.token) {
       toast.error("Authentication required to proceed!");
       return navigate("/login");
     }
-    navigate("/payment", {
-      state: {
-        price: postDetails?.price,
-        product: postDetails?.title,
-        postId: postDetails?._id,
-      },
-    });
+    setShowBookingModal(true);
+  };
+
+  const handleBookingSuccess = (booking) => {
+    toast.success("Booking request submitted successfully!");
+    // Optionally navigate to user dashboard or booking details
+    navigate("/user");
   };
 
   useEffect(() => {
@@ -461,6 +463,15 @@ const Product = () => {
           </div>
         </div>
       </div>
+
+      {/* Booking Confirmation Modal */}
+      <BookingConfirmation
+        isOpen={showBookingModal}
+        onClose={() => setShowBookingModal(false)}
+        accommodation={postDetails}
+        bookingType="accommodation"
+        onBookingSuccess={handleBookingSuccess}
+      />
     </div>
   );
 };

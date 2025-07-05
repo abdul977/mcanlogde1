@@ -2,6 +2,9 @@ import React, { useState, useEffect } from "react";
 import { FaPlay, FaCalendar, FaClock, FaUser, FaDownload, FaSync, FaVideo, FaUsers, FaTag, FaMapMarkerAlt } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { useAuth } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
+import BookingConfirmation from "../components/BookingConfirmation";
 
 const Lectures = () => {
   const [lectures, setLectures] = useState([]);
@@ -10,6 +13,10 @@ const Lectures = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedType, setSelectedType] = useState("all");
   const [selectedLevel, setSelectedLevel] = useState("all");
+  const [auth] = useAuth();
+  const navigate = useNavigate();
+  const [showEnrollmentModal, setShowEnrollmentModal] = useState(false);
+  const [selectedLecture, setSelectedLecture] = useState(null);
 
   const lectureTypes = [
     { id: "all", name: "All Types" },
@@ -77,6 +84,28 @@ const Lectures = () => {
   const handleRefresh = () => {
     fetchLectures(true);
     fetchUpcomingLectures();
+  };
+
+  // Handle enrollment
+  const handleEnrollment = (lecture) => {
+    if (!auth?.token) {
+      toast.error("Please login to register for lectures");
+      navigate("/login");
+      return;
+    }
+    setSelectedLecture({
+      ...lecture,
+      model: "Lecture"
+    });
+    setShowEnrollmentModal(true);
+  };
+
+  const handleEnrollmentSuccess = (booking) => {
+    toast.success("Registration request submitted successfully!");
+    setShowEnrollmentModal(false);
+    setSelectedLecture(null);
+    // Optionally navigate to user dashboard
+    navigate("/user");
   };
 
   // Filter lectures by type and level
@@ -351,29 +380,44 @@ const Lectures = () => {
                     )}
                   </div>
 
-                  <div className="bg-gray-50 px-6 py-3 flex justify-between items-center">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-gray-600">Language:</span>
-                      <span className="text-sm font-medium text-mcan-secondary capitalize">
-                        {lecture.language || 'English'}
-                      </span>
+                  <div className="bg-gray-50 px-6 py-3 space-y-3">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">Language:</span>
+                        <span className="text-sm font-medium text-mcan-secondary capitalize">
+                          {lecture.language || 'English'}
+                        </span>
+                      </div>
+                      {lecture.venue?.isOnline && lecture.venue?.onlineLink && (
+                        <a
+                          href={lecture.venue.onlineLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center text-mcan-primary hover:text-mcan-secondary transition duration-300 text-sm"
+                        >
+                          <FaVideo className="mr-1" />
+                          Join Online
+                        </a>
+                      )}
                     </div>
-                    {lecture.venue?.isOnline && lecture.venue?.onlineLink ? (
-                      <a
-                        href={lecture.venue.onlineLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center text-mcan-primary hover:text-mcan-secondary transition duration-300"
-                      >
-                        <FaVideo className="mr-2" />
-                        Join Online
-                      </a>
-                    ) : (
-                      <button className="flex items-center text-mcan-primary hover:text-mcan-secondary transition duration-300">
-                        <FaPlay className="mr-2" />
-                        Learn More
-                      </button>
-                    )}
+
+                    {/* Registration Button */}
+                    <button
+                      onClick={() => handleEnrollment(lecture)}
+                      disabled={lecture.registrationRequired && lecture.maxAttendees && lecture.currentAttendees >= lecture.maxAttendees}
+                      className={`w-full py-2 px-4 rounded-lg font-medium transition-all duration-200 ${
+                        lecture.registrationRequired && lecture.maxAttendees && lecture.currentAttendees >= lecture.maxAttendees
+                          ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                          : 'bg-mcan-primary text-white hover:opacity-90'
+                      }`}
+                    >
+                      {lecture.registrationRequired && lecture.maxAttendees && lecture.currentAttendees >= lecture.maxAttendees
+                        ? 'Registration Full'
+                        : lecture.registrationRequired
+                          ? 'Register Now'
+                          : 'Join Lecture'
+                      }
+                    </button>
                   </div>
                 </div>
               ))}
@@ -431,6 +475,15 @@ const Lectures = () => {
           </div>
         )}
       </div>
+
+      {/* Enrollment Confirmation Modal */}
+      <BookingConfirmation
+        isOpen={showEnrollmentModal}
+        onClose={() => setShowEnrollmentModal(false)}
+        program={selectedLecture}
+        bookingType="lecture"
+        onBookingSuccess={handleEnrollmentSuccess}
+      />
     </div>
   );
 };
