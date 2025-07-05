@@ -1,5 +1,5 @@
 import React from "react";
-import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt, FaPen, FaBlog } from "react-icons/fa";
+import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt, FaPen, FaBlog, FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const navbarMenu = [
@@ -16,8 +16,30 @@ const navbarMenu = [
   { id: 6, name: "All Events", link: "/admin/events", icon: <FaCalendarAlt /> },
   { id: 7, name: "Create Blog", link: "/admin/create-blog", icon: <FaPen /> },
   { id: 8, name: "All Blogs", link: "/admin/blogs", icon: <FaBlog /> },
-  { id: 9, name: "Create Service", link: "/admin/create-service", icon: <FaPlus /> },
-  { id: 10, name: "All Services", link: "/admin/services", icon: <FaList /> },
+
+  // Services
+  { id: 9, name: "Create Service", link: "/admin/create-service", icon: <FaHandsHelping /> },
+  { id: 10, name: "All Services", link: "/admin/services", icon: <FaHandsHelping /> },
+
+  // Lectures
+  { id: 11, name: "Create Lecture", link: "/admin/create-lecture", icon: <FaChalkboardTeacher /> },
+  { id: 12, name: "All Lectures", link: "/admin/lectures", icon: <FaChalkboardTeacher /> },
+
+  // Quran Classes
+  { id: 13, name: "Create Quran Class", link: "/admin/create-quran-class", icon: <FaQuran /> },
+  { id: 14, name: "All Quran Classes", link: "/admin/quran-classes", icon: <FaQuran /> },
+
+  // Resources
+  { id: 15, name: "Create Resource", link: "/admin/create-resource", icon: <FaBook /> },
+  { id: 16, name: "All Resources", link: "/admin/resources", icon: <FaBook /> },
+
+  // Community
+  { id: 17, name: "Create Community", link: "/admin/create-community", icon: <FaUsers /> },
+  { id: 18, name: "All Community", link: "/admin/community", icon: <FaUsers /> },
+
+  // Donations
+  { id: 19, name: "Create Donation", link: "/admin/create-donation", icon: <FaDonate /> },
+  { id: 20, name: "All Donations", link: "/admin/donations", icon: <FaDonate /> },
 ];
 
 const Navbar = () => {

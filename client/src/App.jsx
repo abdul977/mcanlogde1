@@ -35,6 +35,13 @@ import AllPost from "./pages/Admin/AllPost";
 import UpdatePost from "./pages/Admin/UpdatePost";
 import CreateBlog from "./pages/Admin/CreateBlog";
 import AllBlogs from "./pages/Admin/AllBlogs";
+import CreateService from "./pages/Admin/CreateService";
+import AllServices from "./pages/Admin/AllServices";
+import CreateLecture from "./pages/Admin/CreateLecture";
+import AllLectures from "./pages/Admin/AllLectures";
+import CreateQuranClass from "./pages/Admin/CreateQuranClass";
+import AllQuranClasses from "./pages/Admin/AllQuranClasses";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 import CartPage from "./pages/CartPage";
 import ThankYou from "./components/ThankYou";
 import SelectedCategory from "./pages/SelectedCategory";
@@ -99,10 +106,16 @@ function App() {
             <Route path="edit-event/:id" element={<EditEvent />} />
             <Route path="add-category" element={<CreateCategory />} />
             <Route path="accommodations" element={<AllPost />} />
-            <Route path="details" element={<Details />} />
+            <Route path="details" element={<AdminDashboard />} />
             <Route path="edit/:slug" element={<UpdatePost />} />
             <Route path="create-blog" element={<CreateBlog />} />
             <Route path="blogs" element={<AllBlogs />} />
+            <Route path="create-service" element={<CreateService />} />
+            <Route path="services" element={<AllServices />} />
+            <Route path="create-lecture" element={<CreateLecture />} />
+            <Route path="lectures" element={<AllLectures />} />
+            <Route path="create-quran-class" element={<CreateQuranClass />} />
+            <Route path="quran-classes" element={<AllQuranClasses />} />
           </Route>
         </Routes>
       </main>
