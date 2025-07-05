@@ -16,6 +16,8 @@ const navbarMenu = [
   { id: 6, name: "All Events", link: "/admin/events", icon: <FaCalendarAlt /> },
   { id: 7, name: "Create Blog", link: "/admin/create-blog", icon: <FaPen /> },
   { id: 8, name: "All Blogs", link: "/admin/blogs", icon: <FaBlog /> },
+  { id: 9, name: "Create Service", link: "/admin/create-service", icon: <FaPlus /> },
+  { id: 10, name: "All Services", link: "/admin/services", icon: <FaList /> },
 ];
 
 const Navbar = () => {

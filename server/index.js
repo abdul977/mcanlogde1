@@ -11,6 +11,12 @@ import postRoutes from "./src/routes/Post.js";
 import categoryRoutes from "./src/routes/Category.js";
 import eventRoutes from "./src/routes/Event.js";
 import blogRoutes from "./src/routes/Blog.js";
+import serviceRoutes from "./src/routes/Service.js";
+import lectureRoutes from "./src/routes/Lecture.js";
+import quranClassRoutes from "./src/routes/QuranClass.js";
+import resourceRoutes from "./src/routes/Resource.js";
+import communityRoutes from "./src/routes/Community.js";
+import donationRoutes from "./src/routes/Donation.js";
 
 // Load environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -62,6 +68,13 @@ app.use("/api/post", postRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/blog", blogRoutes);
+app.use("/api/services", serviceRoutes);
+app.use("/api/lectures", lectureRoutes);
+app.use("/api/quran-classes", quranClassRoutes);
+app.use("/api/resources", resourceRoutes);
+app.use("/api/community", communityRoutes);
+app.use("/api/donations", donationRoutes);
+app.use("/api/lectures", lectureRoutes);
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
