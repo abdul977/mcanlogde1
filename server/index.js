@@ -4,8 +4,11 @@ import morgan from "morgan";
 import cors from "cors";
 import fileUpload from "express-fileupload";
 import bodyParser from "body-parser";
+import { createServer } from "http";
 
 import { connectToDb } from "./src/config/db.js";
+import { connectRedis } from "./src/config/redis.js";
+import { initializeSocket } from "./src/config/socket.js";
 import authRoutes from "./src/routes/User.js";
 import postRoutes from "./src/routes/Post.js";
 import categoryRoutes from "./src/routes/Category.js";
@@ -36,7 +39,14 @@ try {
   process.exit(1);
 }
 
+// Connect to Redis
+connectRedis();
+
 const app = express();
+const server = createServer(app);
+
+// Initialize Socket.IO
+const io = initializeSocket(server);
 
 // CORS configuration
 app.use(cors({
@@ -82,6 +92,7 @@ app.use("/api/messages", messageRoutes);
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
-app.listen(PORT, HOST, () => {
+server.listen(PORT, HOST, () => {
   console.log(`Server is running on http://${HOST}:${PORT}`);
+  console.log(`Socket.IO server initialized`);
 });

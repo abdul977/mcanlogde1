@@ -1,6 +1,7 @@
 import Message from "../models/Message.js";
 import User from "../models/User.js";
 import mongoose from "mongoose";
+import { socketUtils } from "../config/socket.js";
 
 // Send a new message
 export const sendMessageController = async (req, res) => {
@@ -44,6 +45,9 @@ export const sendMessageController = async (req, res) => {
       { path: 'sender', select: 'name email role' },
       { path: 'recipient', select: 'name email role' }
     ]);
+
+    // Emit real-time message to thread participants
+    await socketUtils.emitNewMessage(threadId, message, senderId);
 
     res.status(201).json({
       success: true,

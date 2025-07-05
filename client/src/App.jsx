@@ -60,13 +60,15 @@ import ContributePost from "./pages/User/ContributePost";
 import MyBookings from "./pages/User/MyBookings";
 import UserMessages from "./pages/User/UserMessages";
 import AdminMessages from "./pages/Admin/AdminMessages";
+import { SocketProvider } from "./context/SocketContext";
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Main Navigation */}
-      <ToastContainer position="bottom-left" />
-      <Navbar />
+    <SocketProvider>
+      <div className="min-h-screen bg-gray-50">
+        {/* Main Navigation */}
+        <ToastContainer position="bottom-left" />
+        <Navbar />
 
       {/* Prayer Times Banner - Shows local prayer times */}
       <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white text-sm py-2">
@@ -159,7 +161,7 @@ function App() {
           </span>
         </div>
       </div>
-    </div>
+    </SocketProvider>
   );
 }
 

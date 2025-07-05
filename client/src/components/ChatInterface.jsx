@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaPaperPlane, FaUser, FaPhone, FaVideo, FaEllipsisV, FaArrowLeft } from "react-icons/fa";
+import { FaPaperPlane, FaUser, FaPhone, FaVideo, FaEllipsisV, FaArrowLeft, FaSync } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/UserContext";
+import { useSocket } from "../context/SocketContext";
 
 const ChatInterface = ({ onBack }) => {
   const [messages, setMessages] = useState([]);
@@ -10,7 +11,9 @@ const ChatInterface = ({ onBack }) => {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
+  const [threadId, setThreadId] = useState(null);
   const [auth] = useAuth();
+  const { joinThread, leaveThread, onNewMessage, isConnected } = useSocket();
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
 
@@ -20,16 +23,28 @@ const ChatInterface = ({ onBack }) => {
 
   useEffect(() => {
     fetchAdminAndMessages();
+  }, []);
 
-    // Set up polling for new messages every 5 seconds
-    const interval = setInterval(() => {
-      if (adminUser) {
-        fetchMessages();
-      }
-    }, 5000);
+  // Socket.IO real-time message handling
+  useEffect(() => {
+    if (threadId && isConnected) {
+      // Join the thread for real-time updates
+      joinThread(threadId);
 
-    return () => clearInterval(interval);
-  }, [adminUser]);
+      // Listen for new messages
+      const unsubscribe = onNewMessage((data) => {
+        if (data.threadId === threadId) {
+          setMessages(prev => [...prev, data.message]);
+        }
+      });
+
+      // Cleanup when component unmounts or threadId changes
+      return () => {
+        if (unsubscribe) unsubscribe();
+        leaveThread(threadId);
+      };
+    }
+  }, [threadId, isConnected, joinThread, leaveThread, onNewMessage]);
 
   useEffect(() => {
     scrollToBottom();
@@ -53,8 +68,24 @@ const ChatInterface = ({ onBack }) => {
         const admin = adminResponse.data.users[0]; // Get first admin
         setAdminUser(admin);
 
+        // Generate thread ID (same logic as backend)
+        const currentUserId = auth?.user?._id;
+        const generatedThreadId = [currentUserId, admin._id].sort().join('_');
+        setThreadId(generatedThreadId);
+
         // Then fetch conversation with this admin
-        await fetchMessages(admin._id);
+        const messagesResponse = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/messages/conversation/${admin._id}`,
+          {
+            headers: {
+              Authorization: auth?.token
+            }
+          }
+        );
+
+        if (messagesResponse.data.success) {
+          setMessages(messagesResponse.data.messages);
+        }
       }
     } catch (error) {
       console.error("Error fetching chat data:", error);
@@ -64,13 +95,12 @@ const ChatInterface = ({ onBack }) => {
     }
   };
 
-  const fetchMessages = async (adminId = null) => {
-    try {
-      const targetAdminId = adminId || adminUser?._id;
-      if (!targetAdminId) return;
+  const refreshMessages = async () => {
+    if (!adminUser?._id) return;
 
+    try {
       const messagesResponse = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/messages/conversation/${targetAdminId}`,
+        `${import.meta.env.VITE_BASE_URL}/api/messages/conversation/${adminUser._id}`,
         {
           headers: {
             Authorization: auth?.token
@@ -82,7 +112,7 @@ const ChatInterface = ({ onBack }) => {
         setMessages(messagesResponse.data.messages);
       }
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      console.error("Error refreshing messages:", error);
     }
   };
 
@@ -189,15 +219,18 @@ const ChatInterface = ({ onBack }) => {
             <h3 className="font-semibold text-gray-800">
               {adminUser?.name || 'MCAN Admin'}
             </h3>
-            <p className="text-sm text-green-500">Online</p>
+            <p className={`text-sm ${isConnected ? 'text-green-500' : 'text-gray-500'}`}>
+              {isConnected ? 'Online' : 'Connecting...'}
+            </p>
           </div>
         </div>
         <div className="flex items-center space-x-4">
-          <button className="text-gray-500 hover:text-mcan-primary">
-            <FaPhone size={18} />
-          </button>
-          <button className="text-gray-500 hover:text-mcan-primary">
-            <FaVideo size={18} />
+          <button
+            onClick={refreshMessages}
+            className="text-gray-500 hover:text-mcan-primary"
+            title="Refresh messages"
+          >
+            <FaSync size={18} />
           </button>
           <button className="text-gray-500 hover:text-mcan-primary">
             <FaEllipsisV size={18} />
