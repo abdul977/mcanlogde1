@@ -484,11 +484,8 @@ const AllQuranClasses = () => {
                   ))}
                 </div>
 
-            )}
-          </div>
-
-          {/* Summary */}
-          {!loading && filteredClasses.length > 0 && (
+                {/* Summary */}
+                {!loading && filteredClasses.length > 0 && (
             <div className="mt-6 bg-white rounded-lg shadow-lg p-6">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
                 <div>
@@ -516,6 +513,9 @@ const AllQuranClasses = () => {
               </div>
             </div>
           )}
+              </>
+            )}
+          </div>
         </div>
       </div>
     </div>
