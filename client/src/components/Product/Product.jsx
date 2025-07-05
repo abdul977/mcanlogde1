@@ -27,7 +27,6 @@ import Spinner from "../Spinner";
 import { useCart } from "../../context/Cart";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
-import { useBook } from "../../context/Booking";
 
 const Product = () => {
   const params = useParams();
@@ -38,7 +37,6 @@ const Product = () => {
   const [cart, setCart] = useCart();
   const navigate = useNavigate();
   const [auth] = useAuth();
-  const [booking, setBooking] = useBook();
   const [selectedImage, setSelectedImage] = useState(null);
   const [error, setError] = useState(null);
 
