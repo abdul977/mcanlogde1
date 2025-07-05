@@ -19,7 +19,7 @@ const CartPage = () => {
     }
 
     if (!cart.length) {
-      toast.error("Your cart is empty.");
+      toast.error("You haven't saved any accommodations yet.");
       return;
     }
 
@@ -71,7 +71,8 @@ const CartPage = () => {
     <div className="flex flex-col lg:flex-row w-full p-6 gap-8 bg-gray-50">
       {/* Left Side - Product Details */}
       <div className="w-full lg:w-2/3 bg-white p-6 rounded-lg">
-        <h2 className="text-3xl font-bold mb-6 text-gray-800">Your Cart</h2>
+        <h2 className="text-3xl font-bold mb-6 text-gray-800">Saved Accommodations</h2>
+        <p className="text-gray-600 mb-4">Accommodations you've saved for later booking</p>
         {cart.length > 0 ? (
           cart.map((product) => {
             console.log("Product Details:", product); // Log to ensure product details are present
@@ -110,7 +111,10 @@ const CartPage = () => {
             );
           })
         ) : (
-          <p className="text-gray-500 text-center mt-6">Your cart is empty.</p>
+          <div className="text-center mt-6">
+            <p className="text-gray-500 mb-2">You haven't saved any accommodations yet.</p>
+            <p className="text-sm text-gray-400">Browse accommodations and save your favorites to book later.</p>
+          </div>
         )}
       </div>
 

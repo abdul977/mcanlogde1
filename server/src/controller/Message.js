@@ -218,6 +218,34 @@ export const markMessagesAsReadController = async (req, res) => {
   }
 };
 
+// Get admin users for regular users to contact
+export const getAdminUsersController = async (req, res) => {
+  try {
+    const currentUserId = req.user._id || req.user.id;
+
+    // Get all admin users excluding current user
+    const admins = await User.find({
+      role: 'admin',
+      _id: { $ne: currentUserId }
+    })
+      .select('name email role createdAt')
+      .sort({ name: 1 });
+
+    res.status(200).json({
+      success: true,
+      users: admins
+    });
+
+  } catch (error) {
+    console.error("Error fetching admin users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching admin users",
+      error: error.message
+    });
+  }
+};
+
 // Get all users for admin messaging (admin only)
 export const getAllUsersForMessagingController = async (req, res) => {
   try {
@@ -225,7 +253,7 @@ export const getAllUsersForMessagingController = async (req, res) => {
     const currentUserId = req.user._id || req.user.id;
 
     const filter = { _id: { $ne: currentUserId } };
-    
+
     if (search) {
       filter.$or = [
         { name: { $regex: search, $options: 'i' } },

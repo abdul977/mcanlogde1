@@ -94,6 +94,9 @@ const Navbar = () => {
             <Link to="/blog" className="text-white hover:text-mcan-light transition duration-300">
               Blog
             </Link>
+            <Link to="/resources" className="text-white hover:text-mcan-light transition duration-300">
+              Resources
+            </Link>
             <Link to="/contact" className="text-white hover:text-mcan-light transition duration-300">
               Contact
             </Link>
@@ -111,11 +114,14 @@ const Navbar = () => {
 
           {/* Notification and Profile - Desktop */}
           <div className="hidden md:flex items-center space-x-6">
-            <IoIosHeartEmpty
-              size={24}
-              className="text-white hover:text-mcan-light cursor-pointer transition duration-300"
-              onClick={() => navigate("/cart")}
-            />
+            <div className="relative">
+              <IoIosHeartEmpty
+                size={24}
+                className="text-white hover:text-mcan-light cursor-pointer transition duration-300"
+                onClick={() => navigate("/saved-accommodations")}
+                title="Saved Accommodations"
+              />
+            </div>
             <FaUser
               className="text-white hover:text-mcan-light cursor-pointer transition duration-300"
               size={24}
@@ -195,6 +201,13 @@ const Navbar = () => {
               Blog
             </Link>
             <Link
+              to="/resources"
+              className="block px-3 py-2 text-white hover:bg-mcan-secondary rounded-md transition duration-300"
+              onClick={closeMobileMenu}
+            >
+              Islamic Resources
+            </Link>
+            <Link
               to="/contact"
               className="block px-3 py-2 text-white hover:bg-mcan-secondary rounded-md transition duration-300"
               onClick={closeMobileMenu}
@@ -207,12 +220,12 @@ const Navbar = () => {
               <div
                 className="flex items-center px-3 py-2 text-white hover:bg-mcan-secondary rounded-md transition duration-300 cursor-pointer"
                 onClick={() => {
-                  navigate("/cart");
+                  navigate("/saved-accommodations");
                   closeMobileMenu();
                 }}
               >
                 <IoIosHeartEmpty size={20} className="mr-3" />
-                Cart
+                Saved Accommodations
               </div>
               <div
                 className="flex items-center px-3 py-2 text-white hover:bg-mcan-secondary rounded-md transition duration-300 cursor-pointer"

@@ -44,7 +44,7 @@ const UserMessages = () => {
   const fetchAdmins = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/messages/admin/users?role=admin`,
+        `${import.meta.env.VITE_BASE_URL}/api/messages/admins`,
         {
           headers: {
             Authorization: auth?.token
@@ -57,6 +57,7 @@ const UserMessages = () => {
       }
     } catch (error) {
       console.error("Error fetching admins:", error);
+      toast.error("Failed to fetch admin contacts");
     }
   };
 

@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendar, FaHome, FaBook, FaEye, FaTimes, FaSync, FaFilter, FaMapMarkerAlt, FaUsers, FaBars } from "react-icons/fa";
+import { FaCalendar, FaHome, FaBook, FaEye, FaTimes, FaSync, FaFilter, FaMapMarkerAlt, FaUsers, FaBars, FaUser } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import BookingDetailsModal from "../../components/BookingDetailsModal";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -12,6 +13,8 @@ const MyBookings = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [auth] = useAuth();
 
   const statusOptions = [
@@ -132,6 +135,16 @@ const MyBookings = () => {
 
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  const handleViewDetails = (booking) => {
+    setSelectedBooking(booking);
+    setShowDetailsModal(true);
+  };
+
+  const handleCloseDetailsModal = () => {
+    setShowDetailsModal(false);
+    setSelectedBooking(null);
   };
 
   return (
@@ -333,7 +346,7 @@ const MyBookings = () => {
 
                     <div className="flex flex-col gap-2 ml-4">
                       <button
-                        onClick={() => {/* TODO: Open booking details modal */}}
+                        onClick={() => handleViewDetails(booking)}
                         className="flex items-center gap-2 px-3 py-2 text-sm bg-mcan-primary text-white rounded-lg hover:opacity-90"
                       >
                         <FaEye />
@@ -357,6 +370,13 @@ const MyBookings = () => {
           </div>
         </div>
       </div>
+
+      {/* Booking Details Modal */}
+      <BookingDetailsModal
+        booking={selectedBooking}
+        isOpen={showDetailsModal}
+        onClose={handleCloseDetailsModal}
+      />
     </div>
   );
 };

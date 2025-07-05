@@ -188,6 +188,7 @@ const Resources = () => {
         {/* Header */}
         <div className="text-center mb-16">
           <div className="flex justify-center items-center gap-4 mb-4">
+            <FaQuran className="text-4xl text-mcan-primary" />
             <h1 className="text-4xl font-bold text-mcan-primary">Islamic Resources</h1>
             <button
               onClick={handleRefresh}
@@ -203,9 +204,14 @@ const Resources = () => {
               {refreshing ? 'Refreshing...' : 'Refresh'}
             </button>
           </div>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Access our collection of Islamic educational materials, lectures, and resources
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-4">
+            Access our comprehensive collection of Islamic educational materials, lectures, and resources
           </p>
+          <div className="bg-mcan-primary/10 border border-mcan-primary/20 rounded-lg p-4 max-w-2xl mx-auto">
+            <p className="text-mcan-primary italic">
+              "And say: My Lord, increase me in knowledge" - Quran 20:114
+            </p>
+          </div>
         </div>
 
         {/* Search and Filters */}
@@ -333,28 +339,83 @@ const Resources = () => {
           </div>
         )}
 
+        {/* Quick Access Section */}
+        <div className="mb-12">
+          <h2 className="text-2xl font-bold text-mcan-primary mb-6 text-center">Quick Access</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-6 text-center">
+              <FaQuran className="text-4xl text-blue-600 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-blue-800 mb-2">Quran & Tafsir</h3>
+              <p className="text-blue-700 text-sm mb-4">Quranic studies and interpretations</p>
+              <button
+                onClick={() => {
+                  setSelectedCategory('books');
+                  setSearchTerm('quran');
+                  setCurrentPage(1);
+                }}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+              >
+                Explore
+              </button>
+            </div>
+
+            <div className="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-6 text-center">
+              <FaVideo className="text-4xl text-green-600 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-green-800 mb-2">Islamic Lectures</h3>
+              <p className="text-green-700 text-sm mb-4">Video lectures by renowned scholars</p>
+              <button
+                onClick={() => {
+                  setSelectedCategory('videos');
+                  setCurrentPage(1);
+                }}
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+              >
+                Watch Now
+              </button>
+            </div>
+
+            <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-6 text-center">
+              <FaFileAudio className="text-4xl text-purple-600 mx-auto mb-3" />
+              <h3 className="text-lg font-semibold text-purple-800 mb-2">Audio Resources</h3>
+              <p className="text-purple-700 text-sm mb-4">Recitations and audio lectures</p>
+              <button
+                onClick={() => {
+                  setSelectedCategory('audio');
+                  setCurrentPage(1);
+                }}
+                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition-colors"
+              >
+                Listen
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* Categories Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-16">
-          {categories.slice(1).map((category, index) => (
-            <button
-              key={category.id}
-              onClick={() => {
-                setSelectedCategory(category.id);
-                setCurrentPage(1);
-              }}
-              className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 text-center ${
-                selectedCategory === category.id ? 'ring-2 ring-mcan-primary' : ''
-              }`}
-            >
-              {category.icon}
-              <h3 className="text-lg font-semibold text-mcan-primary mb-2">
-                {category.name}
-                </h3>
-              <p className="text-gray-600 text-sm">
-                {resources.filter(r => r.category === category.id).length} resources
-              </p>
-            </button>
-          ))}
+        <div className="mb-16">
+          <h2 className="text-2xl font-bold text-mcan-primary mb-8 text-center">Browse by Category</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {categories.slice(1).map((category, index) => (
+              <button
+                key={category.id}
+                onClick={() => {
+                  setSelectedCategory(category.id);
+                  setCurrentPage(1);
+                }}
+                className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-all duration-300 text-center ${
+                  selectedCategory === category.id ? 'ring-2 ring-mcan-primary' : ''
+                }`}
+              >
+                {category.icon}
+                <h3 className="text-lg font-semibold text-mcan-primary mb-2">
+                  {category.name}
+                  </h3>
+                <p className="text-gray-600 text-sm">
+                  {resources.filter(r => r.category === category.id).length} resources
+                </p>
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* All Resources */}
@@ -568,18 +629,67 @@ const Resources = () => {
           </div>
         )}
 
+        {/* Tips Section */}
+        <div className="mb-16 bg-white rounded-lg shadow-lg p-8">
+          <h2 className="text-2xl font-bold text-mcan-primary mb-6 text-center">How to Use Islamic Resources</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="text-center">
+              <div className="bg-blue-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <FaSearch className="text-2xl text-blue-600" />
+              </div>
+              <h3 className="font-semibold text-gray-800 mb-2">Search</h3>
+              <p className="text-sm text-gray-600">Use the search bar to find specific topics or keywords</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-green-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <FaFilter className="text-2xl text-green-600" />
+              </div>
+              <h3 className="font-semibold text-gray-800 mb-2">Filter</h3>
+              <p className="text-sm text-gray-600">Use filters to narrow down by category, language, or difficulty</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-purple-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <FaDownload className="text-2xl text-purple-600" />
+              </div>
+              <h3 className="font-semibold text-gray-800 mb-2">Download</h3>
+              <p className="text-sm text-gray-600">Download resources for offline reading and study</p>
+            </div>
+            <div className="text-center">
+              <div className="bg-orange-100 rounded-full w-16 h-16 flex items-center justify-center mx-auto mb-4">
+                <FaStar className="text-2xl text-orange-600" />
+              </div>
+              <h3 className="font-semibold text-gray-800 mb-2">Featured</h3>
+              <p className="text-sm text-gray-600">Check out our featured resources for quality content</p>
+            </div>
+          </div>
+        </div>
+
         {/* Contact Section */}
         <div className="text-center">
           <h2 className="text-2xl font-bold text-mcan-primary mb-4">Need Help?</h2>
           <p className="text-gray-600 mb-8">
-            Can't find what you're looking for? Contact our resource team for assistance
+            Can't find what you're looking for? Contact our resource team for assistance or suggest new resources
           </p>
-          <a
-            href="/contact"
-            className="inline-flex items-center bg-mcan-primary text-white px-6 py-3 rounded-md hover:bg-mcan-secondary transition duration-300"
-          >
-            Contact Us
-          </a>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="/contact"
+              className="inline-flex items-center bg-mcan-primary text-white px-6 py-3 rounded-md hover:bg-mcan-secondary transition duration-300"
+            >
+              Contact Us
+            </a>
+            <button
+              onClick={() => {
+                setSearchTerm('');
+                setSelectedCategory('all');
+                setSelectedDifficulty('all');
+                setSelectedLanguage('all');
+                setCurrentPage(1);
+              }}
+              className="inline-flex items-center bg-gray-600 text-white px-6 py-3 rounded-md hover:bg-gray-700 transition duration-300"
+            >
+              Reset Filters
+            </button>
+          </div>
         </div>
 
         {/* Summary Statistics */}

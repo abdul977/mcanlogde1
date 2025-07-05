@@ -5,7 +5,8 @@ import {
   getUserConversationsController,
   getUnreadCountController,
   markMessagesAsReadController,
-  getAllUsersForMessagingController
+  getAllUsersForMessagingController,
+  getAdminUsersController
 } from "../controller/Message.js";
 import { requireSignIn, isAdmin } from "../middlewares/Auth.js";
 
@@ -26,6 +27,9 @@ router.get("/unread-count", requireSignIn, getUnreadCountController);
 
 // Mark messages as read
 router.put("/mark-read/:userId", requireSignIn, markMessagesAsReadController);
+
+// Get admin users for regular users to contact
+router.get("/admins", requireSignIn, getAdminUsersController);
 
 // Admin routes
 // Get all users for messaging (admin only)
