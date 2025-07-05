@@ -67,45 +67,7 @@ select option {
   }
 }
 
-/* WhatsApp Chat Styles */
-.whatsapp-chat {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-}
 
-.whatsapp-message-bubble {
-  word-wrap: break-word;
-  word-break: break-word;
-}
-
-.whatsapp-typing-indicator {
-  animation: typing 1.4s infinite ease-in-out;
-}
-
-@keyframes typing {
-  0%, 60%, 100% {
-    transform: translateY(0);
-  }
-  30% {
-    transform: translateY(-10px);
-  }
-}
-
-/* Mobile-specific WhatsApp styles */
-@media (max-width: 768px) {
-  .whatsapp-chat-container {
-    height: 100vh;
-    height: 100dvh; /* Dynamic viewport height for mobile */
-  }
-
-  .whatsapp-message-input {
-    font-size: 16px; /* Prevent zoom on iOS */
-  }
-
-  .whatsapp-floating-button {
-    bottom: 20px;
-    right: 20px;
-  }
-}
 
 /* WhatsApp Chat Styles */
 .whatsapp-chat {

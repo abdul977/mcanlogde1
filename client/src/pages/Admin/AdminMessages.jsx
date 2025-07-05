@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { FaComments, FaUser, FaSearch, FaSync, FaEnvelope, FaEnvelopeOpen, FaBars, FaTimes, FaWhatsapp } from "react-icons/fa";
+import { FaComments, FaUser, FaSearch, FaSync, FaEnvelope, FaEnvelopeOpen, FaBars, FaTimes, FaArrowLeft } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
-import WhatsAppChat from "../../components/WhatsAppChat";
+import AdminChatInterface from "../../components/AdminChatInterface";
 
 const AdminMessages = () => {
   const [users, setUsers] = useState([]);
@@ -12,7 +12,7 @@ const AdminMessages = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
-  const [showWhatsAppChat, setShowWhatsAppChat] = useState(false);
+  const [showChatInterface, setShowChatInterface] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [auth] = useAuth();
@@ -89,11 +89,11 @@ const AdminMessages = () => {
 
   const handleStartConversation = (user) => {
     setSelectedUser(user);
-    setShowWhatsAppChat(true);
+    setShowChatInterface(true);
   };
 
-  const handleCloseWhatsAppChat = () => {
-    setShowWhatsAppChat(false);
+  const handleBackToMessages = () => {
+    setShowChatInterface(false);
     setSelectedUser(null);
     // Refresh conversations and unread count
     fetchConversations();
@@ -116,6 +116,69 @@ const AdminMessages = () => {
   const closeMobileMenu = () => {
     setIsMobileMenuOpen(false);
   };
+
+  // Filter users based on search term
+  const filteredUsers = users.filter(user =>
+    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    user.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // If chat interface is shown, render it directly
+  if (showChatInterface && selectedUser) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        {/* Mobile Header for Chat */}
+        <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={handleBackToMessages}
+              className="text-mcan-primary hover:text-mcan-secondary"
+            >
+              <FaArrowLeft size={20} />
+            </button>
+            <h2 className="text-lg font-semibold text-mcan-primary">Chat with {selectedUser.name}</h2>
+          </div>
+          <button
+            onClick={toggleMobileMenu}
+            className="text-mcan-primary hover:text-mcan-secondary transition-colors"
+          >
+            {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+          </button>
+        </div>
+
+        <div className="flex h-screen">
+          {/* Mobile Sidebar */}
+          <div className={`fixed top-0 left-0 h-full z-20 transform transition-transform duration-300 ease-in-out lg:hidden ${
+            isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}>
+            <Navbar onItemClick={closeMobileMenu} />
+          </div>
+
+          {/* Desktop Sidebar */}
+          <div className="hidden lg:block ml-[4rem]">
+            <Navbar />
+          </div>
+
+          {/* Mobile Overlay */}
+          {isMobileMenuOpen && (
+            <div
+              className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
+              onClick={closeMobileMenu}
+            ></div>
+          )}
+
+          {/* Chat Interface */}
+          <div className="flex-1 flex flex-col pt-16 lg:pt-0">
+            <AdminChatInterface
+              onBack={handleBackToMessages}
+              recipientId={selectedUser._id}
+              recipientName={selectedUser.name}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -163,8 +226,8 @@ const AdminMessages = () => {
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-3xl font-bold text-gray-800">Messages</h1>
-                <p className="text-gray-600 mt-2">Communicate with users</p>
+                <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">Admin Messages</h1>
+                <p className="text-gray-600 mt-2">Communicate with MCAN users</p>
               </div>
               <div className="flex items-center gap-4">
                 {unreadCount > 0 && (
@@ -172,13 +235,7 @@ const AdminMessages = () => {
                     {unreadCount} unread
                   </div>
                 )}
-                <button
-                  onClick={() => setShowWhatsAppChat(true)}
-                  className="flex items-center gap-2 px-4 py-2 bg-[#25D366] text-white rounded-lg hover:bg-[#20b858] transition duration-300"
-                >
-                  <FaWhatsapp />
-                  WhatsApp View
-                </button>
+
                 <button
                   onClick={() => {
                     fetchUsers();
@@ -260,14 +317,14 @@ const AdminMessages = () => {
                 <div className="flex justify-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-mcan-primary"></div>
                 </div>
-              ) : users.length === 0 ? (
+              ) : filteredUsers.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <FaUser className="mx-auto text-4xl mb-2" />
                   <p>No users found</p>
                 </div>
               ) : (
                 <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {users.map((user) => (
+                  {filteredUsers.map((user) => (
                     <div
                       key={user._id}
                       className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
@@ -303,11 +360,7 @@ const AdminMessages = () => {
         </div>
       </div>
 
-      {/* WhatsApp-Style Chat Interface */}
-      <WhatsAppChat
-        isOpen={showWhatsAppChat}
-        onClose={handleCloseWhatsAppChat}
-      />
+
     </div>
   );
 };
