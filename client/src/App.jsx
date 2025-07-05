@@ -41,6 +41,12 @@ import CreateLecture from "./pages/Admin/CreateLecture";
 import AllLectures from "./pages/Admin/AllLectures";
 import CreateQuranClass from "./pages/Admin/CreateQuranClass";
 import AllQuranClasses from "./pages/Admin/AllQuranClasses";
+import CreateResource from "./pages/Admin/CreateResource";
+import AllResources from "./pages/Admin/AllResources";
+import CreateCommunity from "./pages/Admin/CreateCommunity";
+import AllCommunity from "./pages/Admin/AllCommunity";
+import CreateDonation from "./pages/Admin/CreateDonation";
+import AllDonations from "./pages/Admin/AllDonations";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import CartPage from "./pages/CartPage";
 import ThankYou from "./components/ThankYou";
@@ -116,6 +122,12 @@ function App() {
             <Route path="lectures" element={<AllLectures />} />
             <Route path="create-quran-class" element={<CreateQuranClass />} />
             <Route path="quran-classes" element={<AllQuranClasses />} />
+            <Route path="create-resource" element={<CreateResource />} />
+            <Route path="resources" element={<AllResources />} />
+            <Route path="create-community" element={<CreateCommunity />} />
+            <Route path="community" element={<AllCommunity />} />
+            <Route path="create-donation" element={<CreateDonation />} />
+            <Route path="donations" element={<AllDonations />} />
           </Route>
         </Routes>
       </main>
