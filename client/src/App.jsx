@@ -29,11 +29,8 @@ import PrivateRoute from "./components/Routes/Admin";
 import UserRoutes from "./components/Routes/Private";
 import CreateCategory from "./pages/Admin/CreateCategory";
 import AllPost from "./pages/Admin/AllPost";
-import AllTrip from "./pages/Admin/AllTrip";
 import UpdatePost from "./pages/Admin/UpdatePost";
 import CartPage from "./pages/CartPage";
-import Payment from "./pages/Payment";
-import YourOrder from "./pages/YourOrder";
 import ThankYou from "./components/ThankYou";
 import SelectedCategory from "./pages/SelectedCategory";
 import ContributePost from "./pages/User/ContributePost";
@@ -77,14 +74,11 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/saved-accommodations" element={<CartPage />} />
-          <Route path="/payment" element={<Payment />} />
-          <Route path="/booking-confirmation" element={<ThankYou />} />
           <Route path="/category/:slug" element={<SelectedCategory />} />
 
           {/* User Routes */}
           <Route path="/user" element={<UserRoutes />}>
             <Route path="" element={<UserDashboard />} />
-            <Route path="bookings" element={<YourOrder />} />
           </Route>
 
           {/* Admin Routes */}
@@ -97,7 +91,6 @@ function App() {
             <Route path="add-category" element={<CreateCategory />} />
             <Route path="accommodations" element={<AllPost />} />
             <Route path="details" element={<Details />} />
-            <Route path="bookings" element={<AllTrip />} />
             <Route path="edit/:slug" element={<UpdatePost />} />
           </Route>
         </Routes>

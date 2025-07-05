@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 
 const navbarMenu = [
   { id: 1, name: "User Details", link: "/user", icon: <FaUser /> },
-  { id: 2, name: "Your Order", link: "/user/your-order", icon: <FaPlus /> },
-  // { id: 3, name: "Contribute", link: "/user/create-post", icon: <FaList /> },
+  // { id: 2, name: "Contribute", link: "/user/create-post", icon: <FaList /> },
 ];
 
 const Navbar = () => {

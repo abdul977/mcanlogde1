@@ -1,5 +1,5 @@
 import React from "react";
-import { FaUser, FaPlus, FaList, FaFolder, FaMap, FaCalendarPlus, FaCalendarAlt } from "react-icons/fa";
+import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const navbarMenu = [
@@ -12,9 +12,8 @@ const navbarMenu = [
     link: "/admin/create-category",
     icon: <FaFolder />,
   },
-  { id: 5, name: "All Orders", link: "/admin/all-booking", icon: <FaMap /> },
-  { id: 6, name: "Create Event", link: "/admin/create-event", icon: <FaCalendarPlus /> },
-  { id: 7, name: "All Events", link: "/admin/events", icon: <FaCalendarAlt /> },
+  { id: 5, name: "Create Event", link: "/admin/create-event", icon: <FaCalendarPlus /> },
+  { id: 6, name: "All Events", link: "/admin/events", icon: <FaCalendarAlt /> },
 ];
 
 const Navbar = () => {

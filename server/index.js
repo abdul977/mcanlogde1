@@ -9,7 +9,6 @@ import { connectToDb } from "./src/config/db.js";
 import authRoutes from "./src/routes/User.js";
 import postRoutes from "./src/routes/Post.js";
 import categoryRoutes from "./src/routes/Category.js";
-import bookingRoutes from "./src/routes/Booking.js";
 import eventRoutes from "./src/routes/Event.js";
 
 // Load environment variables from .env file
@@ -59,7 +58,6 @@ app.use("/auth/api", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/events", eventRoutes);
-app.use("/api/booking", bookingRoutes);
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';

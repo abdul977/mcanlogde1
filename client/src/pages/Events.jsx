@@ -1,9 +1,14 @@
 
-import React, { useState } from "react";
-import { FaCalendar, FaClock, FaMapMarkerAlt, FaUsers, FaMosque, FaGraduationCap } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaCalendar, FaClock, FaMapMarkerAlt, FaUsers, FaMosque, FaGraduationCap, FaSync } from "react-icons/fa";
+import axios from "axios";
+import { toast } from "react-toastify";
 
 const Events = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   const categories = [
     { id: "all", name: "All Events" },
@@ -13,55 +18,63 @@ const Events = () => {
     { id: "development", name: "Development" },
   ];
 
-  const events = [
-    {
-      title: "Annual MCAN Conference",
-      category: "educational",
-      date: "March 15, 2025",
-      time: "9:00 AM - 5:00 PM",
-      location: "MCAN FCT Secretariat",
-      description: "Annual gathering of Muslim corps members featuring keynote speakers and workshops",
-      image: "conference.jpg",
-      attendees: 200,
-      status: "Upcoming",
-    },
-    {
-      title: "Ramadan Preparation Workshop",
-      category: "spiritual",
-      date: "February 25, 2025",
-      time: "2:00 PM - 4:00 PM",
-      location: "Central Mosque",
-      description: "Preparing for the blessed month with practical tips and spiritual guidance",
-      image: "ramadan.jpg",
-      attendees: 150,
-      status: "Registration Open",
-    },
-    {
-      title: "Career Development Seminar",
-      category: "development",
-      date: "March 5, 2025",
-      time: "10:00 AM - 1:00 PM",
-      location: "MCAN Training Center",
-      description: "Professional development workshop for corps members",
-      image: "career.jpg",
-      attendees: 100,
-      status: "Registration Open",
-    },
-    {
-      title: "Islamic Social Mixer",
-      category: "social",
-      date: "February 20, 2025",
-      time: "4:00 PM - 6:00 PM",
-      location: "MCAN Recreation Center",
-      description: "Networking event for Muslim corps members",
-      image: "mixer.jpg",
-      attendees: 80,
-      status: "Limited Seats",
-    },
-  ];
+  // Fetch events from server
+  const fetchEvents = async (showRefreshLoader = false) => {
+    try {
+      if (showRefreshLoader) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
 
-  const filteredEvents = selectedCategory === "all" 
-    ? events 
+      const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/events/get-all-events`);
+
+      if (data?.success) {
+        setEvents(data.events || []);
+        if (showRefreshLoader) {
+          toast.success("Events refreshed successfully!", { position: "bottom-left" });
+        }
+      } else {
+        toast.error(data?.message || "Error fetching events", { position: "bottom-left" });
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      toast.error("Failed to fetch events. Please try again.", { position: "bottom-left" });
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  // Load events on component mount
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  // Handle refresh button click
+  const handleRefresh = () => {
+    fetchEvents(true);
+  };
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
+  // Format time for display
+  const formatTime = (dateString) => {
+    return new Date(dateString).toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const filteredEvents = selectedCategory === "all"
+    ? events
     : events.filter(event => event.category === selectedCategory);
 
   const iconMap = {
@@ -76,7 +89,22 @@ const Events = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl font-bold text-mcan-primary mb-4">Events & Activities</h1>
+          <div className="flex justify-center items-center gap-4 mb-4">
+            <h1 className="text-4xl font-bold text-mcan-primary">Events & Activities</h1>
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                refreshing
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-mcan-primary text-white hover:bg-mcan-secondary'
+              }`}
+              title="Refresh Events"
+            >
+              <FaSync className={`${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
             Stay connected with the MCAN community through our diverse range of events and activities
           </p>
@@ -100,69 +128,96 @@ const Events = () => {
         </div>
 
         {/* Events Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredEvents.map((event, index) => (
-            <div
-              key={index}
-              className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
-            >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="w-10 h-10 rounded-full bg-mcan-primary/10 flex items-center justify-center text-mcan-primary">
-                      {iconMap[event.category]}
+        {loading ? (
+          <div className="flex justify-center items-center py-16">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mcan-primary"></div>
+            <span className="ml-3 text-gray-600">Loading events...</span>
+          </div>
+        ) : filteredEvents.length === 0 ? (
+          <div className="text-center py-16">
+            <FaCalendar className="mx-auto text-6xl text-gray-300 mb-4" />
+            <h3 className="text-xl font-semibold text-gray-600 mb-2">No Events Found</h3>
+            <p className="text-gray-500">
+              {selectedCategory === "all"
+                ? "No events are currently available. Check back later!"
+                : `No ${selectedCategory} events found. Try selecting a different category.`
+              }
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredEvents.map((event, index) => (
+              <div
+                key={event._id || index}
+                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+              >
+                {event.image && (
+                  <div className="h-48 bg-gray-200 overflow-hidden">
+                    <img
+                      src={event.image}
+                      alt={event.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                )}
+
+                <div className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-10 h-10 rounded-full bg-mcan-primary/10 flex items-center justify-center text-mcan-primary">
+                        {iconMap[event.category] || <FaCalendar className="text-2xl" />}
+                      </div>
+                      <span className="text-sm font-medium text-mcan-secondary capitalize">
+                        {event.category || 'General'}
+                      </span>
                     </div>
-                    <span className="text-sm font-medium text-mcan-secondary capitalize">
-                      {event.category}
+                    <span className={`text-sm px-3 py-1 rounded-full ${
+                      event.status === "published"
+                        ? "bg-green-100 text-green-800"
+                        : event.status === "draft"
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-blue-100 text-blue-800"
+                    }`}>
+                      {event.status === "published" ? "Available" : event.status}
                     </span>
                   </div>
-                  <span className={`text-sm px-3 py-1 rounded-full ${
-                    event.status === "Upcoming" 
-                      ? "bg-green-100 text-green-800"
-                      : event.status === "Limited Seats"
-                      ? "bg-yellow-100 text-yellow-800"
-                      : "bg-blue-100 text-blue-800"
-                  }`}>
-                    {event.status}
-                  </span>
+
+                  <h3 className="text-xl font-semibold text-mcan-primary mb-3">
+                    {event.title}
+                  </h3>
+                  <p className="text-gray-600 mb-4 line-clamp-3">{event.description}</p>
+
+                  <div className="space-y-2 text-gray-600">
+                    <div className="flex items-center">
+                      <FaCalendar className="mr-2" />
+                      <span>{formatDate(event.date)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <FaClock className="mr-2" />
+                      <span>{formatTime(event.date)}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <FaMapMarkerAlt className="mr-2" />
+                      <span>{event.location}</span>
+                    </div>
+                  </div>
                 </div>
 
-                <h3 className="text-xl font-semibold text-mcan-primary mb-3">
-                  {event.title}
-                </h3>
-                <p className="text-gray-600 mb-4">{event.description}</p>
-
-                <div className="space-y-2 text-gray-600">
-                  <div className="flex items-center">
-                    <FaCalendar className="mr-2" />
-                    <span>{event.date}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <FaClock className="mr-2" />
-                    <span>{event.time}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <FaMapMarkerAlt className="mr-2" />
-                    <span>{event.location}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <FaUsers className="mr-2" />
-                    <span>{event.attendees} Expected Attendees</span>
-                  </div>
+                <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
+                  <button
+                    className="block w-full text-center bg-mcan-primary text-white py-2 rounded-md hover:bg-mcan-secondary transition duration-300"
+                    onClick={() => toast.info("Event registration coming soon!", { position: "bottom-left" })}
+                  >
+                    Learn More
+                  </button>
                 </div>
               </div>
-
-              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
-                <a
-                  href={`/register-event/${index}`}
-                  className="block w-full text-center bg-mcan-primary text-white py-2 rounded-md hover:bg-mcan-secondary transition duration-300"
-                >
-                  Register Now
-                </a>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
 
         {/* Add to Calendar Section */}
         <div className="mt-16 text-center">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendar, FaUsers, FaBook, FaMosque } from "react-icons/fa";
+import { FaCalendar, FaUsers, FaBook, FaMosque, FaSync } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -33,16 +33,26 @@ const Programs = () => {
 
   const [upcomingEvents, setUpcomingEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     getUpcomingEvents();
   }, []);
 
-  const getUpcomingEvents = async () => {
+  const getUpcomingEvents = async (showRefreshLoader = false) => {
     try {
-      const { data } = await axios.get("/api/events/upcoming-events");
+      if (showRefreshLoader) {
+        setRefreshing(true);
+      } else {
+        setLoading(true);
+      }
+
+      const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/events/upcoming-events`);
       if (data?.success) {
         setUpcomingEvents(data.events);
+        if (showRefreshLoader) {
+          toast.success("Events refreshed successfully!", { position: "bottom-left" });
+        }
       } else {
         toast.error(data?.message || "Error fetching events", { position: "bottom-left" });
       }
@@ -51,7 +61,13 @@ const Programs = () => {
       toast.error("Error fetching upcoming events");
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
+  };
+
+  // Handle refresh button click
+  const handleRefresh = () => {
+    getUpcomingEvents(true);
   };
 
   return (
@@ -81,11 +97,27 @@ const Programs = () => {
         </div>
 
         <div className="mt-16 bg-white p-8 rounded-lg shadow-md">
-          <h2 className="text-2xl font-bold text-mcan-primary mb-6">Upcoming Events</h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-bold text-mcan-primary">Upcoming Events</h2>
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                refreshing
+                  ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                  : 'bg-mcan-primary text-white hover:bg-mcan-secondary'
+              }`}
+              title="Refresh Events"
+            >
+              <FaSync className={`${refreshing ? 'animate-spin' : ''}`} />
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </button>
+          </div>
           <div className="space-y-4">
             {loading ? (
-              <div className="flex justify-center py-8">
+              <div className="flex justify-center items-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-mcan-primary"></div>
+                <span className="ml-3 text-gray-600">Loading events...</span>
               </div>
             ) : upcomingEvents.length === 0 ? (
               <p className="text-gray-500 text-center py-4">No upcoming events scheduled</p>

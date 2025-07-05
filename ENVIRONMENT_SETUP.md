@@ -8,8 +8,7 @@ Before setting up the environment variables, make sure you have accounts and API
 
 1. **MongoDB Atlas** - Database hosting
 2. **Cloudinary** - Image upload and management
-3. **Stripe** - Payment processing
-4. **Email Service** (Optional) - For notifications
+3. **Email Service** (Optional) - For notifications
 
 ## Backend Environment Setup (server/.env)
 
@@ -38,11 +37,6 @@ Before setting up the environment variables, make sure you have accounts and API
 - **CLOUDINARY_API_SECRET**: Your Cloudinary API secret
   - Get these from [Cloudinary Console](https://cloudinary.com/console)
 
-### Stripe Configuration
-- **STRIPE_SECRET_KEY**: Your Stripe secret key (starts with `sk_test_` for test mode)
-- **STRIPE_PUBLISHABLE_KEY**: Your Stripe publishable key (starts with `pk_test_` for test mode)
-  - Get these from [Stripe Dashboard](https://dashboard.stripe.com/apikeys)
-
 ## Frontend Environment Setup (client/.env)
 
 1. Copy the example file:
@@ -57,10 +51,6 @@ Before setting up the environment variables, make sure you have accounts and API
 - **VITE_BASE_URL**: Backend server URL
   - Development: `http://localhost:3000`
   - Production: `https://mcanlogde1.onrender.com`
-
-### Stripe Configuration
-- **VITE_STRIPE_PUBLISHABLE_KEY**: Same as the backend STRIPE_PUBLISHABLE_KEY
-  - This must match the publishable key in your server environment
 
 ## Important Notes
 
@@ -87,7 +77,6 @@ After setting up the environment variables:
    npm run dev
    ```
    - Check if the frontend can communicate with the backend
-   - Test payment functionality with Stripe test cards
 
 ## Troubleshooting
 
@@ -98,12 +87,7 @@ After setting up the environment variables:
    - Ensure your IP is whitelisted in MongoDB Atlas
    - Verify username/password are correct
 
-2. **Stripe Payment Issues**:
-   - Ensure STRIPE_PUBLISHABLE_KEY matches between frontend and backend
-   - Use Stripe test card numbers for testing
-   - Check Stripe dashboard for error logs
-
-3. **Cloudinary Upload Issues**:
+2. **Cloudinary Upload Issues**:
    - Verify all three Cloudinary credentials are correct
    - Check Cloudinary console for usage limits
 
@@ -118,7 +102,7 @@ After setting up the environment variables:
 ## Security Best Practices
 
 1. Use strong, unique passwords for all services
-2. Enable 2FA on all accounts (MongoDB, Stripe, Cloudinary)
+2. Enable 2FA on all accounts (MongoDB, Cloudinary)
 3. Regularly rotate API keys
 4. Use environment-specific keys (test for development, live for production)
 5. Monitor API usage and set up alerts for unusual activity
@@ -128,11 +112,10 @@ After setting up the environment variables:
 When deploying to production:
 
 1. Create new .env files with production values
-2. Use live Stripe keys instead of test keys
-3. Update VITE_BASE_URL to your production backend URL (`https://mcanlogde1.onrender.com`)
-4. Update FRONTEND_URL to your production frontend URL (`https://mcanlogde1.vercel.app`)
-5. Ensure all services are configured for production use
-6. Set NODE_ENV=production in your backend environment
+2. Update VITE_BASE_URL to your production backend URL (`https://mcanlogde1.onrender.com`)
+3. Update FRONTEND_URL to your production frontend URL (`https://mcanlogde1.vercel.app`)
+4. Ensure all services are configured for production use
+5. Set NODE_ENV=production in your backend environment
 
 ## Production URLs
 
