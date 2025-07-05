@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaQuran, FaBook, FaUserGraduate, FaCalendar, FaClock, FaUsers, FaSync, FaMapMarkerAlt, FaVideo, FaTag, FaMoney, FaGraduationCap } from "react-icons/fa";
+import { FaQuran, FaBook, FaUserGraduate, FaCalendar, FaClock, FaUsers, FaSync, FaMapMarkerAlt, FaVideo, FaTag, FaDollarSign, FaGraduationCap } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -387,7 +387,7 @@ const Quran = () => {
                     )}
                     {quranClass.fees?.amount > 0 && (
                       <div className="flex items-center">
-                        <FaMoney className="mr-2 text-mcan-primary" />
+                        <FaDollarSign className="mr-2 text-mcan-primary" />
                         <span>
                           {quranClass.fees.currency} {quranClass.fees.amount.toLocaleString()}
                           {quranClass.fees.paymentSchedule !== 'one-time' && ` (${quranClass.fees.paymentSchedule})`}
