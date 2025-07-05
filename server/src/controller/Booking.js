@@ -9,6 +9,10 @@ import mongoose from "mongoose";
 // Create a new booking request
 export const createBookingController = async (req, res) => {
   try {
+    console.log("=== Booking Creation Debug ===");
+    console.log("Request body:", req.body);
+    console.log("Request user:", req.user);
+
     const {
       bookingType,
       accommodationId,
@@ -22,7 +26,15 @@ export const createBookingController = async (req, res) => {
       enrollmentDetails
     } = req.body;
 
-    const userId = req.user._id;
+    const userId = req.user._id || req.user.id;
+    console.log("Extracted userId:", userId);
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID not found in authentication token"
+      });
+    }
 
     // Validate required fields based on booking type
     if (bookingType === 'accommodation') {
@@ -179,7 +191,7 @@ export const createBookingController = async (req, res) => {
 // Get user's bookings
 export const getUserBookingsController = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user._id || req.user.id;
     const { status, bookingType, page = 1, limit = 10 } = req.query;
 
     const filter = { user: userId };
@@ -276,7 +288,7 @@ export const updateBookingStatusController = async (req, res) => {
   try {
     const { id } = req.params;
     const { status, adminNotes } = req.body;
-    const adminId = req.user._id;
+    const adminId = req.user._id || req.user.id;
 
     if (!['approved', 'rejected', 'cancelled'].includes(status)) {
       return res.status(400).json({
@@ -342,7 +354,7 @@ export const updateBookingStatusController = async (req, res) => {
 export const getBookingController = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user._id;
+    const userId = req.user._id || req.user.id;
     const userRole = req.user.role;
 
     const booking = await Booking.findById(id)
@@ -384,7 +396,7 @@ export const getBookingController = async (req, res) => {
 export const cancelBookingController = async (req, res) => {
   try {
     const { id } = req.params;
-    const userId = req.user._id;
+    const userId = req.user._id || req.user.id;
 
     const booking = await Booking.findById(id);
 

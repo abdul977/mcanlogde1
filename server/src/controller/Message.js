@@ -6,7 +6,7 @@ import mongoose from "mongoose";
 export const sendMessageController = async (req, res) => {
   try {
     const { recipientId, content, priority = 'normal' } = req.body;
-    const senderId = req.user._id;
+    const senderId = req.user._id || req.user.id;
 
     if (!recipientId || !content) {
       return res.status(400).json({
@@ -65,7 +65,7 @@ export const sendMessageController = async (req, res) => {
 export const getConversationController = async (req, res) => {
   try {
     const { userId } = req.params;
-    const currentUserId = req.user._id;
+    const currentUserId = req.user._id || req.user.id;
     const { page = 1, limit = 50 } = req.query;
 
     // Validate the other user exists
@@ -123,7 +123,7 @@ export const getConversationController = async (req, res) => {
 // Get user's conversations list
 export const getUserConversationsController = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user._id || req.user.id;
 
     const conversations = await Message.getUserConversations(userId);
 
@@ -174,7 +174,7 @@ export const getUserConversationsController = async (req, res) => {
 // Get unread message count
 export const getUnreadCountController = async (req, res) => {
   try {
-    const userId = req.user._id;
+    const userId = req.user._id || req.user.id;
 
     const unreadCount = await Message.getUnreadCount(userId);
 
@@ -197,7 +197,7 @@ export const getUnreadCountController = async (req, res) => {
 export const markMessagesAsReadController = async (req, res) => {
   try {
     const { userId } = req.params;
-    const currentUserId = req.user._id;
+    const currentUserId = req.user._id || req.user.id;
 
     const threadId = Message.generateThreadId(currentUserId, userId);
     const result = await Message.markAsRead(threadId, currentUserId);
@@ -222,7 +222,7 @@ export const markMessagesAsReadController = async (req, res) => {
 export const getAllUsersForMessagingController = async (req, res) => {
   try {
     const { search, role, page = 1, limit = 20 } = req.query;
-    const currentUserId = req.user._id;
+    const currentUserId = req.user._id || req.user.id;
 
     const filter = { _id: { $ne: currentUserId } };
     

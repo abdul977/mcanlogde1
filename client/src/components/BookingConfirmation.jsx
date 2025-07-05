@@ -126,7 +126,12 @@ const BookingConfirmation = ({
       }
 
       const token = localStorage.getItem("auth") ? JSON.parse(localStorage.getItem("auth")).token : null;
-      
+
+      if (!token) {
+        toast.error("Authentication required. Please login again.");
+        return;
+      }
+
       const response = await axios.post(
         `${import.meta.env.VITE_BASE_URL}/api/bookings/create`,
         bookingData,
