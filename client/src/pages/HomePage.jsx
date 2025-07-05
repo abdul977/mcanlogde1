@@ -3,6 +3,7 @@ import Banner from "../components/Banner";
 import AccommodationTypes from "../components/DreamVacation";
 import IslamicLiving from "../components/NextTrip";
 import Accommodations from "../components/Hotels";
+import BlogSection from "../components/BlogSection";
 
 const HomePage = () => {
   return (
@@ -21,6 +22,9 @@ const HomePage = () => {
         {/* Available Accommodations Section */}
         <Accommodations />
       </div>
+
+      {/* Blog Section */}
+      <BlogSection />
 
       {/* Islamic Quote Section */}
       <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white py-12 mt-16">

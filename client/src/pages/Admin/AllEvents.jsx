@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaEdit, FaTrash, FaCalendar } from "react-icons/fa";
+import { FaEdit, FaTrash, FaCalendar, FaPlus, FaMapMarkerAlt, FaEye } from "react-icons/fa";
 import { useAuth } from "../../context/UserContext";
-import FilterSidebar from "../../components/Serach/FilterSidebar";
+import Navbar from "./Navbar";
 
 const AllEvents = () => {
   const [auth] = useAuth();
@@ -27,7 +27,7 @@ const AllEvents = () => {
         queryParams.append("endDate", filterParams.dateRange.end);
       }
 
-      const { data } = await axios.get(`/api/events/get-all-events?${queryParams}`, {
+      const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/events/get-all-events?${queryParams}`, {
         headers: {
           Authorization: auth?.token
         }
@@ -53,19 +53,23 @@ const AllEvents = () => {
 
   // Delete event
   const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this event?")) {
+      return;
+    }
+
     try {
-      const { data } = await axios.delete(`/api/events/delete-event/${id}`, {
+      const { data } = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/events/delete-event/${id}`, {
         headers: {
           Authorization: auth?.token
         }
       });
       if (data?.success) {
-        toast.success("Event deleted successfully", { position: "bottom-left" });
+        toast.success("Event deleted successfully");
         getAllEvents(); // Refresh the list
       }
     } catch (error) {
       console.error(error);
-      toast.error("Error deleting event", { position: "bottom-left" });
+      toast.error(error.response?.data?.message || "Error deleting event");
     }
   };
 
@@ -91,51 +95,78 @@ const AllEvents = () => {
     }
   };
 
-  if (loading) {
-    return (
-    <div className="flex flex-grow">
-      <FilterSidebar applyFilters={handleApplyFilters} />
-      <div className="flex-grow p-8">
-        <div className="flex justify-center items-center h-full">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-mcan-primary"></div>
-      </div>
-    </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="flex-grow p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold">Manage Events</h2>
-        <Link
-          to="/admin/create-event"
-          className="bg-mcan-primary text-white px-4 py-2 rounded-md hover:bg-mcan-secondary transition-colors duration-300"
-        >
-          Create New Event
-        </Link>
-      </div>
+    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
+      <div className="flex">
+        <div className="ml-[4rem]">
+          <Navbar />
+        </div>
+        <div className="flex-1 p-8">
+          {/* Header */}
+          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
+                  <FaCalendar className="text-white text-xl" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">Manage Events</h1>
+                  <p className="text-gray-600">View and manage all MCAN events</p>
+                </div>
+              </div>
+              <Link
+                to="/admin/create-event"
+                className="bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white px-6 py-3 rounded-lg hover:opacity-90 transition duration-300 flex items-center space-x-2"
+              >
+                <FaPlus className="text-sm" />
+                <span>Create New Event</span>
+              </Link>
+            </div>
+          </div>
 
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Event
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Date & Location
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {events.map((event) => (
+          {loading ? (
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <div className="flex justify-center items-center h-32">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-mcan-primary"></div>
+                <span className="ml-3 text-gray-600">Loading events...</span>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              {events.length === 0 ? (
+                <div className="p-8 text-center">
+                  <FaCalendar className="mx-auto text-4xl text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
+                  <p className="text-gray-600 mb-4">Get started by creating your first event.</p>
+                  <Link
+                    to="/admin/create-event"
+                    className="bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white px-6 py-3 rounded-lg hover:opacity-90 transition duration-300 inline-flex items-center space-x-2"
+                  >
+                    <FaPlus className="text-sm" />
+                    <span>Create Event</span>
+                  </Link>
+                </div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead className="bg-gradient-to-r from-mcan-primary/10 to-mcan-secondary/10">
+                      <tr>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          Event
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          Date & Location
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          Status
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
+                          Actions
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {events.map((event) => (
               <tr key={event._id}>
                 <td className="px-6 py-4">
                   <div className="flex items-center">
@@ -169,15 +200,24 @@ const AllEvents = () => {
                 </td>
                 <td className="px-6 py-4 text-sm font-medium">
                   <div className="flex space-x-3">
+                    <button
+                      onClick={() => window.open(`/events/${event.slug}`, '_blank')}
+                      className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
+                      title="View Event"
+                    >
+                      <FaEye className="w-5 h-5" />
+                    </button>
                     <Link
                       to={`/admin/edit-event/${event._id}`}
-                      className="text-mcan-primary hover:text-mcan-secondary"
+                      className="text-mcan-primary hover:text-mcan-secondary transition-colors duration-200"
+                      title="Edit Event"
                     >
                       <FaEdit className="w-5 h-5" />
                     </Link>
                     <button
                       onClick={() => handleDelete(event._id)}
-                      className="text-red-600 hover:text-red-900"
+                      className="text-red-600 hover:text-red-900 transition-colors duration-200"
+                      title="Delete Event"
                     >
                       <FaTrash className="w-5 h-5" />
                     </button>
@@ -187,6 +227,11 @@ const AllEvents = () => {
             ))}
           </tbody>
         </table>
+      </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

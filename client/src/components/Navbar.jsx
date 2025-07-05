@@ -91,6 +91,9 @@ const Navbar = () => {
             <Link to="/about" className="text-white hover:text-mcan-light transition duration-300">
               About Us
             </Link>
+            <Link to="/blog" className="text-white hover:text-mcan-light transition duration-300">
+              Blog
+            </Link>
             <Link to="/contact" className="text-white hover:text-mcan-light transition duration-300">
               Contact
             </Link>
@@ -183,6 +186,13 @@ const Navbar = () => {
               onClick={closeMobileMenu}
             >
               About Us
+            </Link>
+            <Link
+              to="/blog"
+              className="block px-3 py-2 text-white hover:bg-mcan-secondary rounded-md transition duration-300"
+              onClick={closeMobileMenu}
+            >
+              Blog
             </Link>
             <Link
               to="/contact"

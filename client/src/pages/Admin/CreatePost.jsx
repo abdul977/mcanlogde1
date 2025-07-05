@@ -421,6 +421,218 @@ const CreatePost = () => {
                 </div>
               </div>
 
+              {/* Facilities Section */}
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  <FaUsers className="mr-2 text-mcan-primary" />
+                  Facilities & Amenities
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      placeholder="Add a facility (e.g., WiFi, Kitchen, Prayer Room)"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addToArray(facilities, setFacilities, e.target.value);
+                          e.target.value = '';
+                        }
+                      }}
+                      className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        const input = e.target.parentElement.querySelector('input');
+                        addToArray(facilities, setFacilities, input.value);
+                        input.value = '';
+                      }}
+                      className="px-4 py-3 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {facilities.map((facility, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
+                      >
+                        {facility}
+                        <button
+                          type="button"
+                          onClick={() => removeFromArray(facilities, setFacilities, index)}
+                          className="ml-2 text-red-500 hover:text-red-700"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Nearby Areas Section */}
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  <FaMapMarkerAlt className="mr-2 text-mcan-primary" />
+                  Nearby Areas & Landmarks
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      placeholder="Add nearby area (e.g., NYSC Camp, Market, Hospital)"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addToArray(nearArea, setNearArea, e.target.value);
+                          e.target.value = '';
+                        }
+                      }}
+                      className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        const input = e.target.parentElement.querySelector('input');
+                        addToArray(nearArea, setNearArea, input.value);
+                        input.value = '';
+                      }}
+                      className="px-4 py-3 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {nearArea.map((area, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
+                      >
+                        {area}
+                        <button
+                          type="button"
+                          onClick={() => removeFromArray(nearArea, setNearArea, index)}
+                          className="ml-2 text-red-500 hover:text-red-700"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Rules Section */}
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  <FaMosque className="mr-2 text-mcan-primary" />
+                  Islamic Rules & Guidelines
+                </h3>
+                <div className="space-y-4">
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      placeholder="Add a rule (e.g., No mixing of non-mahrams, Respect prayer times)"
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          addToArray(rules, setRules, e.target.value);
+                          e.target.value = '';
+                        }
+                      }}
+                      className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
+                    />
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        const input = e.target.parentElement.querySelector('input');
+                        addToArray(rules, setRules, input.value);
+                        input.value = '';
+                      }}
+                      className="px-4 py-3 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {rules.map((rule, index) => (
+                      <span
+                        key={index}
+                        className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
+                      >
+                        {rule}
+                        <button
+                          type="button"
+                          onClick={() => removeFromArray(rules, setRules, index)}
+                          className="ml-2 text-red-500 hover:text-red-700"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                  {rules.length === 0 && (
+                    <div className="text-sm text-gray-600">
+                      <p>Default Islamic rules will be applied:</p>
+                      <ul className="list-disc list-inside mt-2 space-y-1">
+                        <li>No mixing of non-mahrams</li>
+                        <li>Respect prayer times</li>
+                        <li>Maintain Islamic etiquette</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Landlord Contact Section */}
+              <div className="bg-gray-50 p-6 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                  <FaUsers className="mr-2 text-mcan-primary" />
+                  Landlord/Contact Information
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Contact Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., MCAN Housing Coordinator"
+                      value={landlordContact.name}
+                      onChange={(e) => handleLandlordContactChange('name', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Phone Number
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder="e.g., +234XXXXXXXXX"
+                      value={landlordContact.phone}
+                      onChange={(e) => handleLandlordContactChange('phone', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Preferred Contact Time
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g., 8:00 AM - 8:00 PM"
+                      value={landlordContact.preferredContactTime}
+                      onChange={(e) => handleLandlordContactChange('preferredContactTime', e.target.value)}
+                      className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Image Upload Section */}
               <div className="bg-gray-50 p-6 rounded-lg">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">

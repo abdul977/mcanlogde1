@@ -11,6 +11,9 @@ import Contact from "./pages/Contact";
 import Lectures from "./pages/Lectures";
 import Quran from "./pages/Quran";
 import Events from "./pages/Events";
+import EventDetails from "./pages/EventDetails";
+import Blog from "./pages/Blog";
+import BlogDetails from "./pages/BlogDetails";
 import Support from "./pages/Support";
 import LodgeSponsorship from "./pages/LodgeSponsorship";
 import Resources from "./pages/Resources";
@@ -30,6 +33,8 @@ import UserRoutes from "./components/Routes/Private";
 import CreateCategory from "./pages/Admin/CreateCategory";
 import AllPost from "./pages/Admin/AllPost";
 import UpdatePost from "./pages/Admin/UpdatePost";
+import CreateBlog from "./pages/Admin/CreateBlog";
+import AllBlogs from "./pages/Admin/AllBlogs";
 import CartPage from "./pages/CartPage";
 import ThankYou from "./components/ThankYou";
 import SelectedCategory from "./pages/SelectedCategory";
@@ -66,11 +71,15 @@ function App() {
           <Route path="/lectures" element={<Lectures />} />
           <Route path="/quran" element={<Quran />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/events/:slug" element={<EventDetails />} />
+          <Route path="/blog" element={<Blog />} />
+          <Route path="/blog/:slug" element={<BlogDetails />} />
           <Route path="/donate" element={<Support />} />
           <Route path="/lodge-sponsorship" element={<LodgeSponsorship />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/community" element={<Community />} />
           <Route path="/product/:slug" element={<ProductDetails />} />
+          <Route path="/accommodation/:slug" element={<ProductDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/saved-accommodations" element={<CartPage />} />
@@ -92,6 +101,8 @@ function App() {
             <Route path="accommodations" element={<AllPost />} />
             <Route path="details" element={<Details />} />
             <Route path="edit/:slug" element={<UpdatePost />} />
+            <Route path="create-blog" element={<CreateBlog />} />
+            <Route path="blogs" element={<AllBlogs />} />
           </Route>
         </Routes>
       </main>

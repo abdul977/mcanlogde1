@@ -1,19 +1,21 @@
 import React from "react";
-import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt } from "react-icons/fa";
+import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt, FaPen, FaBlog } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const navbarMenu = [
   { id: 1, name: "Admin Details", link: "/admin/details", icon: <FaUser /> },
-  { id: 2, name: "Create Post", link: "/admin/create-post", icon: <FaPlus /> },
-  { id: 3, name: "All Posts", link: "/admin/all-post", icon: <FaList /> },
+  { id: 2, name: "Add Accommodation", link: "/admin/add-accommodation", icon: <FaPlus /> },
+  { id: 3, name: "All Accommodations", link: "/admin/accommodations", icon: <FaList /> },
   {
     id: 4,
-    name: "Create Category",
-    link: "/admin/create-category",
+    name: "Add Category",
+    link: "/admin/add-category",
     icon: <FaFolder />,
   },
   { id: 5, name: "Create Event", link: "/admin/create-event", icon: <FaCalendarPlus /> },
   { id: 6, name: "All Events", link: "/admin/events", icon: <FaCalendarAlt /> },
+  { id: 7, name: "Create Blog", link: "/admin/create-blog", icon: <FaPen /> },
+  { id: 8, name: "All Blogs", link: "/admin/blogs", icon: <FaBlog /> },
 ];
 
 const Navbar = () => {

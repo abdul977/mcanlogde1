@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { FaCalendar, FaClock, FaMapMarkerAlt, FaUsers, FaMosque, FaGraduationCap, FaSync } from "react-icons/fa";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { toast } from "react-toastify";
 
@@ -207,12 +208,12 @@ const Events = () => {
                 </div>
 
                 <div className="px-6 py-4 bg-gray-50 border-t border-gray-100">
-                  <button
+                  <Link
+                    to={`/events/${event.slug}`}
                     className="block w-full text-center bg-mcan-primary text-white py-2 rounded-md hover:bg-mcan-secondary transition duration-300"
-                    onClick={() => toast.info("Event registration coming soon!", { position: "bottom-left" })}
                   >
                     Learn More
-                  </button>
+                  </Link>
                 </div>
               </div>
             ))}

@@ -10,6 +10,7 @@ import authRoutes from "./src/routes/User.js";
 import postRoutes from "./src/routes/Post.js";
 import categoryRoutes from "./src/routes/Category.js";
 import eventRoutes from "./src/routes/Event.js";
+import blogRoutes from "./src/routes/Blog.js";
 
 // Load environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -34,8 +35,10 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:5174',
+    'http://localhost:5175',
     'http://127.0.0.1:5173',
     'http://127.0.0.1:5174',
+    'http://127.0.0.1:5175',
     'https://mcanlogde1.vercel.app',
     process.env.FRONTEND_URL
   ].filter(Boolean), // Remove any undefined values
@@ -58,6 +61,7 @@ app.use("/auth/api", authRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/events", eventRoutes);
+app.use("/api/blog", blogRoutes);
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
