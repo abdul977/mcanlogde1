@@ -226,17 +226,19 @@ const ContributePost = () => {
             </div>
           )}
         </div>
-        <button
-          type="submit"
-          className={`w-full flex items-center justify-center py-3 px-4 text-white font-bold rounded-lg shadow-lg bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-            loading && "opacity-70 cursor-not-allowed"
-          }`}
-          disabled={loading}
-        >
-          {loading ? "Submitting..." : "Submit"}
-          {!loading && <FaPlus className="ml-2" />}
-        </button>
-      </form>
+            <button
+              type="submit"
+              className={`w-full flex items-center justify-center py-3 px-4 text-white font-bold rounded-lg shadow-lg bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+                loading && "opacity-70 cursor-not-allowed"
+              }`}
+              disabled={loading}
+            >
+              {loading ? "Submitting..." : "Submit"}
+              {!loading && <FaPlus className="ml-2" />}
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
   );
 };
