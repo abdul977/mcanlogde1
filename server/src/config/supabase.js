@@ -5,14 +5,30 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseSecretKey = process.env.SUPABASE_SERVICE_KEY; // This is actually a secret key (sbp_)
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseSecretKey) {
-  throw new Error('Missing Supabase environment variables');
+if (!supabaseUrl) {
+  throw new Error('Missing SUPABASE_URL environment variable');
 }
 
-// Create Supabase client with secret key for server-side operations
-const supabase = createClient(supabaseUrl, supabaseSecretKey, {
+// Use service_role key if available (JWT format), otherwise use anon key
+const apiKey = supabaseServiceKey && supabaseServiceKey.startsWith('eyJ')
+  ? supabaseServiceKey
+  : supabaseAnonKey;
+
+if (!apiKey) {
+  throw new Error('Missing valid Supabase API key (SUPABASE_SERVICE_KEY or SUPABASE_ANON_KEY)');
+}
+
+console.log('Supabase config:', {
+  url: supabaseUrl,
+  keyType: supabaseServiceKey && supabaseServiceKey.startsWith('eyJ') ? 'service_role' : 'anon',
+  keyPrefix: apiKey.substring(0, 10) + '...'
+});
+
+// Create Supabase client
+const supabase = createClient(supabaseUrl, apiKey, {
   auth: {
     autoRefreshToken: false,
     persistSession: false
