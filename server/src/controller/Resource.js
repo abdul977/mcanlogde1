@@ -1,5 +1,5 @@
 import Resource from "../models/Resource.js";
-import { v2 as cloudinary } from "cloudinary";
+import supabaseStorage from "../services/supabaseStorage.js";
 
 // Get all resources (public)
 export const getAllResourcesController = async (req, res) => {
@@ -283,19 +283,25 @@ export const createResourceController = async (req, res) => {
 
     if (req.files?.file) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.file.tempFilePath, {
-          folder: "mcan/resources",
-          resource_type: "auto"
-        });
-        fileUrl = result.secure_url;
-        fileSize = result.bytes;
-        mimeType = result.format;
-        fileName = req.files.file.name;
-        
-        parsedContent.fileUrl = fileUrl;
-        parsedContent.fileSize = fileSize;
-        parsedContent.mimeType = mimeType;
-        parsedContent.fileName = fileName;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.file,
+          'mcan-resources',
+          'files'
+        );
+
+        if (result.success) {
+          fileUrl = result.data.secure_url;
+          fileSize = result.data.bytes;
+          mimeType = req.files.file.mimetype;
+          fileName = req.files.file.name;
+
+          parsedContent.fileUrl = fileUrl;
+          parsedContent.fileSize = fileSize;
+          parsedContent.mimeType = mimeType;
+          parsedContent.fileName = fileName;
+        } else {
+          throw new Error(result.error);
+        }
       } catch (uploadError) {
         console.error("File upload error:", uploadError);
         return res.status(400).json({
@@ -309,10 +315,17 @@ export const createResourceController = async (req, res) => {
     let thumbnailUrl = null;
     if (req.files?.thumbnail) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.thumbnail.tempFilePath, {
-          folder: "mcan/resources/thumbnails"
-        });
-        thumbnailUrl = result.secure_url;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.thumbnail,
+          'mcan-thumbnails',
+          'resources'
+        );
+
+        if (result.success) {
+          thumbnailUrl = result.data.secure_url;
+        } else {
+          console.error("Thumbnail upload error:", result.error);
+        }
       } catch (uploadError) {
         console.error("Thumbnail upload error:", uploadError);
       }
@@ -322,11 +335,18 @@ export const createResourceController = async (req, res) => {
     let authorImageUrl = null;
     if (req.files?.authorImage) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.authorImage.tempFilePath, {
-          folder: "mcan/authors"
-        });
-        authorImageUrl = result.secure_url;
-        parsedAuthor.image = authorImageUrl;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.authorImage,
+          'mcan-authors',
+          'resources'
+        );
+
+        if (result.success) {
+          authorImageUrl = result.data.secure_url;
+          parsedAuthor.image = authorImageUrl;
+        } else {
+          console.error("Author image upload error:", result.error);
+        }
       } catch (uploadError) {
         console.error("Author image upload error:", uploadError);
       }
@@ -387,16 +407,21 @@ export const updateResourceController = async (req, res) => {
     // Handle file upload if provided
     if (req.files?.file) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.file.tempFilePath, {
-          folder: "mcan/resources",
-          resource_type: "auto"
-        });
-        
-        if (!updateData.content) updateData.content = {};
-        updateData.content.fileUrl = result.secure_url;
-        updateData.content.fileSize = result.bytes;
-        updateData.content.mimeType = result.format;
-        updateData.content.fileName = req.files.file.name;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.file,
+          'mcan-resources',
+          'files'
+        );
+
+        if (result.success) {
+          if (!updateData.content) updateData.content = {};
+          updateData.content.fileUrl = result.data.secure_url;
+          updateData.content.fileSize = result.data.bytes;
+          updateData.content.mimeType = req.files.file.mimetype;
+          updateData.content.fileName = req.files.file.name;
+        } else {
+          throw new Error(result.error);
+        }
       } catch (uploadError) {
         console.error("File upload error:", uploadError);
         return res.status(400).json({
@@ -409,10 +434,17 @@ export const updateResourceController = async (req, res) => {
     // Handle thumbnail upload if provided
     if (req.files?.thumbnail) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.thumbnail.tempFilePath, {
-          folder: "mcan/resources/thumbnails"
-        });
-        updateData.thumbnail = result.secure_url;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.thumbnail,
+          'mcan-thumbnails',
+          'resources'
+        );
+
+        if (result.success) {
+          updateData.thumbnail = result.data.secure_url;
+        } else {
+          console.error("Thumbnail upload error:", result.error);
+        }
       } catch (uploadError) {
         console.error("Thumbnail upload error:", uploadError);
       }
@@ -421,13 +453,20 @@ export const updateResourceController = async (req, res) => {
     // Handle author image upload if provided
     if (req.files?.authorImage) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.authorImage.tempFilePath, {
-          folder: "mcan/authors"
-        });
-        if (updateData.author) {
-          const author = typeof updateData.author === 'string' ? JSON.parse(updateData.author) : updateData.author;
-          author.image = result.secure_url;
-          updateData.author = author;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.authorImage,
+          'mcan-authors',
+          'resources'
+        );
+
+        if (result.success) {
+          if (updateData.author) {
+            const author = typeof updateData.author === 'string' ? JSON.parse(updateData.author) : updateData.author;
+            author.image = result.data.secure_url;
+            updateData.author = author;
+          }
+        } else {
+          console.error("Author image upload error:", result.error);
         }
       } catch (uploadError) {
         console.error("Author image upload error:", uploadError);

@@ -1,5 +1,5 @@
 import QuranClass from "../models/QuranClass.js";
-import { v2 as cloudinary } from "cloudinary";
+import supabaseStorage from "../services/supabaseStorage.js";
 
 // Get all Quran classes (public)
 export const getAllQuranClassesController = async (req, res) => {
@@ -203,10 +203,17 @@ export const createQuranClassController = async (req, res) => {
     let imageUrl = null;
     if (req.files?.image) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.image.tempFilePath, {
-          folder: "mcan/quran-classes"
-        });
-        imageUrl = result.secure_url;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.image,
+          'mcan-quran-classes',
+          'classes'
+        );
+
+        if (result.success) {
+          imageUrl = result.data.secure_url;
+        } else {
+          throw new Error(result.error);
+        }
       } catch (uploadError) {
         console.error("Image upload error:", uploadError);
         return res.status(400).json({
@@ -220,11 +227,18 @@ export const createQuranClassController = async (req, res) => {
     let instructorImageUrl = null;
     if (req.files?.instructorImage) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.instructorImage.tempFilePath, {
-          folder: "mcan/instructors"
-        });
-        instructorImageUrl = result.secure_url;
-        parsedInstructor.image = instructorImageUrl;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.instructorImage,
+          'mcan-authors', // Using authors bucket for instructors
+          'instructors'
+        );
+
+        if (result.success) {
+          instructorImageUrl = result.data.secure_url;
+          parsedInstructor.image = instructorImageUrl;
+        } else {
+          console.error("Instructor image upload error:", result.error);
+        }
       } catch (uploadError) {
         console.error("Instructor image upload error:", uploadError);
       }
@@ -285,10 +299,17 @@ export const updateQuranClassController = async (req, res) => {
     // Handle image upload if provided
     if (req.files?.image) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.image.tempFilePath, {
-          folder: "mcan/quran-classes"
-        });
-        updateData.image = result.secure_url;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.image,
+          'mcan-quran-classes',
+          'classes'
+        );
+
+        if (result.success) {
+          updateData.image = result.data.secure_url;
+        } else {
+          throw new Error(result.error);
+        }
       } catch (uploadError) {
         console.error("Image upload error:", uploadError);
         return res.status(400).json({
@@ -301,13 +322,20 @@ export const updateQuranClassController = async (req, res) => {
     // Handle instructor image upload if provided
     if (req.files?.instructorImage) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.instructorImage.tempFilePath, {
-          folder: "mcan/instructors"
-        });
-        if (updateData.instructor) {
-          const instructor = typeof updateData.instructor === 'string' ? JSON.parse(updateData.instructor) : updateData.instructor;
-          instructor.image = result.secure_url;
-          updateData.instructor = instructor;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.instructorImage,
+          'mcan-authors', // Using authors bucket for instructors
+          'instructors'
+        );
+
+        if (result.success) {
+          if (updateData.instructor) {
+            const instructor = typeof updateData.instructor === 'string' ? JSON.parse(updateData.instructor) : updateData.instructor;
+            instructor.image = result.data.secure_url;
+            updateData.instructor = instructor;
+          }
+        } else {
+          console.error("Instructor image upload error:", result.error);
         }
       } catch (uploadError) {
         console.error("Instructor image upload error:", uploadError);

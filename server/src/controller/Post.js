@@ -1,5 +1,5 @@
 import Post from "../models/Post.js";
-import cloudinary from "../config/cloudinary.js";
+import supabaseStorage from "../services/supabaseStorage.js";
 import slug from "slugify";
 import mongoose from "mongoose";
 
@@ -165,14 +165,22 @@ export const createPostController = async (req, res) => {
         .json({ message: "Please upload exactly 3 images." });
     }
 
-    // Upload images to Cloudinary
-    const imageUrls = await Promise.all(
-      files.map((file) =>
-        cloudinary.uploader
-          .upload(file.tempFilePath)
-          .then((result) => result.secure_url)
-      )
-    );
+    // Upload images to Supabase Storage
+    const uploadPromises = files.map(async (file, index) => {
+      const result = await supabaseStorage.uploadFromTempFile(
+        file,
+        'mcan-posts',
+        'accommodations'
+      );
+
+      if (result.success) {
+        return result.data.secure_url;
+      } else {
+        throw new Error(`Failed to upload image ${index + 1}: ${result.error}`);
+      }
+    });
+
+    const imageUrls = await Promise.all(uploadPromises);
 
     // Create new post
     const newPost = new Post({
@@ -243,22 +251,25 @@ export const updatePostController = async (req, res) => {
     // Handle image update
     let updatedImages = post.images;
     if (files && files.length === 3) {
-      // Delete old images from Cloudinary
-      await Promise.all(
-        post.images.map((url) => {
-          const publicId = url.split("/").pop().split(".")[0];
-          return cloudinary.uploader.destroy(publicId);
-        })
-      );
+      // Note: For Supabase Storage, we don't need to delete old images as they can coexist
+      // The old URLs will simply become unused
 
-      // Upload new images
-      updatedImages = await Promise.all(
-        files.map((file) =>
-          cloudinary.uploader
-            .upload(file.tempFilePath)
-            .then((result) => result.secure_url)
-        )
-      );
+      // Upload new images to Supabase Storage
+      const uploadPromises = files.map(async (file, index) => {
+        const result = await supabaseStorage.uploadFromTempFile(
+          file,
+          'mcan-posts',
+          'accommodations'
+        );
+
+        if (result.success) {
+          return result.data.secure_url;
+        } else {
+          throw new Error(`Failed to upload image ${index + 1}: ${result.error}`);
+        }
+      });
+
+      updatedImages = await Promise.all(uploadPromises);
     }
 
     const updatedPost = await Post.findByIdAndUpdate(
@@ -391,13 +402,9 @@ export const deletePostController = async (req, res) => {
       });
     }
 
-    // Delete images from Cloudinary
-    await Promise.all(
-      post.images.map((url) => {
-        const publicId = url.split("/").pop().split(".")[0];
-        return cloudinary.uploader.destroy(publicId);
-      })
-    );
+    // Note: For Supabase Storage, we can optionally delete images
+    // For now, we'll leave them as they don't incur significant costs
+    // and might be useful for backup/recovery purposes
 
     await Post.findByIdAndDelete(req.params.pid);
     

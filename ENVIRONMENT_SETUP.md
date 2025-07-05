@@ -7,7 +7,7 @@ This guide will help you set up the environment variables for both the frontend 
 Before setting up the environment variables, make sure you have accounts and API keys for:
 
 1. **MongoDB Atlas** - Database hosting
-2. **Cloudinary** - Image upload and management
+2. **Supabase** - Database and storage services (replacing Cloudinary)
 3. **Email Service** (Optional) - For notifications
 
 ## Backend Environment Setup (server/.env)
@@ -31,11 +31,11 @@ Before setting up the environment variables, make sure you have accounts and API
   - Generate a random string (at least 32 characters)
   - You can use: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`
 
-### Cloudinary Configuration
-- **CLOUDINARY_CLOUD_NAME**: Your Cloudinary cloud name
-- **CLOUDINARY_API_KEY**: Your Cloudinary API key
-- **CLOUDINARY_API_SECRET**: Your Cloudinary API secret
-  - Get these from [Cloudinary Console](https://cloudinary.com/console)
+### Supabase Configuration
+- **SUPABASE_URL**: Your Supabase project URL (e.g., https://your-project-id.supabase.co)
+- **SUPABASE_ANON_KEY**: Your Supabase anonymous/public key
+- **SUPABASE_SERVICE_KEY**: Your Supabase service role key (for server-side operations)
+  - Get these from [Supabase Dashboard](https://supabase.com/dashboard) → Project Settings → API
 
 ## Frontend Environment Setup (client/.env)
 
@@ -87,9 +87,10 @@ After setting up the environment variables:
    - Ensure your IP is whitelisted in MongoDB Atlas
    - Verify username/password are correct
 
-2. **Cloudinary Upload Issues**:
-   - Verify all three Cloudinary credentials are correct
-   - Check Cloudinary console for usage limits
+2. **Supabase Upload Issues**:
+   - Verify all Supabase credentials are correct (URL, anon key, service key)
+   - Check Supabase dashboard for storage bucket configuration
+   - Ensure storage buckets exist and have proper permissions
 
 4. **CORS Issues**:
    - Ensure FRONTEND_URL in backend .env matches your frontend URL
@@ -102,10 +103,11 @@ After setting up the environment variables:
 ## Security Best Practices
 
 1. Use strong, unique passwords for all services
-2. Enable 2FA on all accounts (MongoDB, Cloudinary)
+2. Enable 2FA on all accounts (MongoDB, Supabase)
 3. Regularly rotate API keys
 4. Use environment-specific keys (test for development, live for production)
 5. Monitor API usage and set up alerts for unusual activity
+6. Keep Supabase service role keys secure - never expose them in client-side code
 
 ## Production Deployment
 

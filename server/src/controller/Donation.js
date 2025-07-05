@@ -1,5 +1,5 @@
 import Donation from "../models/Donation.js";
-import { v2 as cloudinary } from "cloudinary";
+import supabaseStorage from "../services/supabaseStorage.js";
 
 // Get all donations (public)
 export const getAllDonationsController = async (req, res) => {
@@ -269,17 +269,24 @@ export const createDonationController = async (req, res) => {
     let mediaImages = [];
     if (req.files) {
       const imageFields = Object.keys(req.files).filter(key => key.startsWith('image'));
-      
+
       for (const field of imageFields) {
         try {
-          const result = await cloudinary.uploader.upload(req.files[field].tempFilePath, {
-            folder: "mcan/donations"
-          });
-          mediaImages.push({
-            url: result.secure_url,
-            caption: req.body[`${field}_caption`] || "",
-            isPrimary: field === 'image0' // First image is primary
-          });
+          const result = await supabaseStorage.uploadFromTempFile(
+            req.files[field],
+            'mcan-donations',
+            'donations'
+          );
+
+          if (result.success) {
+            mediaImages.push({
+              url: result.data.secure_url,
+              caption: req.body[`${field}_caption`] || "",
+              isPrimary: field === 'image0' // First image is primary
+            });
+          } else {
+            console.error(`Error uploading ${field}:`, result.error);
+          }
         } catch (uploadError) {
           console.error(`Error uploading ${field}:`, uploadError);
         }
@@ -355,22 +362,29 @@ export const updateDonationController = async (req, res) => {
     if (req.files) {
       const imageFields = Object.keys(req.files).filter(key => key.startsWith('image'));
       let newImages = [...(existingDonation.media?.images || [])];
-      
+
       for (const field of imageFields) {
         try {
-          const result = await cloudinary.uploader.upload(req.files[field].tempFilePath, {
-            folder: "mcan/donations"
-          });
-          newImages.push({
-            url: result.secure_url,
-            caption: req.body[`${field}_caption`] || "",
-            isPrimary: newImages.length === 0 // First image is primary
-          });
+          const result = await supabaseStorage.uploadFromTempFile(
+            req.files[field],
+            'mcan-donations',
+            'donations'
+          );
+
+          if (result.success) {
+            newImages.push({
+              url: result.data.secure_url,
+              caption: req.body[`${field}_caption`] || "",
+              isPrimary: newImages.length === 0 // First image is primary
+            });
+          } else {
+            console.error(`Error uploading ${field}:`, result.error);
+          }
         } catch (uploadError) {
           console.error(`Error uploading ${field}:`, uploadError);
         }
       }
-      
+
       if (!updateData.media) updateData.media = {};
       updateData.media.images = newImages;
     }

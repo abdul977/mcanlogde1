@@ -1,5 +1,5 @@
 import Blog from "../models/Blog.js";
-import cloudinary from "cloudinary";
+import supabaseStorage from "../services/supabaseStorage.js";
 import slugify from "slugify";
 
 // Get all blogs (public - only published)
@@ -192,8 +192,19 @@ export const createBlogController = async (req, res) => {
       });
     }
 
-    // Upload image to Cloudinary
-    const result = await cloudinary.uploader.upload(req.files.featuredImage.tempFilePath);
+    // Upload image to Supabase Storage
+    const result = await supabaseStorage.uploadFromTempFile(
+      req.files.featuredImage,
+      'mcan-community',
+      'blogs'
+    );
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Error uploading featured image"
+      });
+    }
 
     // Process tags
     const processedTags = tags ? tags.split(',').map(tag => tag.trim().toLowerCase()) : [];
@@ -205,7 +216,7 @@ export const createBlogController = async (req, res) => {
       content,
       excerpt,
       author: author || "MCAN Admin",
-      featuredImage: result.secure_url,
+      featuredImage: result.data.secure_url,
       status,
       tags: processedTags,
       category: category || "general",
@@ -239,8 +250,20 @@ export const updateBlogController = async (req, res) => {
 
     // Handle featured image upload if provided
     if (req.files?.featuredImage) {
-      const result = await cloudinary.uploader.upload(req.files.featuredImage.tempFilePath);
-      updateData.featuredImage = result.secure_url;
+      const result = await supabaseStorage.uploadFromTempFile(
+        req.files.featuredImage,
+        'mcan-community',
+        'blogs'
+      );
+
+      if (result.success) {
+        updateData.featuredImage = result.data.secure_url;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Error uploading featured image"
+        });
+      }
     }
 
     // Process tags if provided

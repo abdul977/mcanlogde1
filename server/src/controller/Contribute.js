@@ -1,4 +1,4 @@
-import cloudinary from "../config/cloudinary.js";
+import supabaseStorage from "../services/supabaseStorage.js";
 import Contribute from "../models/Contribute.js";
 
 export const contributePostController = async (req, res) => {
@@ -8,16 +8,20 @@ export const contributePostController = async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ message: "Image file is required." });
     }
-    const uploadResult = await cloudinary.uploader.upload(req.file.path, {
-      folder: "contributions",
-      use_filename: true,
-      unique_filename: false,
-    });
+    const uploadResult = await supabaseStorage.uploadFile(
+      'mcan-community',
+      supabaseStorage.generateFilePath('contributions', req.file.originalname),
+      req.file.path
+    );
+
+    if (!uploadResult.success) {
+      return res.status(400).json({ message: "Error uploading image." });
+    }
 
     const newContribute = new Contribute({
       title,
       description,
-      image: uploadResult.secure_url,
+      image: uploadResult.data.secure_url,
       category,
       postedBy: req.user.id,
       createdAt: new Date(),

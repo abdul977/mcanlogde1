@@ -1,5 +1,5 @@
 import Event from "../models/Event.js";
-import cloudinary from "../config/cloudinary.js";
+import supabaseStorage from "../services/supabaseStorage.js";
 import slug from "slugify";
 
 // Get event by ID
@@ -140,8 +140,19 @@ export const createEventController = async (req, res) => {
       });
     }
 
-    // Upload image to Cloudinary
-    const result = await cloudinary.uploader.upload(req.files.image.tempFilePath);
+    // Upload image to Supabase Storage
+    const result = await supabaseStorage.uploadFromTempFile(
+      req.files.image,
+      'mcan-community',
+      'events'
+    );
+
+    if (!result.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Error uploading event image"
+      });
+    }
 
     // Create new event
     const newEvent = new Event({
@@ -150,7 +161,7 @@ export const createEventController = async (req, res) => {
       date: new Date(date),
       location,
       status,
-      image: result.secure_url,
+      image: result.data.secure_url,
       slug: slug(title, { lower: true }),
     });
 
@@ -194,13 +205,21 @@ export const updateEventController = async (req, res) => {
     // Handle image update if provided
     let imageUrl = event.image;
     if (req.files?.image) {
-      // Delete old image from Cloudinary
-      const publicId = event.image.split("/").pop().split(".")[0];
-      await cloudinary.uploader.destroy(publicId);
+      // Upload new image to Supabase Storage
+      const result = await supabaseStorage.uploadFromTempFile(
+        req.files.image,
+        'mcan-community',
+        'events'
+      );
 
-      // Upload new image
-      const result = await cloudinary.uploader.upload(req.files.image.tempFilePath);
-      imageUrl = result.secure_url;
+      if (result.success) {
+        imageUrl = result.data.secure_url;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: "Error uploading event image"
+        });
+      }
     }
 
     const updatedEvent = await Event.findByIdAndUpdate(
@@ -243,9 +262,8 @@ export const deleteEventController = async (req, res) => {
       });
     }
 
-    // Delete image from Cloudinary
-    const publicId = event.image.split("/").pop().split(".")[0];
-    await cloudinary.uploader.destroy(publicId);
+    // Note: For Supabase Storage, we don't need to delete images as they don't incur significant costs
+    // and might be useful for backup/recovery purposes
 
     // Delete event
     await Event.findByIdAndDelete(req.params.id);

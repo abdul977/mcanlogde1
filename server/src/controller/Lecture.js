@@ -1,5 +1,5 @@
 import Lecture from "../models/Lecture.js";
-import { v2 as cloudinary } from "cloudinary";
+import supabaseStorage from "../services/supabaseStorage.js";
 
 // Get all lectures (public)
 export const getAllLecturesController = async (req, res) => {
@@ -209,10 +209,17 @@ export const createLectureController = async (req, res) => {
     let imageUrl = null;
     if (req.files?.image) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.image.tempFilePath, {
-          folder: "mcan/lectures"
-        });
-        imageUrl = result.secure_url;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.image,
+          'mcan-community',
+          'lectures'
+        );
+
+        if (result.success) {
+          imageUrl = result.data.secure_url;
+        } else {
+          throw new Error(result.error);
+        }
       } catch (uploadError) {
         console.error("Image upload error:", uploadError);
         return res.status(400).json({
@@ -226,11 +233,18 @@ export const createLectureController = async (req, res) => {
     let speakerImageUrl = null;
     if (req.files?.speakerImage) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.speakerImage.tempFilePath, {
-          folder: "mcan/speakers"
-        });
-        speakerImageUrl = result.secure_url;
-        parsedSpeaker.image = speakerImageUrl;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.speakerImage,
+          'mcan-authors',
+          'speakers'
+        );
+
+        if (result.success) {
+          speakerImageUrl = result.data.secure_url;
+          parsedSpeaker.image = speakerImageUrl;
+        } else {
+          console.error("Speaker image upload error:", result.error);
+        }
       } catch (uploadError) {
         console.error("Speaker image upload error:", uploadError);
       }
@@ -293,10 +307,17 @@ export const updateLectureController = async (req, res) => {
     // Handle image upload if provided
     if (req.files?.image) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.image.tempFilePath, {
-          folder: "mcan/lectures"
-        });
-        updateData.image = result.secure_url;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.image,
+          'mcan-community',
+          'lectures'
+        );
+
+        if (result.success) {
+          updateData.image = result.data.secure_url;
+        } else {
+          throw new Error(result.error);
+        }
       } catch (uploadError) {
         console.error("Image upload error:", uploadError);
         return res.status(400).json({
@@ -309,13 +330,20 @@ export const updateLectureController = async (req, res) => {
     // Handle speaker image upload if provided
     if (req.files?.speakerImage) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.speakerImage.tempFilePath, {
-          folder: "mcan/speakers"
-        });
-        if (updateData.speaker) {
-          const speaker = typeof updateData.speaker === 'string' ? JSON.parse(updateData.speaker) : updateData.speaker;
-          speaker.image = result.secure_url;
-          updateData.speaker = speaker;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.speakerImage,
+          'mcan-authors',
+          'speakers'
+        );
+
+        if (result.success) {
+          if (updateData.speaker) {
+            const speaker = typeof updateData.speaker === 'string' ? JSON.parse(updateData.speaker) : updateData.speaker;
+            speaker.image = result.data.secure_url;
+            updateData.speaker = speaker;
+          }
+        } else {
+          console.error("Speaker image upload error:", result.error);
         }
       } catch (uploadError) {
         console.error("Speaker image upload error:", uploadError);

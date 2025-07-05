@@ -1,5 +1,5 @@
 import Service from "../models/Service.js";
-import { v2 as cloudinary } from "cloudinary";
+import supabaseStorage from "../services/supabaseStorage.js";
 
 // Get all services (public)
 export const getAllServicesController = async (req, res) => {
@@ -155,10 +155,17 @@ export const createServiceController = async (req, res) => {
     let imageUrl = null;
     if (req.files?.image) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.image.tempFilePath, {
-          folder: "mcan/services"
-        });
-        imageUrl = result.secure_url;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.image,
+          'mcan-services',
+          'services'
+        );
+
+        if (result.success) {
+          imageUrl = result.data.secure_url;
+        } else {
+          throw new Error(result.error);
+        }
       } catch (uploadError) {
         console.error("Image upload error:", uploadError);
         return res.status(400).json({
@@ -241,10 +248,17 @@ export const updateServiceController = async (req, res) => {
     // Handle image upload if provided
     if (req.files?.image) {
       try {
-        const result = await cloudinary.uploader.upload(req.files.image.tempFilePath, {
-          folder: "mcan/services"
-        });
-        updateData.image = result.secure_url;
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.image,
+          'mcan-services',
+          'services'
+        );
+
+        if (result.success) {
+          updateData.image = result.data.secure_url;
+        } else {
+          throw new Error(result.error);
+        }
       } catch (uploadError) {
         console.error("Image upload error:", uploadError);
         return res.status(400).json({

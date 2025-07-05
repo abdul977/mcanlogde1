@@ -1,5 +1,5 @@
 import Community from "../models/Community.js";
-import { v2 as cloudinary } from "cloudinary";
+import supabaseStorage from "../services/supabaseStorage.js";
 
 // Get all community items (public)
 export const getAllCommunityController = async (req, res) => {
@@ -267,14 +267,21 @@ export const createCommunityController = async (req, res) => {
       
       for (const field of imageFields) {
         try {
-          const result = await cloudinary.uploader.upload(req.files[field].tempFilePath, {
-            folder: "mcan/community"
-          });
-          mediaImages.push({
-            url: result.secure_url,
-            caption: req.body[`${field}_caption`] || "",
-            isPrimary: field === 'image0' // First image is primary
-          });
+          const result = await supabaseStorage.uploadFromTempFile(
+            req.files[field],
+            'mcan-community',
+            'events'
+          );
+
+          if (result.success) {
+            mediaImages.push({
+              url: result.data.secure_url,
+              caption: req.body[`${field}_caption`] || "",
+              isPrimary: field === 'image0' // First image is primary
+            });
+          } else {
+            console.error(`Error uploading ${field}:`, result.error);
+          }
         } catch (uploadError) {
           console.error(`Error uploading ${field}:`, uploadError);
         }
@@ -287,10 +294,17 @@ export const createCommunityController = async (req, res) => {
         const participantImageField = `participant_${i}_image`;
         if (req.files?.[participantImageField]) {
           try {
-            const result = await cloudinary.uploader.upload(req.files[participantImageField].tempFilePath, {
-              folder: "mcan/community/participants"
-            });
-            parsedParticipants.featured[i].image = result.secure_url;
+            const result = await supabaseStorage.uploadFromTempFile(
+              req.files[participantImageField],
+              'mcan-participants',
+              'community'
+            );
+
+            if (result.success) {
+              parsedParticipants.featured[i].image = result.data.secure_url;
+            } else {
+              console.error(`Error uploading participant image ${i}:`, result.error);
+            }
           } catch (uploadError) {
             console.error(`Error uploading participant image ${i}:`, uploadError);
           }
@@ -360,14 +374,21 @@ export const updateCommunityController = async (req, res) => {
       
       for (const field of imageFields) {
         try {
-          const result = await cloudinary.uploader.upload(req.files[field].tempFilePath, {
-            folder: "mcan/community"
-          });
-          newImages.push({
-            url: result.secure_url,
-            caption: req.body[`${field}_caption`] || "",
-            isPrimary: newImages.length === 0 // First image is primary
-          });
+          const result = await supabaseStorage.uploadFromTempFile(
+            req.files[field],
+            'mcan-community',
+            'events'
+          );
+
+          if (result.success) {
+            newImages.push({
+              url: result.data.secure_url,
+              caption: req.body[`${field}_caption`] || "",
+              isPrimary: newImages.length === 0 // First image is primary
+            });
+          } else {
+            console.error(`Error uploading ${field}:`, result.error);
+          }
         } catch (uploadError) {
           console.error(`Error uploading ${field}:`, uploadError);
         }
