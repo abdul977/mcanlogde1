@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaQuran, FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaSearch } from "react-icons/fa";
 import axios from "axios";
@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 
 const AllQuranClasses = () => {
   const [auth] = useAuth();
+  const navigate = useNavigate();
   const [classes, setClasses] = useState([]);
   const [filteredClasses, setFilteredClasses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -102,6 +103,35 @@ const AllQuranClasses = () => {
   // Handle refresh button click
   const handleRefresh = () => {
     fetchClasses(true);
+  };
+
+  // Handle view class
+  const handleView = async (id) => {
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/quran-classes/admin/get-class-by-id/${id}`,
+        {
+          headers: {
+            Authorization: auth?.token,
+          },
+        }
+      );
+
+      if (data?.success) {
+        // Navigate to a view page or show modal with class details
+        navigate(`/admin/view-quran-class/${id}`);
+      } else {
+        toast.error(data?.message || "Error fetching class details");
+      }
+    } catch (error) {
+      console.error("Error fetching class:", error);
+      toast.error("Failed to fetch class details. Please try again.");
+    }
+  };
+
+  // Handle edit class
+  const handleEdit = (id) => {
+    navigate(`/admin/edit-quran-class/${id}`);
   };
 
   // Handle delete class
@@ -347,12 +377,14 @@ const AllQuranClasses = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
                             <button
+                              onClick={() => handleView(quranClass._id)}
                               className="text-blue-600 hover:text-blue-900 transition duration-300"
                               title="View"
                             >
                               <FaEye />
                             </button>
                             <button
+                              onClick={() => handleEdit(quranClass._id)}
                               className="text-green-600 hover:text-green-900 transition duration-300"
                               title="Edit"
                             >

@@ -39,12 +39,16 @@ import CreateService from "./pages/Admin/CreateService";
 import AllServices from "./pages/Admin/AllServices";
 import CreateLecture from "./pages/Admin/CreateLecture";
 import AllLectures from "./pages/Admin/AllLectures";
+import EditLecture from "./pages/Admin/EditLecture";
 import CreateQuranClass from "./pages/Admin/CreateQuranClass";
 import AllQuranClasses from "./pages/Admin/AllQuranClasses";
+import EditQuranClass from "./pages/Admin/EditQuranClass";
 import CreateResource from "./pages/Admin/CreateResource";
 import AllResources from "./pages/Admin/AllResources";
+import EditResource from "./pages/Admin/EditResource";
 import CreateCommunity from "./pages/Admin/CreateCommunity";
 import AllCommunity from "./pages/Admin/AllCommunity";
+import EditCommunity from "./pages/Admin/EditCommunity";
 import CreateDonation from "./pages/Admin/CreateDonation";
 import AllDonations from "./pages/Admin/AllDonations";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
@@ -120,12 +124,16 @@ function App() {
             <Route path="services" element={<AllServices />} />
             <Route path="create-lecture" element={<CreateLecture />} />
             <Route path="lectures" element={<AllLectures />} />
+            <Route path="edit-lecture/:id" element={<EditLecture />} />
             <Route path="create-quran-class" element={<CreateQuranClass />} />
             <Route path="quran-classes" element={<AllQuranClasses />} />
+            <Route path="edit-quran-class/:id" element={<EditQuranClass />} />
             <Route path="create-resource" element={<CreateResource />} />
             <Route path="resources" element={<AllResources />} />
+            <Route path="edit-resource/:id" element={<EditResource />} />
             <Route path="create-community" element={<CreateCommunity />} />
             <Route path="community" element={<AllCommunity />} />
+            <Route path="edit-community/:id" element={<EditCommunity />} />
             <Route path="create-donation" element={<CreateDonation />} />
             <Route path="donations" element={<AllDonations />} />
           </Route>

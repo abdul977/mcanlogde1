@@ -33,24 +33,24 @@ const CreateQuranClass = () => {
   });
   
   const [schedule, setSchedule] = useState({
-    days: [""],
-    time: "",
+    days: ["monday"],
+    time: "18:00",
     duration: 60,
     timezone: "WAT"
   });
-  
+
   const [venue, setVenue] = useState({
-    name: "",
-    address: "",
+    name: "MCAN Center",
+    address: "MCAN Center, Enugu",
     city: "Enugu",
     isOnline: false,
     onlineLink: ""
   });
   
   const [curriculum, setCurriculum] = useState({
-    objectives: [""],
-    topics: [""],
-    materials: [""]
+    objectives: ["Learn Quranic recitation"],
+    topics: ["Introduction to Quran"],
+    materials: ["Quran", "Notebook"]
   });
   
   const [fees, setFees] = useState({
@@ -140,9 +140,9 @@ const CreateQuranClass = () => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formData.title || !formData.description || !instructor.name) {
-      toast.error("Please fill in all required fields");
+
+    if (!formData.title || !formData.description || !instructor.name || !schedule.time || !venue.name) {
+      toast.error("Please fill in all required fields (Title, Description, Instructor Name, Schedule Time, and Venue Name)");
       return;
     }
 
@@ -162,25 +162,63 @@ const CreateQuranClass = () => {
         qualifications: instructor.qualifications.filter(q => q.trim() !== "")
       }));
       
-      // Add schedule data
-      submitData.append('schedule', JSON.stringify({
-        ...schedule,
-        days: schedule.days.filter(d => d.trim() !== "")
-      }));
+      // Add schedule data with proper structure
+      const scheduleData = {
+        frequency: "weekly",
+        daysOfWeek: schedule.days.filter(d => d.trim() !== ""),
+        time: schedule.time || "18:00",
+        duration: schedule.duration || 60,
+        timezone: schedule.timezone || "WAT"
+      };
+      submitData.append('schedule', JSON.stringify(scheduleData));
       
       // Add venue data
       submitData.append('venue', JSON.stringify(venue));
       
-      // Add curriculum data
-      submitData.append('curriculum', JSON.stringify({
+      // Add curriculum data with proper structure
+      const curriculumData = {
         objectives: curriculum.objectives.filter(o => o.trim() !== ""),
-        topics: curriculum.topics.filter(t => t.trim() !== ""),
-        materials: curriculum.materials.filter(m => m.trim() !== "")
-      }));
+        topics: curriculum.topics.filter(t => t.trim() !== "").map((title, index) => ({
+          week: index + 1,
+          title: title,
+          description: `Week ${index + 1} content for ${title}`,
+          verses: []
+        })),
+        materials: curriculum.materials.filter(m => m.trim() !== "").map(title => ({
+          title: title,
+          type: "book",
+          isRequired: false
+        })),
+        assessments: []
+      };
+      submitData.append('curriculum', JSON.stringify(curriculumData));
       
       // Add fees data
       submitData.append('fees', JSON.stringify(fees));
-      
+
+      // Add enrollment data
+      const enrollmentData = {
+        isOpen: true,
+        maxStudents: formData.maxStudents,
+        currentStudents: 0,
+        requirements: []
+      };
+      submitData.append('enrollment', JSON.stringify(enrollmentData));
+
+      // Add target audience data
+      const targetAudienceData = {
+        ageGroup: "adults",
+        gender: "mixed",
+        experience: "none"
+      };
+      submitData.append('targetAudience', JSON.stringify(targetAudienceData));
+
+      // Add prerequisites
+      submitData.append('prerequisites', JSON.stringify([]));
+
+      // Add tags
+      submitData.append('tags', JSON.stringify([]));
+
       // Add images
       if (classImage) {
         submitData.append('image', classImage);
@@ -321,6 +359,77 @@ const CreateQuranClass = () => {
                 </div>
               </div>
 
+              {/* Schedule Information */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Schedule Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Day of Week *
+                    </label>
+                    <select
+                      value={schedule.days[0] || "monday"}
+                      onChange={(e) => handleNestedChange(setSchedule, 'days', [e.target.value])}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                    >
+                      <option value="monday">Monday</option>
+                      <option value="tuesday">Tuesday</option>
+                      <option value="wednesday">Wednesday</option>
+                      <option value="thursday">Thursday</option>
+                      <option value="friday">Friday</option>
+                      <option value="saturday">Saturday</option>
+                      <option value="sunday">Sunday</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Time *
+                    </label>
+                    <input
+                      type="time"
+                      value={schedule.time}
+                      onChange={(e) => handleNestedChange(setSchedule, 'time', e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Venue Information */}
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">Venue Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Venue Name *
+                    </label>
+                    <input
+                      type="text"
+                      value={venue.name}
+                      onChange={(e) => handleNestedChange(setVenue, 'name', e.target.value)}
+                      required
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                      placeholder="Enter venue name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Address
+                    </label>
+                    <input
+                      type="text"
+                      value={venue.address}
+                      onChange={(e) => handleNestedChange(setVenue, 'address', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                      placeholder="Enter venue address"
+                    />
+                  </div>
+                </div>
+              </div>
+
               {/* Class Settings */}
               <div className="border-t pt-6">
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">Class Settings</h3>
@@ -342,7 +451,7 @@ const CreateQuranClass = () => {
                       ))}
                     </select>
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Max Students
@@ -356,7 +465,7 @@ const CreateQuranClass = () => {
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
                     />
                   </div>
-                  
+
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       Duration (minutes)

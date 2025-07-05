@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaBook, FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaSearch, FaDownload, FaExternalLinkAlt } from "react-icons/fa";
 import axios from "axios";
@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 
 const AllResources = () => {
   const [auth] = useAuth();
+  const navigate = useNavigate();
   const [resources, setResources] = useState([]);
   const [filteredResources, setFilteredResources] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,6 +106,34 @@ const AllResources = () => {
   // Handle refresh button click
   const handleRefresh = () => {
     fetchResources(true);
+  };
+
+  // Handle view resource
+  const handleView = async (id) => {
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/resources/admin/get-resource-by-id/${id}`,
+        {
+          headers: {
+            Authorization: auth?.token,
+          },
+        }
+      );
+
+      if (data?.success) {
+        navigate(`/admin/view-resource/${id}`);
+      } else {
+        toast.error(data?.message || "Error fetching resource details");
+      }
+    } catch (error) {
+      console.error("Error fetching resource:", error);
+      toast.error("Failed to fetch resource details. Please try again.");
+    }
+  };
+
+  // Handle edit resource
+  const handleEdit = (id) => {
+    navigate(`/admin/edit-resource/${id}`);
   };
 
   // Handle delete resource
@@ -368,6 +397,7 @@ const AllResources = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
                             <button
+                              onClick={() => handleView(resource._id)}
                               className="text-blue-600 hover:text-blue-900 transition duration-300"
                               title="View"
                             >
@@ -396,6 +426,7 @@ const AllResources = () => {
                               </a>
                             )}
                             <button
+                              onClick={() => handleEdit(resource._id)}
                               className="text-orange-600 hover:text-orange-900 transition duration-300"
                               title="Edit"
                             >

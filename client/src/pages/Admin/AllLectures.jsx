@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaChalkboardTeacher, FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaSearch, FaFilter } from "react-icons/fa";
 import axios from "axios";
@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 
 const AllLectures = () => {
   const [auth] = useAuth();
+  const navigate = useNavigate();
   const [lectures, setLectures] = useState([]);
   const [filteredLectures, setFilteredLectures] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -103,6 +104,35 @@ const AllLectures = () => {
   // Handle refresh button click
   const handleRefresh = () => {
     fetchLectures(true);
+  };
+
+  // Handle view lecture
+  const handleView = async (id) => {
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/lectures/admin/get-lecture-by-id/${id}`,
+        {
+          headers: {
+            Authorization: auth?.token,
+          },
+        }
+      );
+
+      if (data?.success) {
+        // Navigate to a view page or show modal with lecture details
+        navigate(`/admin/view-lecture/${id}`);
+      } else {
+        toast.error(data?.message || "Error fetching lecture details");
+      }
+    } catch (error) {
+      console.error("Error fetching lecture:", error);
+      toast.error("Failed to fetch lecture details. Please try again.");
+    }
+  };
+
+  // Handle edit lecture
+  const handleEdit = (id) => {
+    navigate(`/admin/edit-lecture/${id}`);
   };
 
   // Handle delete lecture
@@ -358,12 +388,14 @@ const AllLectures = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
                             <button
+                              onClick={() => handleView(lecture._id)}
                               className="text-blue-600 hover:text-blue-900 transition duration-300"
                               title="View"
                             >
                               <FaEye />
                             </button>
                             <button
+                              onClick={() => handleEdit(lecture._id)}
                               className="text-green-600 hover:text-green-900 transition duration-300"
                               title="Edit"
                             >

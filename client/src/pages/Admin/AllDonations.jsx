@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaDonate, FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaSearch, FaMoneyBillWave, FaUsers, FaCalendar } from "react-icons/fa";
 import axios from "axios";
@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 
 const AllDonations = () => {
   const [auth] = useAuth();
+  const navigate = useNavigate();
   const [donations, setDonations] = useState([]);
   const [filteredDonations, setFilteredDonations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -105,6 +106,34 @@ const AllDonations = () => {
   // Handle refresh button click
   const handleRefresh = () => {
     fetchDonations(true);
+  };
+
+  // Handle view donation
+  const handleView = async (id) => {
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/donations/admin/get-donation-by-id/${id}`,
+        {
+          headers: {
+            Authorization: auth?.token,
+          },
+        }
+      );
+
+      if (data?.success) {
+        navigate(`/admin/view-donation/${id}`);
+      } else {
+        toast.error(data?.message || "Error fetching donation details");
+      }
+    } catch (error) {
+      console.error("Error fetching donation:", error);
+      toast.error("Failed to fetch donation details. Please try again.");
+    }
+  };
+
+  // Handle edit donation
+  const handleEdit = (id) => {
+    navigate(`/admin/edit-donation/${id}`);
   };
 
   // Handle delete donation
@@ -404,12 +433,14 @@ const AllDonations = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
                             <button
+                              onClick={() => handleView(donation._id)}
                               className="text-blue-600 hover:text-blue-900 transition duration-300"
                               title="View"
                             >
                               <FaEye />
                             </button>
                             <button
+                              onClick={() => handleEdit(donation._id)}
                               className="text-green-600 hover:text-green-900 transition duration-300"
                               title="Edit"
                             >

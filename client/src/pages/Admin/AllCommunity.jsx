@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FaUsers, FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaSearch, FaStar, FaHeart } from "react-icons/fa";
 import axios from "axios";
@@ -8,6 +8,7 @@ import Navbar from "./Navbar";
 
 const AllCommunity = () => {
   const [auth] = useAuth();
+  const navigate = useNavigate();
   const [communityItems, setCommunityItems] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -108,6 +109,34 @@ const AllCommunity = () => {
   // Handle refresh button click
   const handleRefresh = () => {
     fetchCommunityItems(true);
+  };
+
+  // Handle view community item
+  const handleView = async (id) => {
+    try {
+      const { data } = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/community/admin/get-community-by-id/${id}`,
+        {
+          headers: {
+            Authorization: auth?.token,
+          },
+        }
+      );
+
+      if (data?.success) {
+        navigate(`/admin/view-community/${id}`);
+      } else {
+        toast.error(data?.message || "Error fetching community details");
+      }
+    } catch (error) {
+      console.error("Error fetching community item:", error);
+      toast.error("Failed to fetch community details. Please try again.");
+    }
+  };
+
+  // Handle edit community item
+  const handleEdit = (id) => {
+    navigate(`/admin/edit-community/${id}`);
   };
 
   // Handle delete community item
@@ -388,12 +417,14 @@ const AllCommunity = () => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <div className="flex space-x-2">
                             <button
+                              onClick={() => handleView(item._id)}
                               className="text-blue-600 hover:text-blue-900 transition duration-300"
                               title="View"
                             >
                               <FaEye />
                             </button>
                             <button
+                              onClick={() => handleEdit(item._id)}
                               className="text-green-600 hover:text-green-900 transition duration-300"
                               title="Edit"
                             >
