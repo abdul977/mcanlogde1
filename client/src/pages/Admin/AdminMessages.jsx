@@ -201,51 +201,7 @@ const AdminMessages = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Active Conversations */}
-            <div className="bg-white rounded-lg shadow p-6">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Active Conversations</h2>
-              {conversations.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <FaComments className="mx-auto text-4xl mb-2" />
-                  <p>No active conversations</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {conversations.map((conversation) => (
-                    <div
-                      key={conversation.threadId}
-                      className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer"
-                      onClick={() => handleStartConversation(conversation.otherUser)}
-                    >
-                      <div className="flex items-center">
-                        <div className="w-10 h-10 bg-mcan-primary rounded-full flex items-center justify-center mr-3">
-                          <FaUser className="text-white" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-800">
-                            {conversation.otherUser.name}
-                          </p>
-                          <p className="text-sm text-gray-500 truncate max-w-xs">
-                            {conversation.lastMessage.content}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-xs text-gray-500">
-                          {formatTime(conversation.lastMessage.createdAt)}
-                        </p>
-                        {conversation.unreadCount > 0 && (
-                          <div className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center mt-1">
-                            {conversation.unreadCount}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+          <div className="grid grid-cols-1 gap-6">
 
             {/* All Users */}
             <div className="bg-white rounded-lg shadow p-6">

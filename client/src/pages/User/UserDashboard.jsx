@@ -56,7 +56,7 @@ const UserDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between">
+      <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center space-x-3">
           <img
             src={mcanLogo}

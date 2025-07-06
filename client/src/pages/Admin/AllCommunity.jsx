@@ -5,6 +5,9 @@ import { FaUsers, FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaSearch, FaStar, FaHe
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
+import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
+import { MobileButton } from "../../components/Mobile/MobileLayout";
 
 const AllCommunity = () => {
   const [auth] = useAuth();
@@ -210,275 +213,300 @@ const AllCommunity = () => {
     return num?.toLocaleString() || 0;
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
-          <Navbar />
-        </div>
-        <div className="flex-1 p-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
-                  <FaUsers className="text-white text-xl" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-800">Manage Community</h1>
-                  <p className="text-gray-600">View and manage all MCAN community items</p>
-                </div>
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                    refreshing
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                  title="Refresh Community Items"
-                >
-                  <FaSync className={`${refreshing ? 'animate-spin' : ''}`} />
-                  {refreshing ? 'Refreshing...' : 'Refresh'}
-                </button>
-                <Link
-                  to="/admin/create-community"
-                  className="flex items-center gap-2 px-4 py-2 bg-mcan-primary text-white rounded-lg hover:bg-mcan-secondary transition duration-300"
-                >
-                  <FaPlus />
-                  Add Community Item
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                <div className="relative">
-                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search community items..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                <select
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                >
-                  {types.map(type => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
-                <select
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                >
-                  {categories.map(category => (
-                    <option key={category.value} value={category.value}>
-                      {category.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="flex items-end">
-                <div className="text-sm text-gray-600">
-                  Showing {filteredItems.length} of {communityItems.length} items
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Community Items List */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            {loading ? (
-              <div className="flex justify-center items-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mcan-primary"></div>
-                <span className="ml-3 text-gray-600">Loading community items...</span>
-              </div>
-            ) : filteredItems.length === 0 ? (
-              <div className="text-center py-16">
-                <FaUsers className="mx-auto text-6xl text-gray-300 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No Community Items Found</h3>
-                <p className="text-gray-500 mb-4">
-                  {communityItems.length === 0 
-                    ? "No community items have been created yet." 
-                    : "No items match your current filters."
-                  }
-                </p>
-                <Link
-                  to="/admin/create-community"
-                  className="inline-flex items-center px-4 py-2 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300"
-                >
-                  <FaPlus className="mr-2" />
-                  Create First Community Item
-                </Link>
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Item
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Type
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Category
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Impact
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Priority
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredItems.map((item) => (
-                      <tr key={item._id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            {item.primaryImage && (
-                              <img
-                                src={item.primaryImage}
-                                alt={item.title}
-                                className="w-10 h-10 rounded-lg object-cover mr-3"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                }}
-                              />
-                            )}
-                            <div>
-                              <div className="text-sm font-medium text-gray-900 line-clamp-1">
-                                {item.title}
-                                {item.featured && (
-                                  <FaStar className="inline ml-2 text-yellow-500" />
-                                )}
-                              </div>
-                              <div className="text-sm text-gray-500 line-clamp-1">
-                                {item.description}
-                              </div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(item.type)}`}>
-                            {item.type}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(item.category)}`}>
-                            {item.category}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          <div className="flex items-center space-x-2">
-                            <FaUsers className="text-gray-400" />
-                            <span>{formatNumber(item.impact?.beneficiaries || 0)}</span>
-                            {item.impact?.feedback?.averageRating > 0 && (
-                              <>
-                                <FaStar className="text-yellow-500 ml-2" />
-                                <span>{item.impact.feedback.averageRating.toFixed(1)}</span>
-                              </>
-                            )}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityBadge(item.priority)}`}>
-                            {item.priority}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <div className="flex space-x-2">
-                            <button
-                              onClick={() => handleView(item._id)}
-                              className="text-blue-600 hover:text-blue-900 transition duration-300"
-                              title="View"
-                            >
-                              <FaEye />
-                            </button>
-                            <button
-                              onClick={() => handleEdit(item._id)}
-                              className="text-green-600 hover:text-green-900 transition duration-300"
-                              title="Edit"
-                            >
-                              <FaEdit />
-                            </button>
-                            <button
-                              onClick={() => handleDelete(item._id, item.title)}
-                              className="text-red-600 hover:text-red-900 transition duration-300"
-                              title="Delete"
-                            >
-                              <FaTrash />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* Summary */}
-          {!loading && filteredItems.length > 0 && (
-            <div className="mt-6 bg-white rounded-lg shadow-lg p-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-mcan-primary">{communityItems.length}</div>
-                  <div className="text-sm text-gray-600">Total Items</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {communityItems.filter(item => item.type === 'initiative').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Initiatives</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600">
-                    {communityItems.reduce((total, item) => total + (item.impact?.beneficiaries || 0), 0).toLocaleString()}
-                  </div>
-                  <div className="text-sm text-gray-600">Total Beneficiaries</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-yellow-600">
-                    {communityItems.filter(item => item.featured).length}
-                  </div>
-                  <div className="text-sm text-gray-600">Featured</div>
-                </div>
-              </div>
-            </div>
+  // Define columns for ResponsiveDataDisplay
+  const columns = [
+    {
+      key: 'title',
+      label: 'Item',
+      render: (item) => (
+        <div className="flex items-center">
+          {item.primaryImage && (
+            <img
+              src={item.primaryImage}
+              alt={item.title}
+              className="w-10 h-10 rounded-lg object-cover mr-3"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
           )}
+          <div>
+            <div className="text-sm font-medium text-gray-900 line-clamp-1">
+              {item.title}
+              {item.featured && (
+                <FaStar className="inline ml-2 text-yellow-500" />
+              )}
+            </div>
+            <div className="text-sm text-gray-500 line-clamp-1">
+              {item.description}
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      key: 'type',
+      label: 'Type',
+      render: (item) => (
+        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(item.type)}`}>
+          {item.type}
+        </span>
+      )
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      render: (item) => (
+        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(item.category)}`}>
+          {item.category}
+        </span>
+      )
+    },
+    {
+      key: 'impact',
+      label: 'Impact',
+      render: (item) => (
+        <div className="flex items-center space-x-2">
+          <FaUsers className="text-gray-400" />
+          <span>{formatNumber(item.impact?.beneficiaries || 0)}</span>
+          {item.impact?.feedback?.averageRating > 0 && (
+            <>
+              <FaStar className="text-yellow-500 ml-2" />
+              <span>{item.impact.feedback.averageRating.toFixed(1)}</span>
+            </>
+          )}
+        </div>
+      )
+    },
+    {
+      key: 'priority',
+      label: 'Priority',
+      render: (item) => (
+        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityBadge(item.priority)}`}>
+          {item.priority}
+        </span>
+      )
+    }
+  ];
+
+  // Card component for mobile view
+  const CommunityCard = ({ item, onView, onEdit, onDelete }) => (
+    <div className="bg-white rounded-lg shadow-md p-4 space-y-3">
+      <div className="flex items-start justify-between">
+        <div className="flex items-center flex-1">
+          {item.primaryImage && (
+            <img
+              src={item.primaryImage}
+              alt={item.title}
+              className="w-12 h-12 rounded-lg object-cover mr-3"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          )}
+          <div className="flex-1">
+            <h3 className="text-sm font-medium text-gray-900 line-clamp-2">
+              {item.title}
+              {item.featured && (
+                <FaStar className="inline ml-2 text-yellow-500" />
+              )}
+            </h3>
+            <p className="text-xs text-gray-500 line-clamp-2 mt-1">
+              {item.description}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(item.type)}`}>
+          {item.type}
+        </span>
+        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(item.category)}`}>
+          {item.category}
+        </span>
+        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getPriorityBadge(item.priority)}`}>
+          {item.priority}
+        </span>
+      </div>
+
+      <div className="flex items-center justify-between pt-2 border-t">
+        <div className="flex items-center space-x-2 text-sm text-gray-600">
+          <FaUsers className="text-gray-400" />
+          <span>{formatNumber(item.impact?.beneficiaries || 0)}</span>
+          {item.impact?.feedback?.averageRating > 0 && (
+            <>
+              <FaStar className="text-yellow-500 ml-2" />
+              <span>{item.impact.feedback.averageRating.toFixed(1)}</span>
+            </>
+          )}
+        </div>
+
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onView(item._id)}
+            className="text-blue-600 hover:text-blue-900 transition duration-300 p-1"
+            title="View"
+          >
+            <FaEye />
+          </button>
+          <button
+            onClick={() => onEdit(item._id)}
+            className="text-green-600 hover:text-green-900 transition duration-300 p-1"
+            title="Edit"
+          >
+            <FaEdit />
+          </button>
+          <button
+            onClick={() => onDelete(item._id, item.title)}
+            className="text-red-600 hover:text-red-900 transition duration-300 p-1"
+            title="Delete"
+          >
+            <FaTrash />
+          </button>
         </div>
       </div>
     </div>
+  );
+
+  const headerActions = (
+    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
+      <MobileButton
+        onClick={handleRefresh}
+        disabled={refreshing}
+        variant="secondary"
+        icon={FaSync}
+        className={refreshing ? 'animate-spin' : ''}
+      >
+        {refreshing ? 'Refreshing...' : 'Refresh'}
+      </MobileButton>
+      <Link to="/admin/create-community">
+        <MobileButton
+          variant="primary"
+          icon={FaPlus}
+          fullWidth={true}
+        >
+          Add Community Item
+        </MobileButton>
+      </Link>
+    </div>
+  );
+
+  return (
+    <MobileLayout
+      title="Manage Community"
+      subtitle="View and manage all MCAN community items"
+      icon={FaUsers}
+      navbar={Navbar}
+      headerActions={headerActions}
+      backgroundColor="bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5"
+    >
+      <div className="p-4 lg:p-8">
+
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow-lg p-4 lg:p-6 mb-4 lg:mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
+              <div className="relative">
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search community items..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
+              <select
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                className="w-full px-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+              >
+                {types.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Category</label>
+              <select
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                className="w-full px-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+              >
+                {categories.map(category => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="flex items-end">
+              <div className="text-xs lg:text-sm text-gray-600 p-2">
+                Showing {filteredItems.length} of {communityItems.length} items
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Community Items List */}
+        <ResponsiveDataDisplay
+          data={filteredItems}
+          columns={columns}
+          loading={loading}
+          emptyMessage={
+            communityItems.length === 0
+              ? "No community items have been created yet."
+              : "No items match your current filters."
+          }
+          emptyIcon={FaUsers}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          cardComponent={CommunityCard}
+          showViewToggle={true}
+        />
+
+        {/* Summary */}
+        {!loading && filteredItems.length > 0 && (
+          <div className="mt-4 lg:mt-6 bg-white rounded-lg shadow-lg p-4 lg:p-6">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+              <div>
+                <div className="text-xl lg:text-2xl font-bold text-mcan-primary">{communityItems.length}</div>
+                <div className="text-xs lg:text-sm text-gray-600">Total Items</div>
+              </div>
+              <div>
+                <div className="text-xl lg:text-2xl font-bold text-blue-600">
+                  {communityItems.filter(item => item.type === 'initiative').length}
+                </div>
+                <div className="text-xs lg:text-sm text-gray-600">Initiatives</div>
+              </div>
+              <div>
+                <div className="text-xl lg:text-2xl font-bold text-green-600">
+                  {communityItems.reduce((total, item) => total + (item.impact?.beneficiaries || 0), 0).toLocaleString()}
+                </div>
+                <div className="text-xs lg:text-sm text-gray-600">Total Beneficiaries</div>
+              </div>
+              <div>
+                <div className="text-xl lg:text-2xl font-bold text-yellow-600">
+                  {communityItems.filter(item => item.featured).length}
+                </div>
+                <div className="text-xs lg:text-sm text-gray-600">Featured</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </MobileLayout>
   );
 };
 

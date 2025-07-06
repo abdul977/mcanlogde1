@@ -5,6 +5,9 @@ import { FaDonate, FaImage, FaPlus, FaMinus, FaSave, FaMoneyBillWave } from "rea
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
+import { ResponsiveForm } from "../../components/Mobile/ResponsiveForm";
+import { MobileButton, MobileInput } from "../../components/Mobile/MobileLayout";
 
 const CreateDonation = () => {
   const [auth] = useAuth();
@@ -300,286 +303,230 @@ const CreateDonation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
-          <Navbar />
-        </div>
-        <div className="flex-1 p-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
-                <FaDonate className="text-white text-xl" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Create Donation Campaign</h1>
-                <p className="text-gray-600">Add a new donation or sponsorship campaign</p>
-              </div>
+    <MobileLayout
+      title="Create Donation Campaign"
+      subtitle="Add a new donation or sponsorship campaign"
+      icon={FaDonate}
+      navbar={Navbar}
+      backgroundColor="bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5"
+    >
+      <div className="p-4 lg:p-8">
+
+        {/* Form */}
+        <ResponsiveForm
+          onSubmit={handleSubmit}
+          loading={loading}
+          submitText={loading ? "Creating..." : "Create Campaign"}
+          showCancel={true}
+          onCancel={() => navigate("/admin/donations")}
+          cancelText="Cancel"
+          className="bg-white rounded-lg shadow-lg"
+        >
+          {/* Basic Information */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+            <MobileInput
+              label="Campaign Title *"
+              type="text"
+              name="title"
+              value={formData.title}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter campaign title"
+            />
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Type
+              </label>
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent text-sm lg:text-base"
+              >
+                {types.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
-          {/* Form */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Campaign Title *
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    placeholder="Enter campaign title"
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description *
+            </label>
+            <textarea
+              name="description"
+              value={formData.description}
+              onChange={handleInputChange}
+              required
+              rows="4"
+              className="w-full px-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+              placeholder="Enter campaign description"
+            />
+          </div>
+
+          {/* Amount & Target */}
+          <div className="border-t pt-4 lg:pt-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Financial Details</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+              <MobileInput
+                label="Target Amount (NGN) *"
+                type="number"
+                value={amount.target}
+                onChange={(e) => handleNestedChange(setAmount, 'target', parseInt(e.target.value) || 0)}
+                required
+                min="1000"
+                placeholder="Enter target amount"
+              />
+
+              <MobileInput
+                label="Amount Raised (NGN)"
+                type="number"
+                value={amount.raised}
+                onChange={(e) => handleNestedChange(setAmount, 'raised', parseInt(e.target.value) || 0)}
+                min="0"
+                placeholder="Current amount raised"
+              />
+
+              <MobileInput
+                label="Target Beneficiaries"
+                type="number"
+                value={beneficiaries.target}
+                onChange={(e) => handleNestedChange(setBeneficiaries, 'target', parseInt(e.target.value) || 0)}
+                min="0"
+                placeholder="Number of people to help"
+              />
+            </div>
+          </div>
+
+          {/* Timeline */}
+          <div className="border-t pt-4 lg:pt-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Campaign Timeline</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+              <MobileInput
+                label="Start Date"
+                type="date"
+                value={timeline.startDate}
+                onChange={(e) => handleNestedChange(setTimeline, 'startDate', e.target.value)}
+              />
+
+              <MobileInput
+                label="End Date"
+                type="date"
+                value={timeline.endDate}
+                onChange={(e) => handleNestedChange(setTimeline, 'endDate', e.target.value)}
+              />
+            </div>
+          </div>
+
+          {/* Payment Information */}
+          <div className="border-t pt-4 lg:pt-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Payment Information</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
+              <div>
+                <h4 className="font-medium text-gray-700 mb-3">Bank Details</h4>
+                <div className="space-y-3">
+                  <MobileInput
+                    label="Account Name"
+                    value={paymentInfo.bankDetails.accountName}
+                    onChange={(e) => handleDeepNestedChange(setPaymentInfo, 'bankDetails.accountName', e.target.value)}
+                    placeholder="Account Name"
                   />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Type
-                  </label>
-                  <select
-                    name="type"
-                    value={formData.type}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                  >
-                    {types.map(type => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
+                  <MobileInput
+                    label="Account Number"
+                    value={paymentInfo.bankDetails.accountNumber}
+                    onChange={(e) => handleDeepNestedChange(setPaymentInfo, 'bankDetails.accountNumber', e.target.value)}
+                    placeholder="Account Number"
+                  />
+                  <MobileInput
+                    label="Bank Name"
+                    value={paymentInfo.bankDetails.bankName}
+                    onChange={(e) => handleDeepNestedChange(setPaymentInfo, 'bankDetails.bankName', e.target.value)}
+                    placeholder="Bank Name"
+                  />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description *
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                  placeholder="Enter campaign description"
-                />
-              </div>
-
-              {/* Amount & Target */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Financial Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <h4 className="font-medium text-gray-700 mb-3">Mobile Payment</h4>
+                <div className="space-y-3">
+                  <MobileInput
+                    label="Mobile Number"
+                    value={paymentInfo.mobilePayment.number}
+                    onChange={(e) => handleDeepNestedChange(setPaymentInfo, 'mobilePayment.number', e.target.value)}
+                    placeholder="Mobile Number"
+                  />
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Target Amount (NGN) *
-                    </label>
-                    <input
-                      type="number"
-                      value={amount.target}
-                      onChange={(e) => handleNestedChange(setAmount, 'target', parseInt(e.target.value) || 0)}
-                      required
-                      min="1000"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                      placeholder="Enter target amount"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Amount Raised (NGN)
-                    </label>
-                    <input
-                      type="number"
-                      value={amount.raised}
-                      onChange={(e) => handleNestedChange(setAmount, 'raised', parseInt(e.target.value) || 0)}
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                      placeholder="Current amount raised"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Target Beneficiaries
-                    </label>
-                    <input
-                      type="number"
-                      value={beneficiaries.target}
-                      onChange={(e) => handleNestedChange(setBeneficiaries, 'target', parseInt(e.target.value) || 0)}
-                      min="0"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                      placeholder="Number of people to help"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Timeline */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Campaign Timeline</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Start Date
-                    </label>
-                    <input
-                      type="date"
-                      value={timeline.startDate}
-                      onChange={(e) => handleNestedChange(setTimeline, 'startDate', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      End Date
-                    </label>
-                    <input
-                      type="date"
-                      value={timeline.endDate}
-                      onChange={(e) => handleNestedChange(setTimeline, 'endDate', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Payment Information */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Payment Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-medium text-gray-700 mb-3">Bank Details</h4>
-                    <div className="space-y-3">
-                      <input
-                        type="text"
-                        value={paymentInfo.bankDetails.accountName}
-                        onChange={(e) => handleDeepNestedChange(setPaymentInfo, 'bankDetails.accountName', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                        placeholder="Account Name"
-                      />
-                      <input
-                        type="text"
-                        value={paymentInfo.bankDetails.accountNumber}
-                        onChange={(e) => handleDeepNestedChange(setPaymentInfo, 'bankDetails.accountNumber', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                        placeholder="Account Number"
-                      />
-                      <input
-                        type="text"
-                        value={paymentInfo.bankDetails.bankName}
-                        onChange={(e) => handleDeepNestedChange(setPaymentInfo, 'bankDetails.bankName', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                        placeholder="Bank Name"
-                      />
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="font-medium text-gray-700 mb-3">Mobile Payment</h4>
-                    <div className="space-y-3">
-                      <input
-                        type="text"
-                        value={paymentInfo.mobilePayment.number}
-                        onChange={(e) => handleDeepNestedChange(setPaymentInfo, 'mobilePayment.number', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                        placeholder="Mobile Number"
-                      />
-                      <select
-                        value={paymentInfo.mobilePayment.provider}
-                        onChange={(e) => handleDeepNestedChange(setPaymentInfo, 'mobilePayment.provider', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                      >
-                        {mobileProviders.map(provider => (
-                          <option key={provider.value} value={provider.value}>
-                            {provider.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Settings */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Campaign Settings</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Category
-                    </label>
                     <select
-                      name="category"
-                      value={formData.category}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                      value={paymentInfo.mobilePayment.provider}
+                      onChange={(e) => handleDeepNestedChange(setPaymentInfo, 'mobilePayment.provider', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent text-sm lg:text-base"
                     >
-                      {categories.map(category => (
-                        <option key={category.value} value={category.value}>
-                          {category.label}
+                      {mobileProviders.map(provider => (
+                        <option key={provider.value} value={provider.value}>
+                          {provider.label}
                         </option>
                       ))}
                     </select>
                   </div>
-                  
-                  <div className="flex items-center space-x-6 pt-6">
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        name="featured"
-                        checked={formData.featured}
-                        onChange={handleInputChange}
-                        className="mr-2"
-                      />
-                      <span className="text-sm text-gray-700">Featured Campaign</span>
-                    </label>
-                    
-                    <label className="flex items-center">
-                      <input
-                        type="checkbox"
-                        name="urgent"
-                        checked={formData.urgent}
-                        onChange={handleInputChange}
-                        className="mr-2"
-                      />
-                      <span className="text-sm text-gray-700">Urgent</span>
-                    </label>
-                  </div>
                 </div>
               </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end space-x-4 pt-6 border-t">
-                <button
-                  type="button"
-                  onClick={() => navigate("/admin/donations")}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex items-center px-6 py-2 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300 disabled:opacity-50"
-                >
-                  <FaSave className="mr-2" />
-                  {loading ? "Creating..." : "Create Campaign"}
-                </button>
-              </div>
-            </form>
+            </div>
           </div>
-        </div>
+
+          {/* Settings */}
+          <div className="border-t pt-4 lg:pt-6">
+            <h3 className="text-lg font-semibold text-gray-800 mb-4">Campaign Settings</h3>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Category
+                </label>
+                <select
+                  name="category"
+                  value={formData.category}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent text-sm lg:text-base"
+                >
+                  {categories.map(category => (
+                    <option key={category.value} value={category.value}>
+                      {category.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="lg:col-span-2 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-6 pt-0 lg:pt-6">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="featured"
+                    checked={formData.featured}
+                    onChange={handleInputChange}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Featured Campaign</span>
+                </label>
+
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="urgent"
+                    checked={formData.urgent}
+                    onChange={handleInputChange}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Urgent</span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </ResponsiveForm>
       </div>
-    </div>
+    </MobileLayout>
   );
 };
 

@@ -5,6 +5,8 @@ import { FaBook, FaImage, FaPlus, FaMinus, FaSave, FaFile, FaLink, FaPlay } from
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import MobileLayout, { MobilePageHeader, MobileButton, MobileInput } from "../../components/Mobile/MobileLayout";
+import { ResponsiveForm, FormSection, FormField } from "../../components/Mobile/ResponsiveForm";
 
 const CreateResource = () => {
   const [auth] = useAuth();
@@ -227,361 +229,306 @@ const CreateResource = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
-          <Navbar />
-        </div>
-        <div className="flex-1 p-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
-                <FaBook className="text-white text-xl" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Create New Resource</h1>
-                <p className="text-gray-600">Add a new Islamic resource to the MCAN library</p>
-              </div>
-            </div>
-          </div>
+    <MobileLayout
+      title="Create New Resource"
+      subtitle="Add a new Islamic resource to the MCAN library"
+      icon={FaBook}
+      navbar={Navbar}
+      backgroundColor="bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5"
+    >
+      <div className="p-4 lg:p-8">
+        {/* Form */}
+        <ResponsiveForm
+          onSubmit={handleSubmit}
+          loading={loading}
+          submitText={loading ? "Creating..." : "Create Resource"}
+          showCancel={true}
+          onCancel={() => navigate("/admin/resources")}
+          cancelText="Cancel"
+          className="bg-white rounded-lg shadow-lg"
+        >
+          {/* Basic Information */}
+          <FormSection
+            title="Basic Information"
+            icon={FaBook}
+            columns={2}
+          >
+            <FormField label="Resource Title *" required>
+              <MobileInput
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter resource title"
+              />
+            </FormField>
 
-          {/* Form */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Resource Title *
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    placeholder="Enter resource title"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Category
-                  </label>
-                  <select
-                    name="category"
-                    value={formData.category}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                  >
-                    {categories.map(category => (
-                      <option key={category.value} value={category.value}>
-                        {category.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
+            <FormField label="Category">
+              <select
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+              >
+                {categories.map(category => (
+                  <option key={category.value} value={category.value}>
+                    {category.label}
+                  </option>
+                ))}
+              </select>
+            </FormField>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description *
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                  placeholder="Enter resource description"
+            <FormField label="Description *" className="lg:col-span-2" required>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                required
+                rows="4"
+                className="w-full px-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                placeholder="Enter resource description"
+              />
+            </FormField>
+          </FormSection>
+
+          {/* Resource Type and Content */}
+          <FormSection
+            title="Resource Content"
+            icon={FaFile}
+            columns={2}
+          >
+            <FormField label="Resource Type">
+              <select
+                name="type"
+                value={formData.type}
+                onChange={handleInputChange}
+                className="w-full px-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+              >
+                {types.map(type => (
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+
+            {formData.type === 'file' && (
+              <FormField label="Upload File *" required>
+                <input
+                  type="file"
+                  onChange={(e) => handleImageChange(e, 'file')}
+                  className="w-full px-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                  accept=".pdf,.doc,.docx,.txt,.mp3,.mp4,.zip"
                 />
+                {content.fileName && (
+                  <p className="text-xs lg:text-sm text-gray-600 mt-1">Selected: {content.fileName}</p>
+                )}
+              </FormField>
+            )}
+
+            {formData.type === 'link' && (
+              <FormField label="External URL *" required>
+                <MobileInput
+                  type="url"
+                  value={content.externalUrl}
+                  onChange={(e) => handleNestedChange(setContent, 'externalUrl', e.target.value)}
+                  placeholder="https://example.com"
+                />
+              </FormField>
+            )}
+
+            {formData.type === 'embedded' && (
+              <FormField label="Embed Code" className="lg:col-span-2">
+                <textarea
+                  value={content.embedCode}
+                  onChange={(e) => handleNestedChange(setContent, 'embedCode', e.target.value)}
+                  rows="3"
+                  className="w-full px-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                  placeholder="<iframe src='...'></iframe>"
+                />
+              </FormField>
+            )}
+          </FormSection>
+
+          {/* Author Information */}
+          <FormSection
+            title="Author Information"
+            icon={FaImage}
+            columns={2}
+          >
+            <FormField label="Author Name">
+              <MobileInput
+                type="text"
+                value={author.name}
+                onChange={(e) => handleNestedChange(setAuthor, 'name', e.target.value)}
+                placeholder="Enter author name"
+              />
+            </FormField>
+
+            <FormField label="Author Image">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(e, 'author')}
+                  className="hidden"
+                  id="author-image"
+                />
+                <label
+                  htmlFor="author-image"
+                  className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer transition duration-300 text-sm lg:text-base"
+                >
+                  <FaImage className="mr-2" />
+                  Choose Image
+                </label>
+                {authorImagePreview && (
+                  <img
+                    src={authorImagePreview}
+                    alt="Author preview"
+                    className="w-16 h-16 object-cover rounded-md"
+                  />
+                )}
               </div>
+            </FormField>
+          </FormSection>
 
-              {/* Resource Type and Content */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Resource Content</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Resource Type
-                    </label>
-                    <select
-                      name="type"
-                      value={formData.type}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    >
-                      {types.map(type => (
-                        <option key={type.value} value={type.value}>
-                          {type.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+          {/* Metadata */}
+          <FormSection
+            title="Metadata"
+            icon={FaBook}
+            columns={3}
+          >
+            <FormField label="Language">
+              <select
+                value={metadata.language}
+                onChange={(e) => handleNestedChange(setMetadata, 'language', e.target.value)}
+                className="w-full px-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+              >
+                {languages.map(language => (
+                  <option key={language.value} value={language.value}>
+                    {language.label}
+                  </option>
+                ))}
+              </select>
+            </FormField>
 
-                  {formData.type === 'file' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Upload File *
-                      </label>
-                      <input
-                        type="file"
-                        onChange={(e) => handleImageChange(e, 'file')}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                        accept=".pdf,.doc,.docx,.txt,.mp3,.mp4,.zip"
-                      />
-                      {content.fileName && (
-                        <p className="text-sm text-gray-600 mt-1">Selected: {content.fileName}</p>
-                      )}
-                    </div>
-                  )}
+            <FormField label="Difficulty Level">
+              <select
+                value={metadata.difficulty}
+                onChange={(e) => handleNestedChange(setMetadata, 'difficulty', e.target.value)}
+                className="w-full px-3 py-2 lg:py-3 text-sm lg:text-base border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+              >
+                {difficulties.map(difficulty => (
+                  <option key={difficulty.value} value={difficulty.value}>
+                    {difficulty.label}
+                  </option>
+                ))}
+              </select>
+            </FormField>
 
-                  {formData.type === 'link' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        External URL *
-                      </label>
-                      <input
-                        type="url"
-                        value={content.externalUrl}
-                        onChange={(e) => handleNestedChange(setContent, 'externalUrl', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                        placeholder="https://example.com"
-                      />
-                    </div>
-                  )}
+            <FormField label="Pages (for books)">
+              <MobileInput
+                type="number"
+                value={metadata.pages}
+                onChange={(e) => handleNestedChange(setMetadata, 'pages', e.target.value)}
+                placeholder="Number of pages"
+              />
+            </FormField>
+          </FormSection>
 
-                  {formData.type === 'embedded' && (
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Embed Code
-                      </label>
-                      <textarea
-                        value={content.embedCode}
-                        onChange={(e) => handleNestedChange(setContent, 'embedCode', e.target.value)}
-                        rows="3"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                        placeholder="<iframe src='...'></iframe>"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Author Information */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Author Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Author Name
-                    </label>
-                    <input
-                      type="text"
-                      value={author.name}
-                      onChange={(e) => handleNestedChange(setAuthor, 'name', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                      placeholder="Enter author name"
+          {/* Topics and Tags */}
+          <FormSection
+            title="Topics & Tags"
+            icon={FaPlus}
+            columns={2}
+          >
+            <FormField label="Topics">
+              <div className="space-y-2">
+                {topics.map((topic, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <MobileInput
+                      value={topic}
+                      onChange={(e) => handleArrayChange(index, e.target.value, setTopics, topics)}
+                      placeholder="Enter topic"
+                      className="flex-1"
                     />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Author Image
-                    </label>
-                    <div className="flex items-center space-x-4">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) => handleImageChange(e, 'author')}
-                        className="hidden"
-                        id="author-image"
-                      />
-                      <label
-                        htmlFor="author-image"
-                        className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer transition duration-300"
-                      >
-                        <FaImage className="mr-2" />
-                        Choose Image
-                      </label>
-                      {authorImagePreview && (
-                        <img
-                          src={authorImagePreview}
-                          alt="Author preview"
-                          className="w-16 h-16 object-cover rounded-md"
-                        />
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Metadata */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Metadata</h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Language
-                    </label>
-                    <select
-                      value={metadata.language}
-                      onChange={(e) => handleNestedChange(setMetadata, 'language', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    >
-                      {languages.map(language => (
-                        <option key={language.value} value={language.value}>
-                          {language.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Difficulty Level
-                    </label>
-                    <select
-                      value={metadata.difficulty}
-                      onChange={(e) => handleNestedChange(setMetadata, 'difficulty', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    >
-                      {difficulties.map(difficulty => (
-                        <option key={difficulty.value} value={difficulty.value}>
-                          {difficulty.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Pages (for books)
-                    </label>
-                    <input
-                      type="number"
-                      value={metadata.pages}
-                      onChange={(e) => handleNestedChange(setMetadata, 'pages', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                      placeholder="Number of pages"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Topics and Tags */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Topics & Tags</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Topics
-                    </label>
-                    {topics.map((topic, index) => (
-                      <div key={index} className="flex items-center space-x-2 mb-2">
-                        <input
-                          type="text"
-                          value={topic}
-                          onChange={(e) => handleArrayChange(index, e.target.value, setTopics, topics)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                          placeholder="Enter topic"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeArrayItem(index, setTopics, topics)}
-                          className="p-2 text-red-600 hover:text-red-800"
-                        >
-                          <FaMinus />
-                        </button>
-                      </div>
-                    ))}
                     <button
                       type="button"
-                      onClick={() => addArrayItem(setTopics, topics)}
-                      className="flex items-center text-mcan-primary hover:text-mcan-secondary"
+                      onClick={() => removeArrayItem(index, setTopics, topics)}
+                      className="p-2 text-red-600 hover:text-red-800 transition-colors"
                     >
-                      <FaPlus className="mr-1" />
-                      Add Topic
+                      <FaMinus />
                     </button>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Tags
-                    </label>
-                    {tags.map((tag, index) => (
-                      <div key={index} className="flex items-center space-x-2 mb-2">
-                        <input
-                          type="text"
-                          value={tag}
-                          onChange={(e) => handleArrayChange(index, e.target.value, setTags, tags)}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                          placeholder="Enter tag"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => removeArrayItem(index, setTags, tags)}
-                          className="p-2 text-red-600 hover:text-red-800"
-                        >
-                          <FaMinus />
-                        </button>
-                      </div>
-                    ))}
-                    <button
-                      type="button"
-                      onClick={() => addArrayItem(setTags, tags)}
-                      className="flex items-center text-mcan-primary hover:text-mcan-secondary"
-                    >
-                      <FaPlus className="mr-1" />
-                      Add Tag
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Settings */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Settings</h3>
-                <div className="flex items-center space-x-6">
-                  <label className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="featured"
-                      checked={formData.featured}
-                      onChange={handleInputChange}
-                      className="mr-2"
-                    />
-                    <span className="text-sm text-gray-700">Featured Resource</span>
-                  </label>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end space-x-4 pt-6 border-t">
-                <button
+                ))}
+                <MobileButton
                   type="button"
-                  onClick={() => navigate("/admin/resources")}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-300"
+                  onClick={() => addArrayItem(setTopics, topics)}
+                  variant="secondary"
+                  size="sm"
+                  icon={FaPlus}
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex items-center px-6 py-2 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300 disabled:opacity-50"
-                >
-                  <FaSave className="mr-2" />
-                  {loading ? "Creating..." : "Create Resource"}
-                </button>
+                  Add Topic
+                </MobileButton>
               </div>
-            </form>
-          </div>
-        </div>
+            </FormField>
+
+            <FormField label="Tags">
+              <div className="space-y-2">
+                {tags.map((tag, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    <MobileInput
+                      value={tag}
+                      onChange={(e) => handleArrayChange(index, e.target.value, setTags, tags)}
+                      placeholder="Enter tag"
+                      className="flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeArrayItem(index, setTags, tags)}
+                      className="p-2 text-red-600 hover:text-red-800 transition-colors"
+                    >
+                      <FaMinus />
+                    </button>
+                  </div>
+                ))}
+                <MobileButton
+                  type="button"
+                  onClick={() => addArrayItem(setTags, tags)}
+                  variant="secondary"
+                  size="sm"
+                  icon={FaPlus}
+                >
+                  Add Tag
+                </MobileButton>
+              </div>
+            </FormField>
+          </FormSection>
+
+          {/* Settings */}
+          <FormSection
+            title="Settings"
+            icon={FaSave}
+            columns={1}
+          >
+            <FormField>
+              <div className="flex items-center space-x-6">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    name="featured"
+                    checked={formData.featured}
+                    onChange={handleInputChange}
+                    className="mr-2"
+                  />
+                  <span className="text-sm lg:text-base text-gray-700">Featured Resource</span>
+                </label>
+              </div>
+            </FormField>
+          </FormSection>
+        </ResponsiveForm>
       </div>
-    </div>
+    </MobileLayout>
   );
 };
 
