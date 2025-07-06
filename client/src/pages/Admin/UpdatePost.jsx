@@ -9,7 +9,7 @@ import { useAuth } from "../../context/UserContext";
 const UpdatePost = () => {
   const navigate = useNavigate();
   const params = useParams();
-  const { auth } = useAuth();
+  const [auth] = useAuth();
   const [title, setTitle] = useState("");
   const [hotelLocation, setHotelLocation] = useState("");
   const [description, setDescription] = useState("");

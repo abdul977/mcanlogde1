@@ -11,7 +11,7 @@ import "react-quill/dist/quill.snow.css";
 const EditBlog = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { auth } = useAuth();
+  const [auth] = useAuth();
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
