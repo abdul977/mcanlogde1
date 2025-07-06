@@ -14,12 +14,13 @@ const AuthProvider = ({ children }) => {
       try {
         const parseData = JSON.parse(data);
         setAuth({
-          ...auth,
           user: parseData?.user,
           token: parseData.token,
         });
       } catch (error) {
         console.error("Error parsing auth data from localStorage:", error);
+        // Clear corrupted data
+        localStorage.removeItem("auth");
       }
     } else {
       console.log("No auth data found in localStorage");
