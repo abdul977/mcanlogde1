@@ -5,6 +5,9 @@ import { FaChalkboardTeacher, FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaSearch, 
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import MobileLayout, { MobilePageHeader, MobileButton, MobileInput } from "../../components/Mobile/MobileLayout";
+import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
+import { FormField, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
 
 const AllLectures = () => {
   const [auth] = useAuth();
@@ -194,343 +197,217 @@ const AllLectures = () => {
     });
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
-          <Navbar />
+  // Define columns for ResponsiveDataDisplay
+  const columns = [
+    {
+      key: 'title',
+      label: 'Lecture',
+      sortable: true,
+      render: (lecture) => (
+        <div className="font-medium text-gray-900 truncate max-w-xs">
+          {lecture.title}
         </div>
-        <div className="flex-1 p-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
-                  <FaChalkboardTeacher className="text-white text-xl" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-800">Manage Lectures</h1>
-                  <p className="text-gray-600">View and manage all MCAN lectures</p>
-                </div>
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                    refreshing
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                  title="Refresh Lectures"
-                >
-                  <FaSync className={`${refreshing ? 'animate-spin' : ''}`} />
-                  {refreshing ? 'Refreshing...' : 'Refresh'}
-                </button>
-                <Link
-                  to="/admin/create-lecture"
-                  className="flex items-center gap-2 px-4 py-2 bg-mcan-primary text-white rounded-lg hover:bg-mcan-secondary transition duration-300"
-                >
-                  <FaPlus />
-                  Add Lecture
-                </Link>
-              </div>
-            </div>
-          </div>
+      )
+    },
+    {
+      key: 'type',
+      label: 'Type',
+      render: (lecture) => (
+        <span className="px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+          {lecture.type}
+        </span>
+      )
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (lecture) => (
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(lecture.status)}`}>
+          {lecture.status}
+        </span>
+      )
+    },
+    {
+      key: 'speaker',
+      label: 'Speaker',
+      render: (lecture) => (
+        <span className="text-gray-600">{lecture.speaker?.name || 'TBA'}</span>
+      )
+    },
+    {
+      key: 'date',
+      label: 'Date',
+      sortable: true,
+      render: (lecture) => (
+        <span className="text-gray-500 text-sm">
+          {lecture.date ? formatDate(lecture.date) : 'TBA'}
+        </span>
+      )
+    }
+  ];
 
-          {/* Filters */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Search</label>
-                <div className="relative">
-                  <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search lectures..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                <select
-                  value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                >
-                  {types.map(type => (
-                    <option key={type.value} value={type.value}>
-                      {type.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
-                <select
-                  value={selectedStatus}
-                  onChange={(e) => setSelectedStatus(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                >
-                  {statuses.map(status => (
-                    <option key={status.value} value={status.value}>
-                      {status.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              
-              <div className="flex items-end">
-                <div className="text-sm text-gray-600">
-                  Showing {filteredLectures.length} of {lectures.length} lectures
-                </div>
-              </div>
-            </div>
-          </div>
+  // Lecture Card Component for mobile view
+  const LectureCard = ({ item: lecture, onView, onEdit, onDelete }) => (
+    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+      <div className="flex justify-between items-start mb-3">
+        <h3 className="font-semibold text-gray-900 text-sm line-clamp-2">
+          {lecture.title}
+        </h3>
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(lecture.status)}`}>
+          {lecture.status}
+        </span>
+      </div>
 
-          {/* Lectures List */}
-          <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-            {loading ? (
-              <div className="flex justify-center items-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mcan-primary"></div>
-                <span className="ml-3 text-gray-600">Loading lectures...</span>
-              </div>
-            ) : filteredLectures.length === 0 ? (
-              <div className="text-center py-16">
-                <FaChalkboardTeacher className="mx-auto text-6xl text-gray-300 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No Lectures Found</h3>
-                <p className="text-gray-500 mb-4">
-                  {lectures.length === 0 
-                    ? "No lectures have been created yet." 
-                    : "No lectures match your current filters."
-                  }
-                </p>
-                <Link
-                  to="/admin/create-lecture"
-                  className="inline-flex items-center px-4 py-2 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300"
-                >
-                  <FaPlus className="mr-2" />
-                  Create First Lecture
-                </Link>
-              </div>
-            ) : (
-              <>
-                {/* Desktop Table View */}
-                <div className="hidden lg:block overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Lecture
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Speaker
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Type
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Date
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredLectures.map((lecture) => (
-                        <tr key={lecture._id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              {lecture.image && (
-                                <img
-                                  src={lecture.image}
-                                  alt={lecture.title}
-                                  className="w-10 h-10 rounded-lg object-cover mr-3"
-                                  onError={(e) => {
-                                    e.target.style.display = 'none';
-                                  }}
-                                />
-                              )}
-                              <div>
-                                <div className="text-sm font-medium text-gray-900 line-clamp-1">
-                                  {lecture.title}
-                                </div>
-                                <div className="text-sm text-gray-500 line-clamp-1">
-                                  {lecture.description}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{lecture.speaker?.name || "TBA"}</div>
-                            <div className="text-sm text-gray-500">{lecture.speaker?.title}</div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(lecture.type)}`}>
-                              {lecture.type}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {formatDate(lecture.schedule?.date)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(lecture.status)}`}>
-                              {lecture.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex space-x-2">
-                              <button
-                                onClick={() => handleView(lecture._id)}
-                                className="text-blue-600 hover:text-blue-900 transition duration-300"
-                                title="View"
-                              >
-                                <FaEye />
-                              </button>
-                              <button
-                                onClick={() => handleEdit(lecture._id)}
-                                className="text-green-600 hover:text-green-900 transition duration-300"
-                                title="Edit"
-                              >
-                                <FaEdit />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(lecture._id, lecture.title)}
-                                className="text-red-600 hover:text-red-900 transition duration-300"
-                                title="Delete"
-                              >
-                                <FaTrash />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+      <div className="space-y-2 mb-4">
+        <p className="text-gray-600 text-sm">
+          <span className="font-medium">Type:</span>
+          <span className="ml-2 px-2 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
+            {lecture.type}
+          </span>
+        </p>
+        <p className="text-gray-600 text-sm">
+          <span className="font-medium">Speaker:</span> {lecture.speaker?.name || 'TBA'}
+        </p>
+        <p className="text-gray-500 text-xs">
+          Date: {lecture.date ? formatDate(lecture.date) : 'TBA'}
+        </p>
+      </div>
 
-                {/* Mobile Card View */}
-                <div className="lg:hidden space-y-4">
-                  {filteredLectures.map((lecture) => (
-                    <div key={lecture._id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                      <div className="p-6">
-                        <div className="flex items-start space-x-4">
-                          {lecture.image && (
-                            <div className="h-16 w-16 flex-shrink-0">
-                              <img
-                                src={lecture.image}
-                                alt={lecture.title}
-                                className="h-16 w-16 rounded-lg object-cover"
-                                onError={(e) => {
-                                  e.target.style.display = 'none';
-                                }}
-                              />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                              {lecture.title}
-                            </h3>
-                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                              {lecture.description}
-                            </p>
-
-                            <div className="flex flex-wrap gap-2 mb-3">
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(lecture.type)}`}>
-                                {lecture.type}
-                              </span>
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(lecture.status)}`}>
-                                {lecture.status}
-                              </span>
-                              <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
-                                {formatDate(lecture.schedule?.date)}
-                              </span>
-                            </div>
-
-                            {lecture.speaker && (
-                              <div className="mb-3">
-                                <div className="text-sm text-gray-900 font-medium">{lecture.speaker.name || "TBA"}</div>
-                                {lecture.speaker.title && (
-                                  <div className="text-sm text-gray-500">{lecture.speaker.title}</div>
-                                )}
-                              </div>
-                            )}
-
-                            <div className="flex space-x-3">
-                              <button
-                                onClick={() => handleView(lecture._id)}
-                                className="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2"
-                                title="View"
-                              >
-                                <FaEye className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => handleEdit(lecture._id)}
-                                className="text-green-600 hover:text-green-900 transition-colors duration-200 p-2"
-                                title="Edit"
-                              >
-                                <FaEdit className="w-5 h-5" />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(lecture._id, lecture.title)}
-                                className="text-red-600 hover:text-red-900 transition-colors duration-200 p-2"
-                                title="Delete"
-                              >
-                                <FaTrash className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Summary */}
-          {!loading && filteredLectures.length > 0 && (
-            <div className="mt-6 bg-white rounded-lg shadow-lg p-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-mcan-primary">{lectures.length}</div>
-                  <div className="text-sm text-gray-600">Total Lectures</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600">
-                    {lectures.filter(l => l.status === 'published').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Published</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-yellow-600">
-                    {lectures.filter(l => l.status === 'draft').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Draft</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {lectures.filter(l => l.status === 'completed').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Completed</div>
-                </div>
-              </div>
-            </div>
-          )}
+      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onView && onView(lecture)}
+            className="text-blue-600 hover:text-blue-800 p-1"
+            title="View Lecture"
+          >
+            <FaEye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onEdit && onEdit(lecture)}
+            className="text-mcan-primary hover:text-mcan-secondary p-1"
+            title="Edit Lecture"
+          >
+            <FaEdit className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onDelete && onDelete(lecture._id)}
+            className="text-red-600 hover:text-red-800 p-1"
+            title="Delete Lecture"
+          >
+            <FaTrash className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
   );
+
+  return (
+    <MobileLayout
+      title="Lectures"
+      subtitle="Manage lectures"
+      icon={FaChalkboardTeacher}
+      navbar={Navbar}
+      headerActions={
+        <Link to="/admin/create-lecture">
+          <MobileButton
+            variant="primary"
+            size="sm"
+            icon={FaPlus}
+          >
+            Add
+          </MobileButton>
+        </Link>
+      }
+    >
+      <div className="p-4 lg:p-8">
+        {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="Manage Lectures"
+          subtitle="View and manage all MCAN lectures"
+          icon={FaChalkboardTeacher}
+          showOnMobile={false}
+          actions={
+            <div className="flex space-x-3">
+              <MobileButton
+                onClick={handleRefresh}
+                variant="secondary"
+                icon={FaSync}
+                disabled={refreshing}
+              >
+                {refreshing ? 'Refreshing...' : 'Refresh'}
+              </MobileButton>
+              <Link to="/admin/create-lecture">
+                <MobileButton
+                  variant="primary"
+                  icon={FaPlus}
+                >
+                  Create New Lecture
+                </MobileButton>
+              </Link>
+            </div>
+          }
+        />
+
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Search */}
+            <FormField label="Search Lectures">
+              <div className="relative">
+                <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <MobileInput
+                  type="text"
+                  placeholder="Search lectures..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </FormField>
+
+            {/* Type Filter */}
+            <FormField label="Type">
+              <ResponsiveSelect
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                options={types}
+              />
+            </FormField>
+
+            {/* Status Filter */}
+            <FormField label="Status">
+              <ResponsiveSelect
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                options={statuses}
+              />
+            </FormField>
+
+            {/* Results Count */}
+            <div className="flex items-center text-gray-600">
+              <FaFilter className="mr-2" />
+              {filteredLectures.length} of {lectures.length} lectures
+            </div>
+          </div>
+        </div>
+
+        {/* Data Display */}
+        <ResponsiveDataDisplay
+          data={filteredLectures}
+          columns={columns}
+          loading={loading}
+          emptyMessage="Get started by creating your first lecture."
+          emptyIcon={FaChalkboardTeacher}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          cardComponent={LectureCard}
+          showViewToggle={true}
+        />
+      </div>
+    </MobileLayout>
+  );
 };
 
 export default AllLectures;
+
