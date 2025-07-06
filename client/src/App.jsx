@@ -2,7 +2,7 @@ import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import StagewiseToolbar from "./components/StagewiseToolbar";
 import { ToastContainer } from "react-toastify";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useLocation } from "react-router-dom";
 import React from "react";
 import HomePage from "./pages/HomePage";
 import SearchPage from "./pages/SearchPage";
@@ -67,6 +67,11 @@ import AdminMessages from "./pages/Admin/AdminMessages";
 import { SocketProvider } from "./context/SocketContext";
 
 function App() {
+  const location = useLocation();
+
+  // Check if current route is a messaging interface
+  const isMessagingRoute = location.pathname.includes('/messages');
+
   return (
     <SocketProvider>
       <div className="min-h-screen bg-gray-50">
@@ -178,17 +183,19 @@ function App() {
         </Routes>
       </main>
 
-      {/* Footer */}
-      <Footer />
+      {/* Footer - Hidden in messaging interfaces */}
+      {!isMessagingRoute && <Footer />}
 
-      {/* Islamic Quote of the Day - Fixed at bottom */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 text-center text-sm text-gray-600 shadow-lg">
-        <div className="container mx-auto px-4">
-          <span className="italic">
-            "The best among you are those who bring greatest benefits to many others" - Prophet Muhammad ﷺ
-          </span>
+      {/* Islamic Quote of the Day - Fixed at bottom, hidden in messaging interfaces */}
+      {!isMessagingRoute && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 py-2 text-center text-sm text-gray-600 shadow-lg">
+          <div className="container mx-auto px-4">
+            <span className="italic">
+              "The best among you are those who bring greatest benefits to many others" - Prophet Muhammad ﷺ
+            </span>
+          </div>
         </div>
-      </div>
+      )}
       </div>
     </SocketProvider>
   );

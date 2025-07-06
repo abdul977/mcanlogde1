@@ -2,17 +2,26 @@ import Message from "../models/Message.js";
 import User from "../models/User.js";
 import mongoose from "mongoose";
 import { socketUtils } from "../config/socket.js";
+import { supabaseStorage } from "../services/supabaseStorage.js";
 
 // Send a new message
 export const sendMessageController = async (req, res) => {
   try {
-    const { recipientId, content, priority = 'normal' } = req.body;
+    const { recipientId, content, priority = 'normal', messageType = 'text', caption } = req.body;
     const senderId = req.user._id || req.user.id;
 
-    if (!recipientId || !content) {
+    if (!recipientId) {
       return res.status(400).json({
         success: false,
-        message: "Recipient ID and content are required"
+        message: "Recipient ID is required"
+      });
+    }
+
+    // For text messages, content is required
+    if (messageType === 'text' && !content) {
+      return res.status(400).json({
+        success: false,
+        message: "Content is required for text messages"
       });
     }
 
@@ -28,14 +37,49 @@ export const sendMessageController = async (req, res) => {
     // Generate thread ID
     const threadId = Message.generateThreadId(senderId, recipientId);
 
+    // Handle image upload if it's an image message
+    let attachments = [];
+    let messageContent = content;
+
+    if (messageType === 'image' && req.files?.image) {
+      try {
+        const result = await supabaseStorage.uploadFromTempFile(
+          req.files.image,
+          'mcan-messages',
+          'images'
+        );
+
+        if (result.success) {
+          attachments.push({
+            filename: req.files.image.name,
+            url: result.data.secure_url,
+            fileType: req.files.image.mimetype,
+            fileSize: req.files.image.size
+          });
+
+          // For image messages, use caption as content or default text
+          messageContent = caption || 'Image';
+        } else {
+          throw new Error(result.error);
+        }
+      } catch (uploadError) {
+        console.error("Image upload error:", uploadError);
+        return res.status(400).json({
+          success: false,
+          message: "Error uploading image"
+        });
+      }
+    }
+
     // Create message
     const message = new Message({
       sender: senderId,
       recipient: recipientId,
-      content: content.trim(),
+      content: messageContent?.trim() || (messageType === 'image' ? 'Image' : ''),
       threadId,
       priority,
-      messageType: 'text'
+      messageType,
+      attachments
     });
 
     await message.save();

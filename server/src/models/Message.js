@@ -19,7 +19,7 @@ const messageSchema = new Schema({
   },
   messageType: {
     type: String,
-    enum: ["text", "system", "booking_update"],
+    enum: ["text", "image", "system", "booking_update"],
     default: "text"
   },
   // For system messages and booking updates

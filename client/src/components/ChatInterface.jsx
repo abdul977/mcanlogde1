@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaPaperPlane, FaUser, FaPhone, FaVideo, FaEllipsisV, FaArrowLeft, FaSync } from "react-icons/fa";
+import { FaPaperPlane, FaUser, FaPhone, FaVideo, FaArrowLeft, FaSync, FaImage } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/UserContext";
 import { useSocket } from "../context/SocketContext";
+import TypingIndicator from "./TypingIndicator";
+import ImageUploadModal from "./ImageUploadModal";
 
 const ChatInterface = ({ onBack }) => {
   const [messages, setMessages] = useState([]);
@@ -12,13 +14,41 @@ const ChatInterface = ({ onBack }) => {
   const [sending, setSending] = useState(false);
   const [adminUser, setAdminUser] = useState(null);
   const [threadId, setThreadId] = useState(null);
+  const [typingUsers, setTypingUsers] = useState(new Set());
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
   const [auth] = useAuth();
-  const { joinThread, leaveThread, onNewMessage, isConnected } = useSocket();
+  const { joinThread, leaveThread, onNewMessage, onUserTyping, onUserStoppedTyping, startTyping, stopTyping, isConnected } = useSocket();
   const messagesEndRef = useRef(null);
   const chatContainerRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleTyping = () => {
+    if (threadId && isConnected) {
+      startTyping(threadId);
+
+      // Clear existing timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      // Set new timeout to stop typing after 3 seconds
+      typingTimeoutRef.current = setTimeout(() => {
+        stopTyping(threadId);
+      }, 3000);
+    }
+  };
+
+  const handleStopTyping = () => {
+    if (threadId && isConnected) {
+      stopTyping(threadId);
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+    }
   };
 
   useEffect(() => {
@@ -32,7 +62,7 @@ const ChatInterface = ({ onBack }) => {
       joinThread(threadId);
 
       // Listen for new messages
-      const unsubscribe = onNewMessage((data) => {
+      const unsubscribeNewMessage = onNewMessage((data) => {
         if (data.threadId === threadId) {
           setMessages(prev => {
             // Check if message already exists to prevent duplicates
@@ -45,13 +75,32 @@ const ChatInterface = ({ onBack }) => {
         }
       });
 
+      // Listen for typing indicators
+      const unsubscribeTyping = onUserTyping((data) => {
+        if (data.threadId === threadId && data.userId !== auth?.user?._id) {
+          setTypingUsers(prev => new Set([...prev, data.userId]));
+        }
+      });
+
+      const unsubscribeStoppedTyping = onUserStoppedTyping((data) => {
+        if (data.threadId === threadId) {
+          setTypingUsers(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(data.userId);
+            return newSet;
+          });
+        }
+      });
+
       // Cleanup when component unmounts or threadId changes
       return () => {
-        if (unsubscribe) unsubscribe();
+        if (unsubscribeNewMessage) unsubscribeNewMessage();
+        if (unsubscribeTyping) unsubscribeTyping();
+        if (unsubscribeStoppedTyping) unsubscribeStoppedTyping();
         leaveThread(threadId);
       };
     }
-  }, [threadId, isConnected, joinThread, leaveThread, onNewMessage]);
+  }, [threadId, isConnected, joinThread, leaveThread, onNewMessage, onUserTyping, onUserStoppedTyping]);
 
   useEffect(() => {
     scrollToBottom();
@@ -127,6 +176,8 @@ const ChatInterface = ({ onBack }) => {
     e.preventDefault();
     if (!newMessage.trim() || !adminUser) return;
 
+    handleStopTyping(); // Stop typing when sending message
+
     try {
       setSending(true);
       const response = await axios.post(
@@ -156,6 +207,49 @@ const ChatInterface = ({ onBack }) => {
     } catch (error) {
       console.error("Error sending message:", error);
       toast.error("Failed to send message");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const sendImageMessage = async (imageFile, caption) => {
+    if (!adminUser) return;
+
+    try {
+      setSending(true);
+      const formData = new FormData();
+      formData.append('recipientId', adminUser._id);
+      formData.append('messageType', 'image');
+      formData.append('image', imageFile);
+      if (caption) {
+        formData.append('caption', caption);
+      }
+
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/messages/send`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        }
+      );
+
+      if (response.data.success) {
+        setMessages(prev => {
+          // Check if message already exists to prevent duplicates
+          const messageExists = prev.some(msg => msg._id === response.data.data._id);
+          if (messageExists) {
+            return prev;
+          }
+          return [...prev, response.data.data];
+        });
+        toast.success("Image sent successfully");
+      }
+    } catch (error) {
+      console.error("Error sending image:", error);
+      toast.error("Failed to send image");
     } finally {
       setSending(false);
     }
@@ -246,9 +340,6 @@ const ChatInterface = ({ onBack }) => {
           >
             <FaSync size={18} />
           </button>
-          <button className="text-gray-500 hover:text-mcan-primary">
-            <FaEllipsisV size={18} />
-          </button>
         </div>
       </div>
 
@@ -293,7 +384,21 @@ const ChatInterface = ({ onBack }) => {
                         : 'bg-white text-gray-800 rounded-bl-none border'
                     }`}
                   >
-                    <p className="text-sm leading-relaxed">{message.content}</p>
+                    {message.messageType === 'image' && message.attachments?.[0] ? (
+                      <div className="space-y-2">
+                        <img
+                          src={message.attachments[0].url}
+                          alt="Shared image"
+                          className="max-w-full h-auto rounded-lg cursor-pointer"
+                          onClick={() => window.open(message.attachments[0].url, '_blank')}
+                        />
+                        {message.content && message.content !== 'Image' && (
+                          <p className="text-sm leading-relaxed">{message.content}</p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="text-sm leading-relaxed">{message.content}</p>
+                    )}
                     <div className="flex items-center justify-end mt-1">
                       <p
                         className={`text-xs ${
@@ -316,22 +421,43 @@ const ChatInterface = ({ onBack }) => {
             );
           })
         )}
+
+        {/* Typing Indicator */}
+        <TypingIndicator
+          userName={adminUser?.name}
+          isVisible={typingUsers.size > 0}
+        />
+
         <div ref={messagesEndRef} />
       </div>
 
       {/* Message Input */}
       <div className="bg-white border-t border-gray-200 p-4">
         <form onSubmit={sendMessage} className="flex items-center space-x-3">
+          <button
+            type="button"
+            onClick={() => setIsImageModalOpen(true)}
+            className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
+            disabled={sending}
+          >
+            <FaImage className="text-gray-600" />
+          </button>
+
           <div className="flex-1 relative">
             <input
               type="text"
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+              onChange={(e) => {
+                setNewMessage(e.target.value);
+                handleTyping();
+              }}
+              onBlur={handleStopTyping}
               placeholder="Type a message..."
               className="w-full px-4 py-3 bg-gray-100 rounded-full focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:bg-white transition-colors"
               disabled={sending}
             />
           </div>
+
           <button
             type="submit"
             disabled={sending || !newMessage.trim()}
@@ -345,6 +471,14 @@ const ChatInterface = ({ onBack }) => {
           </button>
         </form>
       </div>
+
+      {/* Image Upload Modal */}
+      <ImageUploadModal
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+        onSend={sendImageMessage}
+        sending={sending}
+      />
     </div>
   );
 };
