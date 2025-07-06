@@ -25,13 +25,20 @@ export const requireSignIn = async (req, res, next) => {
     const decode = JWT.verify(token, process.env.JWT_SECRET);
     console.log("Decoded Token Object:", decode);
 
-    if (!decode._id && !decode.id) {
+    // Ensure we have a user ID (support both _id and id formats)
+    const userId = decode._id || decode.id;
+    if (!userId) {
       return res
         .status(401)
         .send({ success: false, message: "Token does not contain user ID" });
     }
 
-    req.user = decode;
+    // Normalize the user object to always have both _id and id
+    req.user = {
+      ...decode,
+      _id: userId,
+      id: userId
+    };
     next();
   } catch (error) {
     console.error("JWT verification error:", error.message);

@@ -49,10 +49,16 @@ export default function PrivateRoute() {
           errorMessage = "Request timeout - server may be down";
         } else if (error.response?.status === 401) {
           errorMessage = "Unauthorized - invalid or expired token";
+          // Clear invalid token from localStorage
+          localStorage.removeItem("auth");
+          setauth({ user: null, token: "" });
         } else if (error.response?.status === 403) {
           errorMessage = "Access denied - admin privileges required";
         } else if (error.response?.data?.message) {
           errorMessage = error.response.data.message;
+        } else if (!error.response) {
+          // Network error - might be temporary
+          errorMessage = "Network error - please check your connection";
         }
 
         setAuthState({ loading: false, authenticated: false, error: errorMessage });

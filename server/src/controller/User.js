@@ -50,7 +50,11 @@ export const loginController = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = JWT.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const token = JWT.sign({
+      _id: user._id,
+      id: user._id,
+      role: user.role
+    }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
     res.status(200).send({

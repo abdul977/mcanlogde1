@@ -13,10 +13,21 @@ const AuthProvider = ({ children }) => {
     if (data) {
       try {
         const parseData = JSON.parse(data);
-        setAuth({
-          user: parseData?.user,
-          token: parseData.token,
-        });
+        // Validate that we have both user and token
+        if (parseData?.user && parseData?.token) {
+          setAuth({
+            user: parseData.user,
+            token: parseData.token,
+          });
+          console.log("Auth data loaded from localStorage:", {
+            user: parseData.user?.name,
+            role: parseData.user?.role,
+            hasToken: !!parseData.token
+          });
+        } else {
+          console.warn("Invalid auth data structure in localStorage");
+          localStorage.removeItem("auth");
+        }
       } catch (error) {
         console.error("Error parsing auth data from localStorage:", error);
         // Clear corrupted data

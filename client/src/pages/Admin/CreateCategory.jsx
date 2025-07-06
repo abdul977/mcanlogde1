@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "./Navbar";
-import { FaFolder, FaPlus, FaEdit, FaTrash, FaUsers, FaSave, FaTimes } from "react-icons/fa";
+import { FaFolder, FaPlus, FaEdit, FaTrash, FaUsers, FaSave, FaTimes, FaSync } from "react-icons/fa";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
+import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
+import { FormSection, FormField, ResponsiveForm } from "../../components/Mobile/ResponsiveForm";
+import { useMobileResponsive } from "../../hooks/useMobileResponsive";
 
 const CreateCategory = () => {
+  const { isMobile } = useMobileResponsive();
   const [auth] = useAuth();
   const [categories, setCategories] = useState([]);
   const [editId, setEditId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -217,13 +222,30 @@ const CreateCategory = () => {
     fetchCategories();
   }, []);
 
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchCategories().finally(() => setRefreshing(false));
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
-          <Navbar />
-        </div>
-        <div className="flex-1 p-8">
+    <MobileLayout
+      title="Categories"
+      subtitle="Manage accommodation categories"
+      icon={FaFolder}
+      navbar={Navbar}
+      headerActions={
+        <MobileButton
+          onClick={handleRefresh}
+          variant="secondary"
+          size="sm"
+          icon={FaSync}
+          disabled={refreshing}
+        >
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </MobileButton>
+      }
+    >
+      <div className="p-4 lg:p-8">
           {/* Header */}
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div className="flex items-center space-x-3">
@@ -534,9 +556,8 @@ const CreateCategory = () => {
               )}
             </div>
           </div>
-        </div>
       </div>
-    </div>
+    </MobileLayout>
   );
 };
 
