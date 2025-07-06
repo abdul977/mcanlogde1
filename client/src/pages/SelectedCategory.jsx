@@ -55,7 +55,7 @@ const SelectedCategory = () => {
             </h3>
             <div
               className="z-10 text-sm leading-6 text-gray-300"
-              onClick={() => navigate(`/product/${post.slug}`)}
+              onClick={() => navigate(`/accommodation/${post.slug}`)}
             >
               {post.title}
             </div>

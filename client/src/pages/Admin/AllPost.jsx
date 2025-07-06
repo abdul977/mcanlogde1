@@ -3,7 +3,7 @@ import Navbar from "./Navbar";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate, Link } from "react-router-dom";
-import { FaHome, FaEdit, FaTrash, FaEye, FaPlus, FaFilter, FaSearch, FaUsers, FaMapMarkerAlt } from "react-icons/fa";
+import { FaHome, FaEdit, FaTrash, FaEye, FaPlus, FaFilter, FaSearch, FaUsers, FaMapMarkerAlt, FaEyeSlash, FaCog, FaCheck, FaTimes, FaClock } from "react-icons/fa";
 import { useAuth } from "../../context/UserContext";
 import MobileLayout, { MobilePageHeader, MobileButton, MobileInput } from "../../components/Mobile/MobileLayout";
 import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
@@ -24,7 +24,7 @@ const AllPost = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/post/get-all-post`,
+        `${import.meta.env.VITE_BASE_URL}/api/post/get-all-post?includeHidden=true`,
         {
           headers: {
             Authorization: `Bearer ${auth?.token}`,
@@ -74,6 +74,70 @@ const AllPost = () => {
       console.error(error);
       toast.error(error.response?.data?.message || "Failed to delete accommodation");
     }
+  };
+
+  // Update accommodation status
+  const updateAccommodationStatus = async (postId, adminStatus, adminNotes = "", isVisible = true) => {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_BASE_URL}/api/post/admin/status/${postId}`,
+        { adminStatus, adminNotes, isVisible },
+        {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Accommodation status updated successfully");
+        fetchPosts(); // Refresh the list
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || "Failed to update accommodation status");
+    }
+  };
+
+  // Quick status actions
+  const handleStatusChange = (post, newStatus) => {
+    const statusMessages = {
+      active: "Make this accommodation active and visible to users?",
+      hidden: "Hide this accommodation from public view?",
+      coming_soon: "Mark this accommodation as 'Coming Soon'?",
+      maintenance: "Mark this accommodation as under maintenance?",
+      not_available: "Mark this accommodation as not available?"
+    };
+
+    if (window.confirm(statusMessages[newStatus])) {
+      const isVisible = newStatus !== 'hidden';
+      updateAccommodationStatus(post._id, newStatus, "", isVisible);
+    }
+  };
+
+  // Status badge helper functions
+  const getStatusBadge = (adminStatus, isVisible) => {
+    const statusConfig = {
+      active: { color: "bg-green-100 text-green-800", label: "Active" },
+      hidden: { color: "bg-gray-100 text-gray-800", label: "Hidden" },
+      coming_soon: { color: "bg-blue-100 text-blue-800", label: "Coming Soon" },
+      maintenance: { color: "bg-yellow-100 text-yellow-800", label: "Maintenance" },
+      not_available: { color: "bg-red-100 text-red-800", label: "Not Available" }
+    };
+
+    const config = statusConfig[adminStatus] || statusConfig.active;
+    const visibilityPrefix = !isVisible ? "Hidden - " : "";
+
+    return {
+      color: config.color,
+      label: visibilityPrefix + config.label
+    };
+  };
+
+  const getAvailabilityBadge = (isAvailable) => {
+    return isAvailable
+      ? { color: "bg-green-100 text-green-800", label: "Available" }
+      : { color: "bg-red-100 text-red-800", label: "Booked" };
   };
 
   // Filter posts based on search and filters
@@ -139,15 +203,28 @@ const AllPost = () => {
       render: (value) => `₦${value?.toLocaleString()}/month`
     },
     {
+      key: 'adminStatus',
+      header: 'Admin Status',
+      render: (value, item) => {
+        const statusBadge = getStatusBadge(value || 'active', item.isVisible !== false);
+        return (
+          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${statusBadge.color}`}>
+            {statusBadge.label}
+          </span>
+        );
+      }
+    },
+    {
       key: 'isAvailable',
-      header: 'Status',
-      render: (value) => (
-        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-          value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-        }`}>
-          {value ? 'Available' : 'Not Available'}
-        </span>
-      )
+      header: 'Booking Status',
+      render: (value) => {
+        const availabilityBadge = getAvailabilityBadge(value);
+        return (
+          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${availabilityBadge.color}`}>
+            {availabilityBadge.label}
+          </span>
+        );
+      }
     }
   ];
 
@@ -164,12 +241,25 @@ const AllPost = () => {
             e.target.src = 'https://via.placeholder.com/400x200?text=Accommodation';
           }}
         />
-        <div className="absolute top-2 right-2">
-          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-            item.isAvailable ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-          }`}>
-            {item.isAvailable ? 'Available' : 'Not Available'}
-          </span>
+        <div className="absolute top-2 right-2 space-y-1">
+          {/* Admin Status Badge */}
+          {(() => {
+            const statusBadge = getStatusBadge(item.adminStatus || 'active', item.isVisible !== false);
+            return (
+              <div className={`px-2 py-1 text-xs font-semibold rounded-full ${statusBadge.color}`}>
+                {statusBadge.label}
+              </div>
+            );
+          })()}
+          {/* Booking Status Badge */}
+          {(() => {
+            const availabilityBadge = getAvailabilityBadge(item.isAvailable);
+            return (
+              <div className={`px-2 py-1 text-xs font-semibold rounded-full ${availabilityBadge.color}`}>
+                {availabilityBadge.label}
+              </div>
+            );
+          })()}
         </div>
         <div className="absolute top-2 left-2">
           <span className="px-2 py-1 text-xs font-semibold rounded-full bg-mcan-primary text-white">
@@ -205,32 +295,82 @@ const AllPost = () => {
       </div>
 
       {/* Actions */}
-      <div className="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
-        <div className="flex space-x-3">
-          <MobileButton
-            onClick={() => onView(item)}
-            variant="ghost"
-            size="sm"
-            icon={FaEye}
-            className="text-blue-600 hover:text-blue-900"
-            title="View Accommodation"
-          />
-          <MobileButton
-            onClick={() => onEdit(item)}
-            variant="ghost"
-            size="sm"
-            icon={FaEdit}
-            className="text-mcan-primary hover:text-mcan-secondary"
-            title="Edit Accommodation"
-          />
-          <MobileButton
-            onClick={() => onDelete(item)}
-            variant="ghost"
-            size="sm"
-            icon={FaTrash}
-            className="text-red-600 hover:text-red-900"
-            title="Delete Accommodation"
-          />
+      <div className="px-6 py-4 bg-gray-50 border-t">
+        {/* Main Actions */}
+        <div className="flex justify-between items-center mb-3">
+          <div className="flex space-x-2">
+            <MobileButton
+              onClick={() => onView(item)}
+              variant="ghost"
+              size="sm"
+              icon={FaEye}
+              className="text-blue-600 hover:text-blue-900"
+              title="View Accommodation"
+            />
+            <MobileButton
+              onClick={() => onEdit(item)}
+              variant="ghost"
+              size="sm"
+              icon={FaEdit}
+              className="text-mcan-primary hover:text-mcan-secondary"
+              title="Edit Accommodation"
+            />
+            <MobileButton
+              onClick={() => onDelete(item)}
+              variant="ghost"
+              size="sm"
+              icon={FaTrash}
+              className="text-red-600 hover:text-red-900"
+              title="Delete Accommodation"
+            />
+          </div>
+        </div>
+
+        {/* Status Management */}
+        <div className="border-t pt-3">
+          <div className="text-xs text-gray-600 mb-2">Quick Status Actions:</div>
+          <div className="flex flex-wrap gap-1">
+            <MobileButton
+              onClick={() => handleStatusChange(item, 'active')}
+              variant="ghost"
+              size="xs"
+              icon={FaCheck}
+              className="text-green-600 hover:text-green-900"
+              title="Make Active"
+            />
+            <MobileButton
+              onClick={() => handleStatusChange(item, 'hidden')}
+              variant="ghost"
+              size="xs"
+              icon={FaEyeSlash}
+              className="text-gray-600 hover:text-gray-900"
+              title="Hide"
+            />
+            <MobileButton
+              onClick={() => handleStatusChange(item, 'coming_soon')}
+              variant="ghost"
+              size="xs"
+              icon={FaClock}
+              className="text-blue-600 hover:text-blue-900"
+              title="Coming Soon"
+            />
+            <MobileButton
+              onClick={() => handleStatusChange(item, 'maintenance')}
+              variant="ghost"
+              size="xs"
+              icon={FaCog}
+              className="text-yellow-600 hover:text-yellow-900"
+              title="Maintenance"
+            />
+            <MobileButton
+              onClick={() => handleStatusChange(item, 'not_available')}
+              variant="ghost"
+              size="xs"
+              icon={FaTimes}
+              className="text-red-600 hover:text-red-900"
+              title="Not Available"
+            />
+          </div>
         </div>
       </div>
     </div>

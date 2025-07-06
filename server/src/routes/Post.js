@@ -8,7 +8,8 @@ import {
   nearMosqueController,
   getAccommodationsByGender,
   getRelatedPostController,
-  searchAccommodationsController
+  searchAccommodationsController,
+  updateAccommodationStatusController
 } from "../controller/Post.js";
 import { requireSignIn, isAdmin } from "../middlewares/Auth.js";
 
@@ -31,6 +32,9 @@ router.put("/update-post/:id", requireSignIn, isAdmin, updatePostController);
 
 // Delete accommodation (admin only)
 router.delete("/delete-post/:pid", requireSignIn, isAdmin, deletePostController);
+
+// Update accommodation status (admin only)
+router.put("/admin/status/:id", requireSignIn, isAdmin, updateAccommodationStatusController);
 
 // Get accommodations near mosques
 router.get("/near-mosque", nearMosqueController);

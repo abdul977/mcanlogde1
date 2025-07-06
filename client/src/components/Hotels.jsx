@@ -154,9 +154,15 @@ const Accommodations = () => {
                     }}
                   />
                   <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium text-white ${
+                    post.adminStatus === 'coming_soon' ? 'bg-blue-500' :
+                    post.adminStatus === 'maintenance' ? 'bg-yellow-500' :
+                    post.adminStatus === 'not_available' ? 'bg-red-500' :
                     post.isAvailable ? 'bg-green-500' : 'bg-red-500'
                   } ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                    {post.isAvailable ? 'Available' : 'Booked'}
+                    {post.adminStatus === 'coming_soon' ? 'Coming Soon' :
+                     post.adminStatus === 'maintenance' ? 'Maintenance' :
+                     post.adminStatus === 'not_available' ? 'Not Available' :
+                     post.isAvailable ? 'Available' : 'Booked'}
                   </div>
                 </div>
 
@@ -196,7 +202,7 @@ const Accommodations = () => {
                     </div>
                     <div className={`flex ${isMobile ? 'justify-center' : 'justify-end'}`}>
                       <Link
-                        to={`/product/${post.slug}`}
+                        to={`/accommodation/${post.slug}`}
                         className={`bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors ${
                           isMobile
                             ? 'px-6 py-3 text-sm font-medium w-full text-center'

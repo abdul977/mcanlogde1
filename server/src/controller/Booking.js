@@ -6,6 +6,40 @@ import Event from "../models/Event.js";
 import Message from "../models/Message.js";
 import mongoose from "mongoose";
 
+// Utility function to sync accommodation availability based on approved bookings
+export const syncAccommodationAvailability = async () => {
+  try {
+    console.log("Starting accommodation availability sync...");
+
+    // Get all accommodations
+    const accommodations = await Post.find({});
+
+    for (const accommodation of accommodations) {
+      // Check if there are any approved bookings for this accommodation
+      const approvedBooking = await Booking.findOne({
+        accommodation: accommodation._id,
+        status: 'approved'
+      });
+
+      const shouldBeAvailable = !approvedBooking;
+
+      // Update if status doesn't match
+      if (accommodation.isAvailable !== shouldBeAvailable) {
+        await Post.findByIdAndUpdate(accommodation._id, {
+          isAvailable: shouldBeAvailable
+        });
+        console.log(`Updated accommodation ${accommodation._id} availability to ${shouldBeAvailable}`);
+      }
+    }
+
+    console.log("Accommodation availability sync completed");
+    return { success: true, message: "Sync completed successfully" };
+  } catch (error) {
+    console.error("Error syncing accommodation availability:", error);
+    return { success: false, error: error.message };
+  }
+};
+
 // Create a new booking request
 export const createBookingController = async (req, res) => {
   try {
@@ -314,6 +348,34 @@ export const updateBookingStatusController = async (req, res) => {
     if (adminNotes) booking.adminNotes = adminNotes;
     await booking.save();
 
+    // Update accommodation availability if this is an accommodation booking
+    if (booking.bookingType === 'accommodation' && booking.accommodation) {
+      const Post = mongoose.model('Post');
+
+      if (status === 'approved') {
+        // Mark accommodation as unavailable when booking is approved
+        await Post.findByIdAndUpdate(booking.accommodation._id, {
+          isAvailable: false
+        });
+        console.log(`Accommodation ${booking.accommodation._id} marked as unavailable due to approved booking`);
+      } else if (status === 'rejected' || status === 'cancelled') {
+        // Check if there are any other approved bookings for this accommodation
+        const otherApprovedBookings = await Booking.findOne({
+          accommodation: booking.accommodation._id,
+          status: 'approved',
+          _id: { $ne: booking._id } // Exclude current booking
+        });
+
+        // If no other approved bookings, mark accommodation as available
+        if (!otherApprovedBookings) {
+          await Post.findByIdAndUpdate(booking.accommodation._id, {
+            isAvailable: true
+          });
+          console.log(`Accommodation ${booking.accommodation._id} marked as available - no other approved bookings`);
+        }
+      }
+    }
+
     // Send notification to user
     const threadId = Message.generateThreadId(adminId, booking.user._id);
     const statusMessages = {
@@ -425,6 +487,26 @@ export const cancelBookingController = async (req, res) => {
 
     booking.status = 'cancelled';
     await booking.save();
+
+    // Update accommodation availability if this is an accommodation booking
+    if (booking.bookingType === 'accommodation' && booking.accommodation) {
+      const Post = mongoose.model('Post');
+
+      // Check if there are any other approved bookings for this accommodation
+      const otherApprovedBookings = await Booking.findOne({
+        accommodation: booking.accommodation,
+        status: 'approved',
+        _id: { $ne: booking._id } // Exclude current booking
+      });
+
+      // If no other approved bookings, mark accommodation as available
+      if (!otherApprovedBookings) {
+        await Post.findByIdAndUpdate(booking.accommodation, {
+          isAvailable: true
+        });
+        console.log(`Accommodation ${booking.accommodation} marked as available after user cancellation`);
+      }
+    }
 
     // Notify admin
     const adminUsers = await mongoose.model('User').find({ role: 'admin' });

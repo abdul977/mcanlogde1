@@ -37,6 +37,23 @@ const postSchema = new Schema({
     required: true,
     default: true,
   },
+  // Admin-controlled status management
+  adminStatus: {
+    type: String,
+    enum: ["active", "hidden", "coming_soon", "maintenance", "not_available"],
+    default: "active",
+    required: true
+  },
+  adminNotes: {
+    type: String,
+    trim: true
+  },
+  // Visibility control
+  isVisible: {
+    type: Boolean,
+    default: true,
+    required: true
+  },
   guest: {
     type: Number,
     required: true,

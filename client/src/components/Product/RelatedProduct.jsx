@@ -70,7 +70,7 @@ const RelatedProduct = ({ product }) => {
             ₦{product.price.toLocaleString()}/month
           </span>
           <button
-            onClick={() => navigate(`/product/${product.slug}`)}
+            onClick={() => navigate(`/accommodation/${product.slug}`)}
             className="bg-mcan-primary text-white px-4 py-2 rounded-md hover:opacity-90 transition-opacity"
           >
             View Details

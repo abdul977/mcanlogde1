@@ -5,7 +5,8 @@ import {
   getAllBookingsController,
   updateBookingStatusController,
   getBookingController,
-  cancelBookingController
+  cancelBookingController,
+  syncAccommodationAvailability
 } from "../controller/Booking.js";
 import { requireSignIn, isAdmin } from "../middlewares/Auth.js";
 
@@ -30,5 +31,19 @@ router.get("/admin/all", requireSignIn, isAdmin, getAllBookingsController);
 
 // Update booking status (admin only)
 router.put("/admin/:id/status", requireSignIn, isAdmin, updateBookingStatusController);
+
+// Sync accommodation availability (admin only)
+router.post("/admin/sync-availability", requireSignIn, isAdmin, async (req, res) => {
+  try {
+    const result = await syncAccommodationAvailability();
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error syncing accommodation availability",
+      error: error.message
+    });
+  }
+});
 
 export default router;

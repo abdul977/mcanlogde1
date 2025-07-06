@@ -279,9 +279,15 @@ const Product = () => {
                     className="w-full h-[250px] lg:h-[400px] object-cover rounded-lg shadow-md"
                   />
                   <div className={`absolute top-4 right-4 px-3 py-1 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium text-white ${
+                    postDetails.adminStatus === 'coming_soon' ? 'bg-blue-500' :
+                    postDetails.adminStatus === 'maintenance' ? 'bg-yellow-500' :
+                    postDetails.adminStatus === 'not_available' ? 'bg-red-500' :
                     postDetails.isAvailable ? 'bg-green-500' : 'bg-red-500'
                   }`}>
-                    {postDetails.isAvailable ? 'Available' : 'Booked'}
+                    {postDetails.adminStatus === 'coming_soon' ? 'Coming Soon' :
+                     postDetails.adminStatus === 'maintenance' ? 'Maintenance' :
+                     postDetails.adminStatus === 'not_available' ? 'Not Available' :
+                     postDetails.isAvailable ? 'Available' : 'Booked'}
                   </div>
                 </div>
                 <div className="grid grid-cols-3 lg:grid-cols-4 gap-2">

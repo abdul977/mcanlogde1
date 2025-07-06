@@ -33,12 +33,19 @@ export const getAccommodationsByGender = async (req, res) => {
 
 export const getAllPostController = async (req, res) => {
   try {
-    const { gender } = req.query;
+    const { gender, includeHidden } = req.query;
     const query = {};
-    
+
     // Add gender filter if provided
     if (gender) {
       query.genderRestriction = gender;
+    }
+
+    // For public access, only show visible and active accommodations
+    // For admin access with includeHidden=true, show all
+    if (includeHidden !== 'true') {
+      query.isVisible = true;
+      query.adminStatus = { $in: ['active', 'coming_soon'] };
     }
 
     // Get all posts with populated category
@@ -54,9 +61,11 @@ export const getAllPostController = async (req, res) => {
     console.log('Fetched posts:', {
       total: posts.length,
       gender: gender || 'all',
+      includeHidden: includeHidden === 'true',
       categories: [...new Set(posts.map(p => ({
         id: p.category?._id?.toString(),
-        restriction: p.genderRestriction
+        restriction: p.genderRestriction,
+        adminStatus: p.adminStatus
       })))]
     });
     res.status(200).send({
@@ -132,6 +141,9 @@ export const createPostController = async (req, res) => {
       nearbyFacilities,
       rules,
       landlordContact,
+      adminStatus,
+      adminNotes,
+      isVisible,
     } = req.body;
     const files = req.files?.images;
 
@@ -200,6 +212,9 @@ export const createPostController = async (req, res) => {
       nearbyFacilities,
       rules,
       landlordContact,
+      adminStatus: adminStatus || 'active',
+      adminNotes: adminNotes || '',
+      isVisible: isVisible !== false,
       images: imageUrls,
       slug: slug(title, { lower: true }),
     });
@@ -240,6 +255,9 @@ export const updatePostController = async (req, res) => {
       nearbyFacilities,
       rules,
       landlordContact,
+      adminStatus,
+      adminNotes,
+      isVisible,
     } = req.body;
 
     // Parse JSON arrays if they are strings
@@ -313,6 +331,9 @@ export const updatePostController = async (req, res) => {
         nearbyFacilities,
         rules,
         landlordContact,
+        adminStatus: adminStatus || 'active',
+        adminNotes: adminNotes || '',
+        isVisible: isVisible !== false,
         images: updatedImages,
         slug: slug(title, { lower: true }),
       },
@@ -429,7 +450,7 @@ export const deletePostController = async (req, res) => {
     // and might be useful for backup/recovery purposes
 
     await Post.findByIdAndDelete(req.params.pid);
-    
+
     res.status(200).json({
       success: true,
       message: "Post deleted successfully"
@@ -439,6 +460,62 @@ export const deletePostController = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error deleting post",
+      error: error.message
+    });
+  }
+};
+
+// Update accommodation admin status (admin only)
+export const updateAccommodationStatusController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { adminStatus, adminNotes, isVisible } = req.body;
+
+    // Validate admin status
+    const validStatuses = ["active", "hidden", "coming_soon", "maintenance", "not_available"];
+    if (adminStatus && !validStatuses.includes(adminStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid admin status. Must be one of: ${validStatuses.join(', ')}`
+      });
+    }
+
+    // Find and update the accommodation
+    const updateData = {};
+    if (adminStatus !== undefined) updateData.adminStatus = adminStatus;
+    if (adminNotes !== undefined) updateData.adminNotes = adminNotes;
+    if (isVisible !== undefined) updateData.isVisible = isVisible;
+
+    const updatedPost = await Post.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true }
+    ).populate('category');
+
+    if (!updatedPost) {
+      return res.status(404).json({
+        success: false,
+        message: "Accommodation not found"
+      });
+    }
+
+    console.log(`Accommodation ${id} status updated:`, {
+      adminStatus: updatedPost.adminStatus,
+      isVisible: updatedPost.isVisible,
+      adminNotes: updatedPost.adminNotes
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Accommodation status updated successfully",
+      post: updatedPost
+    });
+
+  } catch (error) {
+    console.error("Error updating accommodation status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating accommodation status",
       error: error.message
     });
   }
