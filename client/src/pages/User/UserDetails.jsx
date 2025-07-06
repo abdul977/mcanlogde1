@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/UserContext";
-import { FaPrayingHands, FaMosque, FaUserCircle, FaCalendarAlt, FaMapMarkerAlt } from "react-icons/fa";
+import { FaPrayingHands, FaMosque, FaUserCircle, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaIdCard, FaStream } from "react-icons/fa";
 import { GiPathDistance } from "react-icons/gi";
 import mcanLogo from "../../assets/mcan-logo.png";
+import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
+import { FormSection, FormField } from "../../components/Mobile/ResponsiveForm";
 
 // Fallback logo URL
 const FALLBACK_LOGO = "https://www.mcanenugu.org.ng/img/core-img/logo.png";
@@ -35,146 +37,126 @@ const UserDetails = () => {
   ];
 
   return (
-    <div className="flex-1 p-8 bg-gray-50">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between mb-6 lg:mb-8">
-        <div className="flex items-center space-x-3 lg:space-x-4">
-          <img
-            src={mcanLogo}
-            alt="MCAN Logo"
-            className="h-12 lg:h-16 w-auto"
-            onError={(e) => {
-              e.target.src = FALLBACK_LOGO;
-            }}
-          />
-          <div>
-            <h1 className="text-xl lg:text-2xl font-bold text-mcan-primary">MCAN Lodge Dashboard</h1>
-            <p className="text-gray-600 text-sm lg:text-base">Welcome, {user.name}</p>
-          </div>
-        </div>
-      </div>
+    <MobileLayout
+      title="Profile"
+      subtitle="User details"
+      icon={FaUser}
+      logoSrc={mcanLogo}
+      logoAlt="MCAN Logo"
+      fallbackLogoSrc={FALLBACK_LOGO}
+    >
+      <div className="p-4 lg:p-8">
+        {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="User Profile"
+          subtitle={`Welcome back, ${user.name}`}
+          icon={FaUserCircle}
+          showOnMobile={false}
+        />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-        {/* Prayer Times Widget */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 lg:p-4">
-            <h2 className="text-white text-base lg:text-lg font-semibold flex items-center">
-              <FaPrayingHands className="mr-2" /> Prayer Times
-            </h2>
-          </div>
-          <div className="p-3 lg:p-4">
-            <div className="space-y-2 lg:space-y-3">
-              {Object.entries(prayerTimes).map(([prayer, time]) => (
-                <div key={prayer} className="flex justify-between items-center">
-                  <span className="capitalize text-gray-700 text-sm lg:text-base">{prayer}</span>
-                  <span className="text-mcan-primary font-semibold text-sm lg:text-base">{time}</span>
-                </div>
-              ))}
+        {/* User Information Section */}
+        <FormSection
+          title="Personal Information"
+          icon={FaUserCircle}
+          columns={2}
+          className="mb-6"
+        >
+          <FormField label="Full Name">
+            <div className="p-3 bg-gray-50 rounded-md border">
+              {user.name}
             </div>
-          </div>
-        </div>
+          </FormField>
 
-        {/* NYSC Information */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-4">
-            <h2 className="text-white text-lg font-semibold flex items-center">
-              <FaUserCircle className="mr-2" /> Corps Member Details
-            </h2>
-          </div>
-          <div className="p-4 space-y-3">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm text-gray-500">State Code</label>
-                <p className="font-semibold text-gray-700">{user.stateCode}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Batch</label>
-                <p className="font-semibold text-gray-700">{user.batch} Stream {user.stream}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Call-up Number</label>
-                <p className="font-semibold text-gray-700">{user.callUpNumber}</p>
-              </div>
-              <div>
-                <label className="text-sm text-gray-500">Gender</label>
-                <p className="font-semibold text-gray-700">{user.gender}</p>
-              </div>
+          <FormField label="Email Address">
+            <div className="p-3 bg-gray-50 rounded-md border">
+              {user.email}
             </div>
-          </div>
-        </div>
+          </FormField>
 
-        {/* Upcoming Activities */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-4">
-            <h2 className="text-white text-lg font-semibold flex items-center">
-              <FaCalendarAlt className="mr-2" /> Islamic Activities
-            </h2>
+          <FormField label="Gender">
+            <div className="p-3 bg-gray-50 rounded-md border">
+              {user.gender}
+            </div>
+          </FormField>
+
+          <FormField label="State Code">
+            <div className="p-3 bg-gray-50 rounded-md border flex items-center">
+              <FaMapMarkerAlt className="mr-2 text-mcan-primary" />
+              {user.stateCode}
+            </div>
+          </FormField>
+
+          <FormField label="Batch">
+            <div className="p-3 bg-gray-50 rounded-md border flex items-center">
+              <FaCalendarAlt className="mr-2 text-mcan-secondary" />
+              {user.batch}
+            </div>
+          </FormField>
+
+          <FormField label="Stream">
+            <div className="p-3 bg-gray-50 rounded-md border flex items-center">
+              <FaStream className="mr-2 text-gray-500" />
+              {user.stream}
+            </div>
+          </FormField>
+
+          <FormField label="Call-Up Number" fullWidth>
+            <div className="p-3 bg-gray-50 rounded-md border flex items-center">
+              <FaIdCard className="mr-2 text-mcan-primary" />
+              {user.callUpNumber}
+            </div>
+          </FormField>
+        </FormSection>
+
+        {/* Prayer Times Section */}
+        <FormSection
+          title="Prayer Times"
+          icon={FaPrayingHands}
+          subtitle="Today's prayer schedule"
+          columns={1}
+          className="mb-6"
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {Object.entries(prayerTimes).map(([prayer, time]) => (
+              <div key={prayer} className="bg-white p-4 rounded-lg shadow border text-center">
+                <FaMosque className="text-mcan-primary text-xl mx-auto mb-2" />
+                <h4 className="font-semibold text-gray-800 capitalize mb-1">{prayer}</h4>
+                <p className="text-mcan-secondary font-medium">{time}</p>
+              </div>
+            ))}
           </div>
-          <div className="p-4">
-            <div className="space-y-4">
-              {upcomingActivities.map((activity, index) => (
-                <div key={index} className="flex items-start space-x-3 p-2 hover:bg-gray-50 rounded-lg">
-                  <FaMosque className="text-mcan-primary mt-1" />
-                  <div>
-                    <h3 className="font-medium text-gray-800">{activity.title}</h3>
-                    <p className="text-sm text-gray-600">{activity.date} at {activity.time}</p>
+        </FormSection>
+
+        {/* Upcoming Activities Section */}
+        <FormSection
+          title="Upcoming Activities"
+          icon={FaCalendarAlt}
+          subtitle="MCAN events and programs"
+          columns={1}
+        >
+          <div className="space-y-4">
+            {upcomingActivities.map((activity, index) => (
+              <div key={index} className="bg-white p-4 lg:p-6 rounded-lg shadow border hover:shadow-lg transition-shadow">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-mcan-primary rounded-full flex items-center justify-center">
+                      <FaCalendarAlt className="text-white text-sm" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-gray-800">{activity.title}</h4>
+                      <p className="text-sm text-gray-600">{activity.date}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium text-mcan-primary">{activity.time}</p>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
-        </div>
-
-        {/* Accommodation Status */}
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-          <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-4">
-            <h2 className="text-white text-lg font-semibold flex items-center">
-              <FaMapMarkerAlt className="mr-2" /> Accommodation
-            </h2>
-          </div>
-          <div className="p-4">
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Status:</span>
-                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                  Active
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Type:</span>
-                <span className="font-medium text-gray-800">Single Room</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Location:</span>
-                <span className="font-medium text-gray-800">Zone 6, Abuja</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-gray-600">Nearest Mosque:</span>
-                <span className="font-medium text-gray-800">500m</span>
-              </div>
-            </div>
-          </div>
-        </div>
+        </FormSection>
       </div>
-
-      {/* Quick Actions */}
-      <div className="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { icon: FaPrayingHands, text: "Prayer Settings" },
-          { icon: FaMosque, text: "Find Nearby Mosques" },
-          { icon: GiPathDistance, text: "Get Directions" },
-          { icon: FaCalendarAlt, text: "Activity Calendar" },
-        ].map((action, index) => (
-          <button
-            key={index}
-            className="flex items-center justify-center space-x-2 p-3 bg-white rounded-lg shadow-sm hover:bg-gray-50 transition-colors"
-          >
-            <action.icon className="text-mcan-primary" />
-            <span className="text-gray-700">{action.text}</span>
-          </button>
-        ))}
-      </div>
-    </div>
+    </MobileLayout>
   );
 };
 

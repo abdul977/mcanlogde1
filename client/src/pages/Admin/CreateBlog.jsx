@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaPen, FaImage, FaTags, FaEye, FaSave } from "react-icons/fa";
+import { FaPen, FaImage, FaTags, FaEye, FaSave, FaBook, FaEdit, FaFileAlt } from "react-icons/fa";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
+import { ResponsiveForm, FormSection, FormField, MobileInput, ResponsiveTextarea, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
 
 const CreateBlog = () => {
   const [auth] = useAuth();
@@ -157,232 +159,200 @@ const CreateBlog = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
-          <Navbar />
-        </div>
-        <div className="flex-1 p-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
-                <FaPen className="text-white text-xl" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Create New Blog Post</h1>
-                <p className="text-gray-600">Share knowledge and insights with the MCAN community</p>
-              </div>
-            </div>
-          </div>
+    <MobileLayout
+      title="Create Blog Post"
+      subtitle="Content management"
+      icon={FaBook}
+      navbar={Navbar}
+      headerActions={
+        <MobileButton
+          onClick={() => navigate('/admin/all-blogs')}
+          variant="secondary"
+          size="sm"
+          icon={FaFileAlt}
+        >
+          View Blogs
+        </MobileButton>
+      }
+    >
+      <div className="p-4 lg:p-8">
+        {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="Create New Blog Post"
+          subtitle="Share knowledge and insights with the MCAN community"
+          icon={FaPen}
+          showOnMobile={false}
+        />
 
-          {/* Form */}
-          <form id="blog-form" onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-6">
-                {/* Title */}
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Blog Title *
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    placeholder="Enter an engaging blog title..."
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    required
-                  />
-                </div>
+        {/* Form */}
+        <ResponsiveForm
+          title="Create New Blog Post"
+          subtitle="Fill in the details below to create a new blog post"
+          onSubmit={handleSubmit}
+        >
+          {/* Basic Information Section */}
+          <FormSection
+            title="Basic Information"
+            icon={FaEdit}
+            columns={1}
+          >
+            <FormField label="Blog Title" required fullWidth>
+              <MobileInput
+                type="text"
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="Enter an engaging blog title..."
+                icon={FaPen}
+                required
+              />
+            </FormField>
 
-                {/* Content Editor */}
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Blog Content *
-                  </label>
-                  <div className="border border-gray-300 rounded-md">
-                    <ReactQuill
-                      theme="snow"
-                      value={formData.content}
-                      onChange={handleContentChange}
-                      modules={modules}
-                      formats={formats}
-                      placeholder="Write your blog content here..."
-                      style={{ minHeight: "300px" }}
-                    />
+            <FormField label="Excerpt" required fullWidth>
+              <ResponsiveTextarea
+                name="excerpt"
+                value={formData.excerpt}
+                onChange={handleInputChange}
+                placeholder="Brief description of the blog post..."
+                rows={3}
+                required
+              />
+            </FormField>
+
+            <FormField label="Blog Content" required fullWidth>
+              <div className="border border-gray-300 rounded-md min-h-[300px]">
+                <ReactQuill
+                  theme="snow"
+                  value={formData.content}
+                  onChange={(content) => setFormData(prev => ({ ...prev, content }))}
+                  modules={modules}
+                  formats={formats}
+                  placeholder="Write your blog content here..."
+                  className="h-64"
+                />
+              </div>
+            </FormField>
+          </FormSection>
+
+          {/* Settings Section */}
+          <FormSection
+            title="Blog Settings"
+            icon={FaTags}
+            columns={2}
+          >
+            <FormField label="Category" required>
+              <ResponsiveSelect
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                options={categories}
+                placeholder="Select category"
+                required
+              />
+            </FormField>
+
+            <FormField label="Status">
+              <ResponsiveSelect
+                name="status"
+                value={formData.status}
+                onChange={handleInputChange}
+                options={[
+                  { value: 'draft', label: 'Draft' },
+                  { value: 'published', label: 'Published' }
+                ]}
+                placeholder="Select status"
+              />
+            </FormField>
+
+            <FormField label="Tags" fullWidth>
+              <MobileInput
+                type="text"
+                name="tags"
+                value={formData.tags}
+                onChange={handleInputChange}
+                placeholder="Enter tags separated by commas"
+                icon={FaTags}
+              />
+            </FormField>
+
+            <FormField label="Author" fullWidth>
+              <MobileInput
+                type="text"
+                name="author"
+                value={formData.author}
+                onChange={handleInputChange}
+                placeholder="Author name"
+                icon={FaPen}
+              />
+            </FormField>
+          </FormSection>
+
+          {/* Image Upload Section */}
+          <FormSection
+            title="Featured Image"
+            icon={FaImage}
+            columns={1}
+          >
+            <FormField label="Upload Featured Image" fullWidth>
+              <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 lg:p-6 text-center hover:border-mcan-primary transition-colors">
+                <label className="cursor-pointer">
+                  <div className="flex flex-col items-center">
+                    <FaImage className="text-3xl lg:text-4xl text-gray-400 mb-2" />
+                    <span className="text-gray-600 font-medium">Upload Featured Image</span>
+                    <span className="text-sm text-gray-500 mt-1">Click to select file</span>
                   </div>
-                </div>
-
-                {/* Excerpt */}
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Excerpt *
-                  </label>
-                  <textarea
-                    name="excerpt"
-                    value={formData.excerpt}
-                    onChange={handleInputChange}
-                    placeholder="Brief summary of the blog post (max 300 characters)..."
-                    rows={3}
-                    maxLength={300}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    required
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    {formData.excerpt.length}/300 characters
-                  </p>
-                </div>
-              </div>
-
-              {/* Sidebar */}
-              <div className="space-y-6">
-                {/* Featured Image */}
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    <FaImage className="inline mr-2" />
-                    Featured Image *
-                  </label>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    required
+                    className="hidden"
                   />
-                  {imagePreview && (
-                    <div className="mt-3">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-32 object-cover rounded-md"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Blog Settings */}
-                <div className="bg-white rounded-lg shadow-lg p-6 space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-800">Blog Settings</h3>
-                  
-                  {/* Author */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Author
-                    </label>
-                    <input
-                      type="text"
-                      name="author"
-                      value={formData.author}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                </label>
+                {imagePreview && (
+                  <div className="mt-4">
+                    <img
+                      src={imagePreview}
+                      alt="Preview"
+                      className="max-w-full h-32 object-cover rounded-lg mx-auto"
                     />
                   </div>
-
-                  {/* Category */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Category
-                    </label>
-                    <select
-                      name="category"
-                      value={formData.category}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    >
-                      {categories.map(cat => (
-                        <option key={cat.value} value={cat.value}>
-                          {cat.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  {/* Tags */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      <FaTags className="inline mr-2" />
-                      Tags
-                    </label>
-                    <input
-                      type="text"
-                      name="tags"
-                      value={formData.tags}
-                      onChange={handleInputChange}
-                      placeholder="Enter tags separated by commas"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Separate tags with commas (e.g., islam, education, community)
-                    </p>
-                  </div>
-
-                  {/* Featured */}
-                  <div className="flex items-center">
-                    <input
-                      type="checkbox"
-                      name="featured"
-                      checked={formData.featured}
-                      onChange={handleInputChange}
-                      className="h-4 w-4 text-mcan-primary focus:ring-mcan-primary border-gray-300 rounded"
-                    />
-                    <label className="ml-2 text-sm text-gray-700">
-                      Featured post
-                    </label>
-                  </div>
-                </div>
-
-                {/* SEO */}
-                <div className="bg-white rounded-lg shadow-lg p-6">
-                  <h3 className="text-lg font-semibold text-gray-800 mb-4">SEO Settings</h3>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Meta Description
-                    </label>
-                    <textarea
-                      name="metaDescription"
-                      value={formData.metaDescription}
-                      onChange={handleInputChange}
-                      placeholder="Brief description for search engines..."
-                      rows={3}
-                      maxLength={160}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    />
-                    <p className="text-sm text-gray-500 mt-1">
-                      {formData.metaDescription.length}/160 characters
-                    </p>
-                  </div>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="bg-white rounded-lg shadow-lg p-6 space-y-3">
-                  <button
-                    type="button"
-                    onClick={handleSaveAsDraft}
-                    disabled={loading}
-                    className="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition duration-300 disabled:opacity-50"
-                  >
-                    <FaSave className="mr-2" />
-                    Save as Draft
-                  </button>
-                  
-                  <button
-                    type="button"
-                    onClick={handlePublish}
-                    disabled={loading}
-                    className="w-full flex items-center justify-center px-4 py-2 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300 disabled:opacity-50"
-                  >
-                    <FaEye className="mr-2" />
-                    {loading ? "Publishing..." : "Publish Now"}
-                  </button>
-                </div>
+                )}
               </div>
-            </div>
-          </form>
-        </div>
+            </FormField>
+          </FormSection>
+
+          {/* Submit Buttons */}
+          <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-4 pt-6">
+            <MobileButton
+              type="button"
+              onClick={() => navigate("/admin/all-blogs")}
+              variant="secondary"
+              size="lg"
+            >
+              Cancel
+            </MobileButton>
+
+            <MobileButton
+              type="submit"
+              disabled={loading}
+              variant="primary"
+              size="lg"
+              icon={loading ? null : FaSave}
+              className={loading ? 'opacity-50 cursor-not-allowed' : ''}
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                  Creating...
+                </>
+              ) : (
+                'Create Blog Post'
+              )}
+            </MobileButton>
+          </div>
+        </ResponsiveForm>
       </div>
-    </div>
+    </MobileLayout>
   );
 };
 

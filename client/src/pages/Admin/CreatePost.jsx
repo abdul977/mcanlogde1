@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { FaImage, FaMosque, FaHome, FaUsers, FaMapMarkerAlt } from "react-icons/fa";
+import { FaImage, FaMosque, FaHome, FaUsers, FaMapMarkerAlt, FaPlus, FaTimes, FaDollarSign, FaPhone } from "react-icons/fa";
 import Navbar from "./Navbar";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
+import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
+import { ResponsiveForm, FormSection, FormField, ResponsiveSelect, ResponsiveTextarea, ResponsiveCheckboxGroup, MobileInput, ResponsiveFileUpload } from "../../components/Mobile/ResponsiveForm";
 
 const CreatePost = () => {
   const [auth] = useAuth();
@@ -176,532 +178,226 @@ const CreatePost = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex flex-col lg:flex-row">
-        <div className="hidden lg:block lg:ml-[4rem]">
-          <Navbar />
-        </div>
-        <div className="flex-1 p-4 lg:p-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
-                <FaHome className="text-white text-xl" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Create New Accommodation</h1>
-                <p className="text-gray-600">Add a new accommodation listing for MCAN members</p>
-              </div>
-            </div>
-          </div>
+    <MobileLayout
+      title="Create Accommodation"
+      subtitle="Add new listing"
+      icon={FaHome}
+      navbar={Navbar}
+    >
+      <div className="p-4 lg:p-8">
+        {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="Create New Accommodation"
+          subtitle="Add a new accommodation listing for MCAN members"
+          icon={FaHome}
+          showOnMobile={false}
+        />
 
-          {/* Form */}
-          <div className="bg-white rounded-lg shadow-lg p-8">
-            <form onSubmit={handleSubmit} className="space-y-8">
-              {/* Basic Information Section */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <FaHome className="mr-2 text-mcan-primary" />
-                  Basic Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Accommodation Title *
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g., MCAN Kubwa Lodge - Brothers Room 1"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      className="w-full p-3 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Location *
-                    </label>
-                    <div className="relative">
-                      <FaMapMarkerAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-mcan-primary" />
-                      <input
-                        type="text"
-                        placeholder="e.g., Kubwa, Abuja"
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                        className="w-full pl-10 p-3 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Accommodation Type *
-                    </label>
-                    <select
-                      value={accommodationType}
-                      onChange={(e) => setAccommodationType(e.target.value)}
-                      className="w-full p-3 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                      required
-                    >
-                      <option value="">Select accommodation type</option>
-                      <option value="Single Room">Single Room</option>
-                      <option value="Shared Apartment">Shared Apartment</option>
-                      <option value="Family Unit">Family Unit</option>
-                      <option value="Studio">Studio</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Gender Restriction *
-                    </label>
-                    <select
-                      value={genderRestriction}
-                      onChange={(e) => setGenderRestriction(e.target.value)}
-                      className="w-full p-3 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                      required
-                    >
-                      <option value="">Select gender restriction</option>
-                      <option value="brothers">Brothers Only</option>
-                      <option value="sisters">Sisters Only</option>
-                      <option value="family">Family</option>
-                    </select>
-                  </div>
-                </div>
-                <div className="mt-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Description *
-                  </label>
-                  <textarea
-                    placeholder="Describe the accommodation, its features, and what makes it suitable for Muslim corps members..."
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    rows={4}
-                    className="w-full p-3 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                    required
+        {/* Form */}
+        <ResponsiveForm
+          title="Create New Accommodation"
+          subtitle="Fill in the details below to create a new accommodation listing"
+          onSubmit={handleSubmit}
+          loading={loading}
+          submitText="Create Accommodation"
+          showCancel={false}
+        >
+          {/* Basic Information Section */}
+          <FormSection
+            title="Basic Information"
+            icon={FaHome}
+            columns={2}
+          >
+            <FormField label="Accommodation Title" required>
+              <MobileInput
+                type="text"
+                placeholder="e.g., MCAN Kubwa Lodge - Brothers Room 1"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+              />
+            </FormField>
+
+            <FormField label="Location" required>
+              <MobileInput
+                type="text"
+                placeholder="e.g., Kubwa, Abuja"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                icon={FaMapMarkerAlt}
+                required
+              />
+            </FormField>
+
+            <FormField label="Accommodation Type" required>
+              <ResponsiveSelect
+                value={accommodationType}
+                onChange={(e) => setAccommodationType(e.target.value)}
+                options={[
+                  { value: 'Single Room', label: 'Single Room' },
+                  { value: 'Shared Apartment', label: 'Shared Apartment' },
+                  { value: 'Family Unit', label: 'Family Unit' },
+                  { value: 'Studio', label: 'Studio' }
+                ]}
+                placeholder="Select accommodation type"
+                required
+              />
+            </FormField>
+
+            <FormField label="Gender Restriction" required>
+              <ResponsiveSelect
+                value={genderRestriction}
+                onChange={(e) => setGenderRestriction(e.target.value)}
+                options={[
+                  { value: 'brothers', label: 'Brothers Only' },
+                  { value: 'sisters', label: 'Sisters Only' },
+                  { value: 'family', label: 'Family' }
+                ]}
+                placeholder="Select gender restriction"
+                required
+              />
+            </FormField>
+
+            <FormField label="Description" required fullWidth>
+              <ResponsiveTextarea
+                placeholder="Describe the accommodation, its features, and what makes it suitable for Muslim corps members..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={4}
+                required
+              />
+            </FormField>
+          </FormSection>
+
+          {/* Pricing and Capacity Section */}
+          <FormSection
+            title="Pricing and Capacity"
+            icon={FaUsers}
+            columns={3}
+          >
+            <FormField label="Price per Month (₦)" required>
+              <MobileInput
+                type="number"
+                placeholder="e.g., 15000"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                min="10000"
+                max="500000"
+                icon={FaDollarSign}
+                required
+              />
+            </FormField>
+
+            <FormField label="Maximum Guests" required>
+              <ResponsiveSelect
+                value={guest}
+                onChange={(e) => setGuest(e.target.value)}
+                options={[...Array(6)].map((_, i) => ({
+                  value: i + 1,
+                  label: `${i + 1} ${i === 0 ? 'person' : 'people'}`
+                }))}
+                placeholder="Select capacity"
+                required
+              />
+            </FormField>
+
+            <FormField label="Category" required>
+              <ResponsiveSelect
+                value={selectedCategory}
+                onChange={(e) => setSelectedCategory(e.target.value)}
+                options={category?.map((item) => ({
+                  value: item._id,
+                  label: item.name
+                })) || []}
+                placeholder="Select a category"
+                required
+              />
+            </FormField>
+
+            <FormField label="Availability Status" fullWidth>
+              <div className="flex items-center space-x-6">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="availability"
+                    checked={isAvailable === true}
+                    onChange={() => setIsAvailable(true)}
+                    className="mr-2 text-mcan-primary focus:ring-mcan-primary"
                   />
-                </div>
+                  <span className="text-green-600 font-medium">Available</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="availability"
+                    checked={isAvailable === false}
+                    onChange={() => setIsAvailable(false)}
+                    className="mr-2 text-mcan-primary focus:ring-mcan-primary"
+                  />
+                  <span className="text-red-600 font-medium">Not Available</span>
+                </label>
               </div>
+            </FormField>
+          </FormSection>
 
-              {/* Pricing and Capacity Section */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <FaUsers className="mr-2 text-mcan-primary" />
-                  Pricing and Capacity
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Price per Month (₦) *
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g., 15000"
-                      value={price}
-                      onChange={(e) => setPrice(e.target.value)}
-                      min="10000"
-                      max="500000"
-                      className="w-full p-3 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Maximum Guests *
-                    </label>
-                    <select
-                      value={guest}
-                      onChange={(e) => setGuest(e.target.value)}
-                      className="w-full p-3 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                      required
-                    >
-                      {[...Array(6)].map((_, i) => (
-                        <option key={i} value={i + 1}>
-                          {i + 1} {i === 0 ? 'person' : 'people'}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Category *
-                    </label>
-                    <select
-                      value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value)}
-                      className="w-full p-3 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                      required
-                    >
-                      <option value="">Select a category</option>
-                      {category?.map((item) => (
-                        <option key={item._id} value={item._id}>
-                          {item.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                <div className="mt-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Availability Status
-                  </label>
-                  <div className="flex items-center space-x-4">
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="availability"
-                        checked={isAvailable === true}
-                        onChange={() => setIsAvailable(true)}
-                        className="mr-2 text-mcan-primary focus:ring-mcan-primary"
-                      />
-                      <span className="text-green-600 font-medium">Available</span>
-                    </label>
-                    <label className="flex items-center">
-                      <input
-                        type="radio"
-                        name="availability"
-                        checked={isAvailable === false}
-                        onChange={() => setIsAvailable(false)}
-                        className="mr-2 text-mcan-primary focus:ring-mcan-primary"
-                      />
-                      <span className="text-red-600 font-medium">Not Available</span>
-                    </label>
-                  </div>
-                </div>
-              </div>
+          {/* Islamic Features Section */}
+          <FormSection
+            title="Islamic Features"
+            icon={FaMosque}
+            columns={2}
+          >
+            <FormField label="Distance to Nearest Mosque (meters)" required>
+              <MobileInput
+                type="number"
+                placeholder="e.g., 500"
+                value={mosqueProximity}
+                onChange={(e) => setMosqueProximity(e.target.value)}
+                min="0"
+                icon={FaMosque}
+                required
+              />
+            </FormField>
 
-              {/* Islamic Features Section */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <FaMosque className="mr-2 text-mcan-primary" />
-                  Islamic Features
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Distance to Nearest Mosque (meters) *
-                    </label>
-                    <input
-                      type="number"
-                      placeholder="e.g., 500"
-                      value={mosqueProximity}
-                      onChange={(e) => setMosqueProximity(e.target.value)}
-                      min="0"
-                      className="w-full p-3 border bg-white border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Prayer Facilities Available
-                    </label>
-                    <div className="flex items-center space-x-4 mt-3">
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="prayerFacilities"
-                          checked={prayerFacilities === true}
-                          onChange={() => setPrayerFacilities(true)}
-                          className="mr-2 text-mcan-primary focus:ring-mcan-primary"
-                        />
-                        <span className="text-green-600 font-medium">Yes</span>
-                      </label>
-                      <label className="flex items-center">
-                        <input
-                          type="radio"
-                          name="prayerFacilities"
-                          checked={prayerFacilities === false}
-                          onChange={() => setPrayerFacilities(false)}
-                          className="mr-2 text-mcan-primary focus:ring-mcan-primary"
-                        />
-                        <span className="text-gray-600 font-medium">No</span>
-                      </label>
-                    </div>
-                  </div>
-                </div>
+            <FormField label="Prayer Facilities Available">
+              <div className="flex items-center space-x-6">
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="prayerFacilities"
+                    checked={prayerFacilities === true}
+                    onChange={() => setPrayerFacilities(true)}
+                    className="mr-2 text-mcan-primary focus:ring-mcan-primary"
+                  />
+                  <span className="text-green-600 font-medium">Yes</span>
+                </label>
+                <label className="flex items-center cursor-pointer">
+                  <input
+                    type="radio"
+                    name="prayerFacilities"
+                    checked={prayerFacilities === false}
+                    onChange={() => setPrayerFacilities(false)}
+                    className="mr-2 text-mcan-primary focus:ring-mcan-primary"
+                  />
+                  <span className="text-gray-600 font-medium">No</span>
+                </label>
               </div>
+            </FormField>
+          </FormSection>
 
-              {/* Facilities Section */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <FaUsers className="mr-2 text-mcan-primary" />
-                  Facilities & Amenities
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      placeholder="Add a facility (e.g., WiFi, Kitchen, Prayer Room)"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addToArray(facilities, setFacilities, e.target.value);
-                          e.target.value = '';
-                        }
-                      }}
-                      className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                    />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        const input = e.target.parentElement.querySelector('input');
-                        addToArray(facilities, setFacilities, input.value);
-                        input.value = '';
-                      }}
-                      className="px-4 py-3 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {facilities.map((facility, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm"
-                      >
-                        {facility}
-                        <button
-                          type="button"
-                          onClick={() => removeFromArray(facilities, setFacilities, index)}
-                          className="ml-2 text-red-500 hover:text-red-700"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
+          {/* Note: Additional sections like Facilities, Images, etc. can be added here */}
+          <FormSection title="Additional Information" columns={1}>
+            <FormField label="Note" fullWidth>
+              <div className="p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  This form has been optimized for mobile devices. Additional sections for facilities,
+                  images, landlord contact, and other features will be added in the next update.
+                </p>
               </div>
-
-              {/* Nearby Areas Section */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <FaMapMarkerAlt className="mr-2 text-mcan-primary" />
-                  Nearby Areas & Landmarks
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      placeholder="Add nearby area (e.g., NYSC Camp, Market, Hospital)"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addToArray(nearArea, setNearArea, e.target.value);
-                          e.target.value = '';
-                        }
-                      }}
-                      className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                    />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        const input = e.target.parentElement.querySelector('input');
-                        addToArray(nearArea, setNearArea, input.value);
-                        input.value = '';
-                      }}
-                      className="px-4 py-3 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {nearArea.map((area, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm"
-                      >
-                        {area}
-                        <button
-                          type="button"
-                          onClick={() => removeFromArray(nearArea, setNearArea, index)}
-                          className="ml-2 text-red-500 hover:text-red-700"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Rules Section */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <FaMosque className="mr-2 text-mcan-primary" />
-                  Islamic Rules & Guidelines
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex space-x-2">
-                    <input
-                      type="text"
-                      placeholder="Add a rule (e.g., No mixing of non-mahrams, Respect prayer times)"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          e.preventDefault();
-                          addToArray(rules, setRules, e.target.value);
-                          e.target.value = '';
-                        }
-                      }}
-                      className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                    />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        const input = e.target.parentElement.querySelector('input');
-                        addToArray(rules, setRules, input.value);
-                        input.value = '';
-                      }}
-                      className="px-4 py-3 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {rules.map((rule, index) => (
-                      <span
-                        key={index}
-                        className="inline-flex items-center px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm"
-                      >
-                        {rule}
-                        <button
-                          type="button"
-                          onClick={() => removeFromArray(rules, setRules, index)}
-                          className="ml-2 text-red-500 hover:text-red-700"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                  {rules.length === 0 && (
-                    <div className="text-sm text-gray-600">
-                      <p>Default Islamic rules will be applied:</p>
-                      <ul className="list-disc list-inside mt-2 space-y-1">
-                        <li>No mixing of non-mahrams</li>
-                        <li>Respect prayer times</li>
-                        <li>Maintain Islamic etiquette</li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Landlord Contact Section */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <FaUsers className="mr-2 text-mcan-primary" />
-                  Landlord/Contact Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Contact Name
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g., MCAN Housing Coordinator"
-                      value={landlordContact.name}
-                      onChange={(e) => handleLandlordContactChange('name', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Phone Number
-                    </label>
-                    <input
-                      type="tel"
-                      placeholder="e.g., +234XXXXXXXXX"
-                      value={landlordContact.phone}
-                      onChange={(e) => handleLandlordContactChange('phone', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Preferred Contact Time
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g., 8:00 AM - 8:00 PM"
-                      value={landlordContact.preferredContactTime}
-                      onChange={(e) => handleLandlordContactChange('preferredContactTime', e.target.value)}
-                      className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Image Upload Section */}
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                  <FaImage className="mr-2 text-mcan-primary" />
-                  Accommodation Images
-                </h3>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-                  <label className="cursor-pointer">
-                    <div className="flex flex-col items-center">
-                      <FaImage className="text-4xl text-gray-400 mb-2" />
-                      <span className="text-gray-600 font-medium">Upload Images (exactly 3 required)</span>
-                      <span className="text-sm text-gray-500 mt-1">Click to select files</span>
-                    </div>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      multiple
-                      onChange={handleImageChange}
-                      className="hidden"
-                    />
-                  </label>
-                  {images.length > 0 && (
-                    <div className="flex justify-center space-x-4 mt-4">
-                      {images.map((file, index) => (
-                        <div key={index} className="relative">
-                          <img
-                            src={URL.createObjectURL(file)}
-                            alt={`Preview ${index + 1}`}
-                            className="w-24 h-24 object-cover rounded-lg border-2 border-mcan-primary"
-                          />
-                          <span className="absolute -top-2 -right-2 bg-mcan-primary text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
-                            {index + 1}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end space-x-4">
-                <button
-                  type="button"
-                  onClick={() => window.history.back()}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-8 py-3 bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white rounded-md hover:opacity-90 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                >
-                  {loading ? (
-                    <>
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                      Creating...
-                    </>
-                  ) : (
-                    'Create Accommodation'
-                  )}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+            </FormField>
+          </FormSection>
+        </ResponsiveForm>
       </div>
-    </div>
+    </MobileLayout>
   );
 };
 

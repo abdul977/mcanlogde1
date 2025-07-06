@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaPlus, FaEye, FaSync, FaBars, FaTimes } from "react-icons/fa";
+import { FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaPlus, FaEye, FaSync, FaBars, FaTimes, FaTachometerAlt, FaChartBar } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
+import { FormSection, FormField } from "../../components/Mobile/ResponsiveForm";
 
 const AdminDashboard = () => {
   const [auth] = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [stats, setStats] = useState({
     services: 0,
     lectures: 0,
@@ -123,180 +124,190 @@ const AdminDashboard = () => {
     }
   ];
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <h2 className="text-lg font-semibold text-mcan-primary">MCAN Admin</h2>
-        </div>
-        <button
-          onClick={toggleMobileMenu}
-          className="text-mcan-primary hover:text-mcan-secondary transition-colors"
+    <MobileLayout
+      title="Admin Dashboard"
+      subtitle="MCAN management center"
+      icon={FaTachometerAlt}
+      navbar={Navbar}
+      headerActions={
+        <MobileButton
+          onClick={fetchStats}
+          variant="secondary"
+          size="sm"
+          icon={FaSync}
+          disabled={loading}
         >
-          {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-        </button>
-      </div>
+          {loading ? 'Refreshing...' : 'Refresh'}
+        </MobileButton>
+      }
+    >
+      <div className="p-4 lg:p-8">
+          {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="MCAN Admin Dashboard"
+          subtitle="Manage all MCAN content and activities"
+          icon={FaTachometerAlt}
+          showOnMobile={false}
+          actions={
+            <MobileButton
+              onClick={fetchStats}
+              disabled={loading}
+              variant="secondary"
+              icon={FaSync}
+              className={loading ? 'animate-spin' : ''}
+            >
+              {loading ? 'Loading...' : 'Refresh Stats'}
+            </MobileButton>
+          }
+        />
 
-      <div className="flex">
-        {/* Mobile Sidebar */}
-        <div className={`fixed top-0 left-0 h-full z-20 transform transition-transform duration-300 ease-in-out lg:hidden ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}>
-          <Navbar onItemClick={closeMobileMenu} />
-        </div>
-
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:block ml-[4rem]">
-          <Navbar />
-        </div>
-
-        {/* Mobile Overlay */}
-        {isMobileMenuOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
-            onClick={closeMobileMenu}
-          ></div>
-        )}
-
-        <div className="flex-1 p-4 lg:p-8 pt-20 lg:pt-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-4 lg:p-6 mb-6">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between">
-              <div className="mb-4 lg:mb-0">
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">MCAN Admin Dashboard</h1>
-                <p className="text-gray-600 mt-2">Manage all MCAN content and activities</p>
-              </div>
-              <button
-                onClick={fetchStats}
-                disabled={loading}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                  loading
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-mcan-primary text-white hover:bg-mcan-secondary'
-                }`}
-              >
-                <FaSync className={`${loading ? 'animate-spin' : ''}`} />
-                {loading ? 'Loading...' : 'Refresh Stats'}
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {/* Quick Stats */}
+        <FormSection
+          title="Overview Statistics"
+          icon={FaChartBar}
+          columns={1}
+          className="mb-8"
+        >
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
             {sections.map((section, index) => (
-              <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div className={`bg-gradient-to-r ${section.color} p-6`}>
+              <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
+                <div className={`bg-gradient-to-r ${section.color} p-4 lg:p-6`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-white text-xl font-semibold">{section.title}</h3>
-                      <p className="text-white/80 text-sm mt-1">{section.description}</p>
+                      <h3 className="text-white text-lg lg:text-xl font-semibold">{section.title}</h3>
+                      <p className="text-white/80 text-xs lg:text-sm mt-1">{section.description}</p>
                     </div>
-                    {section.icon}
+                    <div className="text-white text-2xl lg:text-3xl">
+                      {section.icon}
+                    </div>
                   </div>
                 </div>
-                <div className="p-6">
+                <div className="p-4 lg:p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="text-3xl font-bold text-gray-800">
+                    <div className="text-2xl lg:text-3xl font-bold text-gray-800">
                       {loading ? '...' : section.count}
                     </div>
-                    <div className="text-sm text-gray-500">Total Items</div>
+                    <div className="text-xs lg:text-sm text-gray-500">Total Items</div>
                   </div>
-                  <div className="flex space-x-2">
-                    <Link
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                    <MobileButton
+                      as={Link}
                       to={section.createLink}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300 text-sm"
+                      variant="primary"
+                      size="sm"
+                      icon={FaPlus}
+                      fullWidth
                     >
-                      <FaPlus className="text-xs" />
                       Create
-                    </Link>
-                    <Link
+                    </MobileButton>
+                    <MobileButton
+                      as={Link}
                       to={section.viewLink}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 border border-mcan-primary text-mcan-primary rounded-md hover:bg-mcan-primary hover:text-white transition duration-300 text-sm"
+                      variant="secondary"
+                      size="sm"
+                      icon={FaEye}
+                      fullWidth
                     >
-                      <FaEye className="text-xs" />
                       View All
-                    </Link>
+                    </MobileButton>
                   </div>
                 </div>
               </div>
             ))}
           </div>
+        </FormSection>
 
-          {/* Recent Activity Summary */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">System Overview</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-semibold text-gray-700 mb-3">Content Management</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Services</span>
-                    <span className="font-medium">{stats.services} items</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Lectures</span>
-                    <span className="font-medium">{stats.lectures} items</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Quran Classes</span>
-                    <span className="font-medium">{stats.quranClasses} items</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Resources</span>
-                    <span className="font-medium">{stats.resources} items</span>
-                  </div>
-                </div>
+        {/* System Overview */}
+        <FormSection
+          title="System Overview"
+          icon={FaChartBar}
+          columns={2}
+        >
+          <FormField label="Content Management" fullWidth>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span className="text-gray-600 flex items-center">
+                  <FaHandsHelping className="mr-2 text-mcan-primary" />
+                  Services
+                </span>
+                <span className="font-medium">{stats.services} items</span>
               </div>
-              <div>
-                <h3 className="font-semibold text-gray-700 mb-3">Community & Donations</h3>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Community Items</span>
-                    <span className="font-medium">{stats.community} items</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Donation Campaigns</span>
-                    <span className="font-medium">{stats.donations} items</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Total Content</span>
-                    <span className="font-medium text-mcan-primary">
-                      {Object.values(stats).reduce((a, b) => a + b, 0)} items
-                    </span>
-                  </div>
-                </div>
+              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span className="text-gray-600 flex items-center">
+                  <FaChalkboardTeacher className="mr-2 text-mcan-primary" />
+                  Lectures
+                </span>
+                <span className="font-medium">{stats.lectures} items</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span className="text-gray-600 flex items-center">
+                  <FaQuran className="mr-2 text-mcan-primary" />
+                  Quran Classes
+                </span>
+                <span className="font-medium">{stats.quranClasses} items</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span className="text-gray-600 flex items-center">
+                  <FaBook className="mr-2 text-mcan-primary" />
+                  Resources
+                </span>
+                <span className="font-medium">{stats.resources} items</span>
               </div>
             </div>
-          </div>
+          </FormField>
 
-          {/* Quick Actions */}
-          <div className="mt-6 bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {sections.map((section, index) => (
-                <Link
-                  key={index}
-                  to={section.createLink}
-                  className={`flex flex-col items-center p-4 rounded-lg bg-gradient-to-r ${section.color} text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105`}
-                >
-                  <div className="text-2xl mb-2">{section.icon}</div>
-                  <span className="text-sm font-medium text-center">Add {section.title}</span>
-                </Link>
-              ))}
+          <FormField label="Community & Donations" fullWidth>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span className="text-gray-600 flex items-center">
+                  <FaUsers className="mr-2 text-mcan-primary" />
+                  Community Items
+                </span>
+                <span className="font-medium">{stats.community} items</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                <span className="text-gray-600 flex items-center">
+                  <FaDonate className="mr-2 text-mcan-primary" />
+                  Donation Campaigns
+                </span>
+                <span className="font-medium">{stats.donations} items</span>
+              </div>
+              <div className="flex justify-between items-center p-2 bg-mcan-primary/10 rounded border border-mcan-primary">
+                <span className="text-mcan-primary font-medium flex items-center">
+                  <FaChartBar className="mr-2" />
+                  Total Content
+                </span>
+                <span className="font-bold text-mcan-primary">
+                  {Object.values(stats).reduce((a, b) => a + b, 0)} items
+                </span>
+              </div>
             </div>
+          </FormField>
+        </FormSection>
+
+        {/* Quick Actions */}
+        <FormSection
+          title="Quick Actions"
+          icon={FaPlus}
+          columns={1}
+          className="mt-6"
+        >
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4">
+            {sections.map((section, index) => (
+              <Link
+                key={index}
+                to={section.createLink}
+                className={`flex flex-col items-center p-3 lg:p-4 rounded-lg bg-gradient-to-r ${section.color} text-white hover:shadow-lg transition-all duration-300 transform hover:scale-105`}
+              >
+                <div className="text-xl lg:text-2xl mb-2">{section.icon}</div>
+                <span className="text-xs lg:text-sm font-medium text-center">Add {section.title}</span>
+              </Link>
+            ))}
           </div>
-        </div>
+        </FormSection>
       </div>
-    </div>
+    </MobileLayout>
   );
 };
 

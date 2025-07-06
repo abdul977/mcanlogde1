@@ -18,7 +18,10 @@ import {
   FaList,
   FaUtensils,
   FaBook,
-  FaUser
+  FaUser,
+  FaArrowLeft,
+  FaHeart,
+  FaShare
 } from "react-icons/fa";
 import { MdLocationOn } from "react-icons/md";
 import axios from "axios";
@@ -28,6 +31,8 @@ import { useCart } from "../../context/Cart";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
 import BookingConfirmation from "../BookingConfirmation";
+import MobileLayout, { MobilePageHeader, MobileButton } from "../Mobile/MobileLayout";
+import { FormSection, FormField } from "../Mobile/ResponsiveForm";
 
 const Product = () => {
   const params = useParams();
@@ -190,289 +195,351 @@ const Product = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mcan-primary"></div>
-      </div>
+      <MobileLayout
+        title="Loading..."
+        subtitle="Accommodation details"
+        icon={FaHome}
+      >
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-mcan-primary"></div>
+        </div>
+      </MobileLayout>
     );
   }
 
   if (error || !postDetails) {
     return (
-      <div className="text-center py-16">
-        <h2 className="text-2xl text-gray-600">{error || "Accommodation not found"}</h2>
-        <Link to="/" className="text-mcan-primary hover:underline mt-4 inline-block">
-          Return to Homepage
-        </Link>
-      </div>
+      <MobileLayout
+        title="Not Found"
+        subtitle="Accommodation details"
+        icon={FaHome}
+      >
+        <div className="text-center py-16">
+          <h2 className="text-2xl text-gray-600">{error || "Accommodation not found"}</h2>
+          <Link to="/" className="text-mcan-primary hover:underline mt-4 inline-block">
+            Return to Homepage
+          </Link>
+        </div>
+      </MobileLayout>
     );
   }
 
   return (
-    <div className="p-4 md:p-8 min-h-screen max-w-7xl mx-auto">
-      {/* Breadcrumb */}
-      <div className="flex items-center space-x-2 text-gray-600 mb-6">
-        <Link to="/" className="hover:text-mcan-primary flex items-center">
-          <FaHome className="mr-1" />
+    <MobileLayout
+      title={postDetails.title}
+      subtitle="Accommodation details"
+      icon={FaHome}
+      headerActions={
+        <div className="flex items-center space-x-2">
+          <MobileButton
+            onClick={() => navigate(-1)}
+            variant="ghost"
+            size="sm"
+            icon={FaArrowLeft}
+            title="Go back"
+          />
+          <MobileButton
+            onClick={() => {/* Add to favorites */}}
+            variant="ghost"
+            size="sm"
+            icon={FaHeart}
+            title="Add to favorites"
+          />
+          <MobileButton
+            onClick={() => {/* Share */}}
+            variant="ghost"
+            size="sm"
+            icon={FaShare}
+            title="Share"
+          />
+        </div>
+      }
+    >
+      <div className="p-4 lg:p-8">
+        {/* Breadcrumb for Desktop */}
+        <div className="hidden lg:flex items-center space-x-2 text-gray-600 mb-6">
+          <Link to="/" className="hover:text-mcan-primary flex items-center">
+            <FaHome className="mr-1" />
           Home
-        </Link>
-        <span>/</span>
-        <span className="text-mcan-primary">{postDetails.title}</span>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column - Images and Description */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Images Section */}
-          <div className="space-y-4">
-            <div className="relative">
-              <img
-                src={selectedImage}
-                alt="Main Image"
-                className="w-full h-[400px] object-cover rounded-lg shadow-md"
-              />
-              <div className={`absolute top-4 right-4 px-4 py-2 rounded-full text-sm font-medium text-white ${
-                postDetails.isAvailable ? 'bg-green-500' : 'bg-red-500'
-              }`}>
-                {postDetails.isAvailable ? 'Available' : 'Booked'}
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {postDetails.images?.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt={`Thumbnail ${idx + 1}`}
-                  className={`h-20 w-full object-cover rounded-lg cursor-pointer transition-all duration-200 ${
-                    selectedImage === img ? 'ring-2 ring-mcan-primary' : 'opacity-70 hover:opacity-100'
-                  }`}
-                  onClick={() => setSelectedImage(img)}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Description */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Overview</h2>
-            <p className="text-gray-600 leading-relaxed">{postDetails.description}</p>
-          </div>
-
-          {/* House Rules */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">House Rules</h2>
-            <ul className="space-y-3">
-              {postDetails.rules?.map((rule, idx) => (
-                <li key={idx} className="flex items-start space-x-3 text-gray-600">
-                  <FaList className="mt-1 flex-shrink-0 text-mcan-primary" />
-                  <span>{rule}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Facilities */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4">Facilities</h2>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {postDetails.facilities?.map((facility, idx) => (
-                <div key={idx} className="flex items-center space-x-2 text-gray-600">
-                  <FaWifi className="text-mcan-primary" />
-                  <span>{facility}</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          </Link>
+          <span>/</span>
+          <span className="text-mcan-primary">{postDetails.title}</span>
         </div>
 
-        {/* Right Column - Details and Contact */}
-        <div className="space-y-8">
-          {/* Main Details Card */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">{postDetails.title}</h1>
-            <p className="flex items-center text-gray-600 mb-6">
-              <FaBuilding className="mr-2 text-mcan-primary" />
-              {postDetails.accommodationType}
-            </p>
-
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Price per month</span>
-                <span className="text-2xl font-bold text-mcan-primary">₦{postDetails.price.toLocaleString()}</span>
-              </div>
-
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Location</span>
-                <span>{postDetails.location}</span>
-              </div>
-
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Gender</span>
-                <span>{postDetails.genderRestriction}</span>
-              </div>
-
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Capacity</span>
-                <span>{postDetails.guest} person(s)</span>
-              </div>
-
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Distance to Mosque</span>
-                <span>{postDetails.mosqueProximity}m</span>
-              </div>
-
-              <div className="flex justify-between items-center py-2 border-b">
-                <span className="text-gray-600">Prayer Facilities</span>
-                <span>{postDetails.prayerFacilities ? 'Available' : 'Not Available'}</span>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="space-y-3 mt-6">
-              <button
-                onClick={handleCheckIn}
-                disabled={!postDetails.isAvailable}
-                className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
-                  postDetails.isAvailable
-                    ? 'bg-mcan-primary text-white hover:opacity-90'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                Book Now
-              </button>
-              <button
-                onClick={handleAddToCart}
-                disabled={!postDetails.isAvailable}
-                className={`w-full py-3 px-4 rounded-lg font-medium transition-all duration-200 ${
-                  postDetails.isAvailable
-                    ? 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                    : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                }`}
-              >
-                Add to Wishlist
-              </button>
-            </div>
-          </div>
-
-          {/* Landlord Contact */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Landlord Contact</h2>
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3 text-gray-600">
-                <FaUser className="text-mcan-primary" />
-                <span>{postDetails.landlordContact?.name}</span>
-              </div>
-              <div className="flex items-center space-x-3 text-gray-600">
-                <FaPhone className="text-mcan-primary" />
-                <span>{postDetails.landlordContact?.phone}</span>
-              </div>
-              <div className="flex items-center space-x-3 text-gray-600">
-                <FaClock className="text-mcan-primary" />
-                <span>Best time to call: {postDetails.landlordContact?.preferredContactTime}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Nearby Facilities */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Nearby Facilities</h2>
-            
-            {/* Mosques */}
-            {postDetails.nearbyFacilities?.mosques?.length > 0 && (
-              <div className="mb-6">
-                <h3 className="font-medium text-gray-700 mb-2 flex items-center">
-                  <FaMosque className="mr-2 text-mcan-primary" />
-                  Mosques
-                </h3>
-                <ul className="space-y-2 pl-8">
-                  {postDetails.nearbyFacilities.mosques.map((mosque, idx) => (
-                    <li key={idx} className="text-gray-600 flex justify-between">
-                      <span>{mosque.name}</span>
-                      <span>{mosque.distance}m</span>
-                    </li>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+          {/* Left Column - Images and Description */}
+          <div className="lg:col-span-2 space-y-6">
+            {/* Images Section */}
+            <FormSection title="Photos" icon={FaHome} columns={1}>
+              <div className="space-y-4">
+                <div className="relative">
+                  <img
+                    src={selectedImage}
+                    alt="Main Image"
+                    className="w-full h-[250px] lg:h-[400px] object-cover rounded-lg shadow-md"
+                  />
+                  <div className={`absolute top-4 right-4 px-3 py-1 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium text-white ${
+                    postDetails.isAvailable ? 'bg-green-500' : 'bg-red-500'
+                  }`}>
+                    {postDetails.isAvailable ? 'Available' : 'Booked'}
+                  </div>
+                </div>
+                <div className="grid grid-cols-3 lg:grid-cols-4 gap-2">
+                  {postDetails.images?.map((img, idx) => (
+                    <img
+                      key={idx}
+                      src={img}
+                      alt={`Thumbnail ${idx + 1}`}
+                      className={`h-16 lg:h-20 w-full object-cover rounded-lg cursor-pointer transition-all duration-200 ${
+                        selectedImage === img ? 'ring-2 ring-mcan-primary' : 'opacity-70 hover:opacity-100'
+                      }`}
+                      onClick={() => setSelectedImage(img)}
+                    />
                   ))}
-                </ul>
+                </div>
               </div>
-            )}
+            </FormSection>
 
-            {/* Islamic Centers */}
-            {postDetails.nearbyFacilities?.islamicCenters?.length > 0 && (
-              <div className="mb-6">
-                <h3 className="font-medium text-gray-700 mb-2 flex items-center">
-                  <FaBook className="mr-2 text-mcan-primary" />
-                  Islamic Centers
-                </h3>
-                <ul className="space-y-2 pl-8">
-                  {postDetails.nearbyFacilities.islamicCenters.map((center, idx) => (
-                    <li key={idx} className="text-gray-600 flex justify-between">
-                      <span>{center.name}</span>
-                      <span>{center.distance}m</span>
-                    </li>
-                  ))}
-                </ul>
+            {/* Description */}
+            <FormSection title="Overview" icon={FaBook} columns={1}>
+              <div className="prose prose-gray max-w-none">
+                <p className="text-gray-600 leading-relaxed">{postDetails.description}</p>
               </div>
-            )}
+            </FormSection>
 
-            {/* Halal Restaurants */}
-            {postDetails.nearbyFacilities?.halalRestaurants?.length > 0 && (
-              <div>
-                <h3 className="font-medium text-gray-700 mb-2 flex items-center">
-                  <FaUtensils className="mr-2 text-mcan-primary" />
-                  Halal Restaurants
-                </h3>
-                <ul className="space-y-2 pl-8">
-                  {postDetails.nearbyFacilities.halalRestaurants.map((restaurant, idx) => (
-                    <li key={idx} className="text-gray-600 flex justify-between">
-                      <span>{restaurant.name}</span>
-                      <span>{restaurant.distance}m</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
+            {/* House Rules */}
+            <FormSection title="House Rules" icon={FaList} columns={1}>
+              <ul className="space-y-3">
+                {postDetails.rules?.map((rule, idx) => (
+                  <li key={idx} className="flex items-start space-x-3 text-gray-600">
+                    <FaList className="mt-1 flex-shrink-0 text-mcan-primary" />
+                    <span>{rule}</span>
+                  </li>
+                ))}
+              </ul>
+            </FormSection>
 
-          {/* Related Products */}
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold text-gray-800 mb-4">Related Accommodations</h2>
-            {loadingRelated ? (
-              <div className="flex justify-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-mcan-primary"></div>
-              </div>
-            ) : relatedProducts.length > 0 ? (
-              <div className="grid grid-cols-1 gap-4">
-                {relatedProducts.map((product) => (
-                  <RelatedProduct key={product._id} product={product} />
+            {/* Facilities */}
+            <FormSection title="Facilities" icon={FaWifi} columns={1}>
+              <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                {postDetails.facilities?.map((facility, idx) => (
+                  <div key={idx} className="flex items-center space-x-2 text-gray-600 p-2 bg-gray-50 rounded-lg">
+                    <FaWifi className="text-mcan-primary flex-shrink-0" />
+                    <span className="text-sm">{facility}</span>
+                  </div>
                 ))}
               </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-600 mb-4">
-                  No other {postDetails.genderRestriction}'s accommodations available in this category
-                </p>
-                <button
-                  onClick={() => getRelatedPost(postDetails.category, postDetails.genderRestriction)}
-                  className="px-4 py-2 bg-mcan-primary text-white rounded-lg hover:opacity-90 flex items-center mx-auto"
-                >
-                  <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                  </svg>
-                  Retry Loading
-                </button>
+            </FormSection>
+          </div>
+
+          {/* Right Column - Details and Contact */}
+          <div className="space-y-6">
+            {/* Main Details Card */}
+            <FormSection title="Details" icon={FaHome} columns={1}>
+              <div className="space-y-4">
+                <div className="text-center lg:text-left">
+                  <h1 className="text-xl lg:text-2xl font-bold text-gray-800 mb-2">{postDetails.title}</h1>
+                  <p className="flex items-center justify-center lg:justify-start text-gray-600 mb-4">
+                    <FaBuilding className="mr-2 text-mcan-primary" />
+                    {postDetails.accommodationType}
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600 flex items-center">
+                      <FaRegMoneyBillAlt className="mr-2 text-mcan-primary" />
+                      Price per month
+                    </span>
+                    <span className="text-lg lg:text-2xl font-bold text-mcan-primary">₦{postDetails.price.toLocaleString()}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600 flex items-center">
+                      <MdLocationOn className="mr-2 text-mcan-primary" />
+                      Location
+                    </span>
+                    <span className="text-right">{postDetails.location}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600 flex items-center">
+                      <FaUsers className="mr-2 text-mcan-primary" />
+                      Gender
+                    </span>
+                    <span>{postDetails.genderRestriction}</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600 flex items-center">
+                      <FaBed className="mr-2 text-mcan-primary" />
+                      Capacity
+                    </span>
+                    <span>{postDetails.guest} person(s)</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600 flex items-center">
+                      <FaMosque className="mr-2 text-mcan-primary" />
+                      Distance to Mosque
+                    </span>
+                    <span>{postDetails.mosqueProximity}m</span>
+                  </div>
+
+                  <div className="flex justify-between items-center py-2 border-b">
+                    <span className="text-gray-600 flex items-center">
+                      <FaPrayingHands className="mr-2 text-mcan-primary" />
+                      Prayer Facilities
+                    </span>
+                    <span className={postDetails.prayerFacilities ? 'text-green-600' : 'text-red-600'}>
+                      {postDetails.prayerFacilities ? 'Available' : 'Not Available'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="space-y-3 mt-6">
+                  <MobileButton
+                    onClick={handleCheckIn}
+                    disabled={!postDetails.isAvailable}
+                    variant="primary"
+                    size="lg"
+                    fullWidth
+                    className={!postDetails.isAvailable ? 'opacity-50 cursor-not-allowed' : ''}
+                  >
+                    {postDetails.isAvailable ? 'Book Now' : 'Not Available'}
+                  </MobileButton>
+
+                  <MobileButton
+                    onClick={handleAddToCart}
+                    disabled={!postDetails.isAvailable}
+                    variant="secondary"
+                    size="lg"
+                    fullWidth
+                    icon={FaHeart}
+                    className={!postDetails.isAvailable ? 'opacity-50 cursor-not-allowed' : ''}
+                  >
+                    Add to Wishlist
+                  </MobileButton>
+                </div>
               </div>
-            )}
+            </FormSection>
+
+            {/* Landlord Contact */}
+            <FormSection title="Contact Information" icon={FaPhone} columns={1}>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-3 text-gray-600">
+                  <FaUser className="text-mcan-primary" />
+                  <span>{postDetails.landlordContact?.name}</span>
+                </div>
+                <div className="flex items-center space-x-3 text-gray-600">
+                  <FaPhone className="text-mcan-primary" />
+                  <span>{postDetails.landlordContact?.phone}</span>
+                </div>
+                <div className="flex items-center space-x-3 text-gray-600">
+                  <FaClock className="text-mcan-primary" />
+                  <span>Best time to call: {postDetails.landlordContact?.preferredContactTime}</span>
+                </div>
+              </div>
+            </FormSection>
+
+            {/* Nearby Facilities */}
+            <FormSection title="Nearby Facilities" icon={FaMosque} columns={1}>
+              {/* Mosques */}
+              {postDetails.nearbyFacilities?.mosques?.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="font-medium text-gray-700 mb-3 flex items-center">
+                    <FaMosque className="mr-2 text-mcan-primary" />
+                    Mosques
+                  </h3>
+                  <div className="space-y-2">
+                    {postDetails.nearbyFacilities.mosques.map((mosque, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                        <span className="text-gray-700">{mosque.name}</span>
+                        <span className="text-mcan-primary font-medium">{mosque.distance}m</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Islamic Centers */}
+              {postDetails.nearbyFacilities?.islamicCenters?.length > 0 && (
+                <div className="mb-6">
+                  <h3 className="font-medium text-gray-700 mb-3 flex items-center">
+                    <FaBook className="mr-2 text-mcan-primary" />
+                    Islamic Centers
+                  </h3>
+                  <div className="space-y-2">
+                    {postDetails.nearbyFacilities.islamicCenters.map((center, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                        <span className="text-gray-700">{center.name}</span>
+                        <span className="text-mcan-primary font-medium">{center.distance}m</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Halal Restaurants */}
+              {postDetails.nearbyFacilities?.halalRestaurants?.length > 0 && (
+                <div>
+                  <h3 className="font-medium text-gray-700 mb-3 flex items-center">
+                    <FaUtensils className="mr-2 text-mcan-primary" />
+                    Halal Restaurants
+                  </h3>
+                  <div className="space-y-2">
+                    {postDetails.nearbyFacilities.halalRestaurants.map((restaurant, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                        <span className="text-gray-700">{restaurant.name}</span>
+                        <span className="text-mcan-primary font-medium">{restaurant.distance}m</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </FormSection>
           </div>
         </div>
-      </div>
 
-      {/* Booking Confirmation Modal */}
-      <BookingConfirmation
-        isOpen={showBookingModal}
-        onClose={() => setShowBookingModal(false)}
-        accommodation={postDetails}
-        bookingType="accommodation"
-        onBookingSuccess={handleBookingSuccess}
-      />
-    </div>
+        {/* Related Products Section */}
+        <FormSection title="Related Accommodations" icon={FaHome} columns={1} className="mt-8">
+          {loadingRelated ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-mcan-primary"></div>
+            </div>
+          ) : relatedProducts.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {relatedProducts.map((product) => (
+                <RelatedProduct key={product._id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-600 mb-4">
+                No other {postDetails.genderRestriction}'s accommodations available in this category
+              </p>
+              <MobileButton
+                onClick={() => getRelatedPost(postDetails.category, postDetails.genderRestriction)}
+                variant="primary"
+                icon={FaSync}
+              >
+                Retry Loading
+              </MobileButton>
+            </div>
+          )}
+        </FormSection>
+
+        {/* Booking Confirmation Modal */}
+        <BookingConfirmation
+          isOpen={showBookingModal}
+          onClose={() => setShowBookingModal(false)}
+          accommodation={postDetails}
+          bookingType="accommodation"
+          onBookingSuccess={handleBookingSuccess}
+        />
+      </div>
+    </MobileLayout>
   );
 };
 

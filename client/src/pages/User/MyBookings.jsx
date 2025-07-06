@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendar, FaHome, FaBook, FaEye, FaTimes, FaSync, FaFilter, FaMapMarkerAlt, FaUsers, FaBars, FaUser } from "react-icons/fa";
+import { FaCalendar, FaHome, FaBook, FaEye, FaTimes, FaSync, FaFilter, FaMapMarkerAlt, FaUsers, FaBars, FaUser, FaClock } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
 import BookingDetailsModal from "../../components/BookingDetailsModal";
+import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
+import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
+import { FormField, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
 
 const MyBookings = () => {
   const [bookings, setBookings] = useState([]);
@@ -12,7 +15,6 @@ const MyBookings = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [auth] = useAuth();
@@ -129,17 +131,14 @@ const MyBookings = () => {
     });
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
-  const handleViewDetails = (booking) => {
+  // Handle actions
+  const handleView = (booking) => {
     setSelectedBooking(booking);
     setShowDetailsModal(true);
+  };
+
+  const handleCancel = (booking) => {
+    cancelBooking(booking._id);
   };
 
   const handleCloseDetailsModal = () => {
@@ -147,237 +146,225 @@ const MyBookings = () => {
     setSelectedBooking(null);
   };
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <h2 className="text-lg font-semibold text-mcan-primary">My Bookings</h2>
-        </div>
-        <button
-          onClick={toggleMobileMenu}
-          className="text-mcan-primary hover:text-mcan-secondary transition-colors"
-        >
-          {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-        </button>
-      </div>
-
-      <div className="flex">
-        {/* Mobile Sidebar */}
-        <div className={`fixed top-0 left-0 h-full z-20 transform transition-transform duration-300 ease-in-out lg:hidden ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}>
-          <Navbar onItemClick={closeMobileMenu} />
-        </div>
-
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:block ml-[4rem]">
-          <Navbar />
-        </div>
-
-        {/* Mobile Overlay */}
-        {isMobileMenuOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
-            onClick={closeMobileMenu}
-          ></div>
-        )}
-
-        <div className="flex-1 p-4 lg:p-8 pt-20 lg:pt-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-4 lg:p-6 mb-6">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between">
-              <div className="mb-4 lg:mb-0">
-                <h1 className="text-2xl lg:text-3xl font-bold text-gray-800">My Bookings</h1>
-                <p className="text-gray-600 mt-2">Track your accommodation and program bookings</p>
-              </div>
-              <button
-                onClick={() => fetchBookings(true)}
-                disabled={refreshing}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                  refreshing
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-mcan-primary text-white hover:bg-mcan-secondary'
-                }`}
-              >
-                <FaSync className={`${refreshing ? 'animate-spin' : ''}`} />
-                {refreshing ? 'Refreshing...' : 'Refresh'}
-              </button>
-            </div>
-          </div>
-
-          {/* Filters */}
-          <div className="bg-white rounded-lg shadow p-6 mb-6">
-            <div className="flex items-center gap-4">
-              <FaFilter className="text-gray-500" />
-              <div className="flex gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                  <select
-                    value={selectedStatus}
-                    onChange={(e) => setSelectedStatus(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                  >
-                    {statusOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Type</label>
-                  <select
-                    value={selectedType}
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                  >
-                    {typeOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Bookings List */}
-          <div className="space-y-6">
-            {loading ? (
-              <div className="flex justify-center items-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mcan-primary"></div>
-                <span className="ml-3 text-gray-600">Loading bookings...</span>
-              </div>
-            ) : bookings.length === 0 ? (
-              <div className="text-center py-16 bg-white rounded-lg shadow">
-                <FaCalendar className="mx-auto text-6xl text-gray-300 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No Bookings Found</h3>
-                <p className="text-gray-500">You haven't made any bookings yet.</p>
-              </div>
-            ) : (
-              bookings.map((booking) => (
-                <div key={booking._id} className="bg-white rounded-lg shadow p-6">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getTypeBadge(booking.bookingType)}`}>
-                          {booking.bookingType.replace('_', ' ')}
-                        </span>
-                        <span className={`inline-flex px-3 py-1 text-sm font-semibold rounded-full ${getStatusBadge(booking.status)}`}>
-                          {booking.status}
-                        </span>
-                      </div>
-
-                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                        {booking.accommodation?.title || booking.program?.title || 'N/A'}
-                      </h3>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        {booking.bookingType === 'accommodation' && booking.accommodation && (
-                          <>
-                            <div className="flex items-center text-gray-600">
-                              <FaMapMarkerAlt className="mr-2" />
-                              <span>{booking.accommodation.location}</span>
-                            </div>
-                            <div className="flex items-center text-gray-600">
-                              <FaHome className="mr-2" />
-                              <span>{booking.accommodation.accommodationType}</span>
-                            </div>
-                            {booking.checkInDate && (
-                              <div className="flex items-center text-gray-600">
-                                <FaCalendar className="mr-2" />
-                                <span>Check-in: {formatDate(booking.checkInDate)}</span>
-                              </div>
-                            )}
-                            {booking.checkOutDate && (
-                              <div className="flex items-center text-gray-600">
-                                <FaCalendar className="mr-2" />
-                                <span>Check-out: {formatDate(booking.checkOutDate)}</span>
-                              </div>
-                            )}
-                            {booking.numberOfGuests && (
-                              <div className="flex items-center text-gray-600">
-                                <FaUsers className="mr-2" />
-                                <span>{booking.numberOfGuests} guest{booking.numberOfGuests > 1 ? 's' : ''}</span>
-                              </div>
-                            )}
-                          </>
-                        )}
-
-                        {booking.bookingType !== 'accommodation' && booking.program && (
-                          <>
-                            <div className="flex items-center text-gray-600">
-                              <FaBook className="mr-2" />
-                              <span>{booking.program.description?.substring(0, 100)}...</span>
-                            </div>
-                            {booking.program.instructor && (
-                              <div className="flex items-center text-gray-600">
-                                <FaUser className="mr-2" />
-                                <span>Instructor: {booking.program.instructor.name}</span>
-                              </div>
-                            )}
-                          </>
-                        )}
-
-                        <div className="flex items-center text-gray-600">
-                          <FaCalendar className="mr-2" />
-                          <span>Requested: {formatDate(booking.requestDate)}</span>
-                        </div>
-                      </div>
-
-                      {booking.userNotes && (
-                        <div className="bg-gray-50 p-3 rounded-lg mb-4">
-                          <p className="text-sm text-gray-600">
-                            <strong>Your Notes:</strong> {booking.userNotes}
-                          </p>
-                        </div>
-                      )}
-
-                      {booking.adminNotes && (
-                        <div className="bg-blue-50 p-3 rounded-lg mb-4">
-                          <p className="text-sm text-blue-800">
-                            <strong>Admin Notes:</strong> {booking.adminNotes}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-col gap-2 ml-4">
-                      <button
-                        onClick={() => handleViewDetails(booking)}
-                        className="flex items-center gap-2 px-3 py-2 text-sm bg-mcan-primary text-white rounded-lg hover:opacity-90"
-                      >
-                        <FaEye />
-                        View Details
-                      </button>
-                      
-                      {(booking.status === 'pending' || booking.status === 'approved') && (
-                        <button
-                          onClick={() => cancelBooking(booking._id)}
-                          className="flex items-center gap-2 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:opacity-90"
-                        >
-                          <FaTimes />
-                          Cancel
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))
+  // Define columns for table view
+  const columns = [
+    {
+      key: 'bookingType',
+      header: 'Type',
+      render: (value) => (
+        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(value)}`}>
+          {value.replace('_', ' ').toUpperCase()}
+        </span>
+      )
+    },
+    {
+      key: 'itemTitle',
+      header: 'Item',
+      render: (value) => <span className="font-medium">{value}</span>
+    },
+    {
+      key: 'checkInDate',
+      header: 'Date',
+      render: (value, booking) => (
+        <div className="flex items-center">
+          <FaClock className="mr-1 text-mcan-secondary" />
+          <div>
+            <div className="text-sm">{formatDate(value)}</div>
+            {booking.checkOutDate && (
+              <div className="text-xs text-gray-500">to {formatDate(booking.checkOutDate)}</div>
             )}
           </div>
         </div>
+      )
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (value) => (
+        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(value)}`}>
+          {value.toUpperCase()}
+        </span>
+      )
+    }
+  ];
+
+  // Custom card component for user bookings
+  const BookingCard = ({ item, onView, onEdit, onDelete }) => (
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+      {/* Header */}
+      <div className="p-4 bg-gradient-to-r from-mcan-primary/10 to-mcan-secondary/10">
+        <div className="flex items-center justify-between">
+          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(item.bookingType)}`}>
+            {item.bookingType.replace('_', ' ').toUpperCase()}
+          </span>
+          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(item.status)}`}>
+            {item.status.toUpperCase()}
+          </span>
+        </div>
       </div>
 
-      {/* Booking Details Modal */}
-      <BookingDetailsModal
-        booking={selectedBooking}
-        isOpen={showDetailsModal}
-        onClose={handleCloseDetailsModal}
-      />
+      {/* Content */}
+      <div className="p-4">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          {item.itemTitle}
+        </h3>
+
+        <div className="space-y-2 text-sm text-gray-600">
+          <div className="flex items-center">
+            <FaClock className="mr-2 text-mcan-secondary" />
+            <span>Check-in: {formatDate(item.checkInDate)}</span>
+          </div>
+          {item.checkOutDate && (
+            <div className="flex items-center">
+              <FaClock className="mr-2 text-mcan-secondary" />
+              <span>Check-out: {formatDate(item.checkOutDate)}</span>
+            </div>
+          )}
+          {item.guests && (
+            <div className="flex items-center">
+              <FaUsers className="mr-2 text-gray-500" />
+              <span>{item.guests} guests</span>
+            </div>
+          )}
+          <div className="flex items-center">
+            <FaCalendar className="mr-2 text-gray-500" />
+            <span>Booked: {formatDate(item.requestDate)}</span>
+          </div>
+        </div>
+
+        {item.specialRequests && (
+          <div className="mt-3 p-2 bg-gray-50 rounded">
+            <div className="text-xs font-medium text-gray-700 mb-1">Special Requests:</div>
+            <div className="text-sm text-gray-600">{item.specialRequests}</div>
+          </div>
+        )}
+      </div>
+
+      {/* Actions */}
+      <div className="px-4 py-3 bg-gray-50 border-t flex justify-between items-center">
+        <div className="flex space-x-2">
+          <MobileButton
+            onClick={() => onView(item)}
+            variant="ghost"
+            size="sm"
+            icon={FaEye}
+            className="text-blue-600 hover:text-blue-900"
+            title="View Details"
+          />
+          {item.status === 'pending' && (
+            <MobileButton
+              onClick={() => handleCancel(item)}
+              variant="ghost"
+              size="sm"
+              icon={FaTimes}
+              className="text-red-600 hover:text-red-900"
+              title="Cancel Booking"
+            />
+          )}
+        </div>
+      </div>
     </div>
+  );
+
+  return (
+    <MobileLayout
+      title="My Bookings"
+      subtitle="View bookings"
+      icon={FaBook}
+      navbar={Navbar}
+      headerActions={
+        <MobileButton
+          onClick={() => fetchBookings(true)}
+          variant="secondary"
+          size="sm"
+          icon={FaSync}
+          disabled={refreshing}
+        >
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </MobileButton>
+      }
+    >
+      <div className="p-4 lg:p-8">
+        {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="My Bookings"
+          subtitle="Track your accommodation and program bookings"
+          icon={FaBook}
+          showOnMobile={false}
+          actions={
+            <MobileButton
+              onClick={() => fetchBookings(true)}
+              disabled={refreshing}
+              variant="secondary"
+              icon={FaSync}
+              className={refreshing ? 'animate-spin' : ''}
+            >
+              {refreshing ? 'Refreshing...' : 'Refresh'}
+            </MobileButton>
+          }
+        />
+
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow-lg p-4 lg:p-6 mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+            <FaFilter className="mr-2 text-mcan-primary" />
+            Filters
+          </h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <FormField label="Status">
+              <ResponsiveSelect
+                value={selectedStatus}
+                onChange={(e) => setSelectedStatus(e.target.value)}
+                options={statusOptions}
+                placeholder="All Status"
+              />
+            </FormField>
+
+            <FormField label="Type">
+              <ResponsiveSelect
+                value={selectedType}
+                onChange={(e) => setSelectedType(e.target.value)}
+                options={typeOptions}
+                placeholder="All Types"
+              />
+            </FormField>
+
+            <FormField label="Actions">
+              <MobileButton
+                onClick={() => {
+                  setSelectedStatus('all');
+                  setSelectedType('all');
+                }}
+                variant="secondary"
+                fullWidth
+              >
+                Clear Filters
+              </MobileButton>
+            </FormField>
+          </div>
+        </div>
+
+        {/* Data Display */}
+        <ResponsiveDataDisplay
+          data={bookings}
+          columns={columns}
+          loading={loading}
+          emptyMessage="You haven't made any bookings yet."
+          emptyIcon={FaBook}
+          onView={handleView}
+          cardComponent={BookingCard}
+          showViewToggle={true}
+        />
+
+        {/* Booking Details Modal */}
+        {showDetailsModal && selectedBooking && (
+          <BookingDetailsModal
+            booking={selectedBooking}
+            onClose={handleCloseDetailsModal}
+          />
+        )}
+      </div>
+    </MobileLayout>
   );
 };
 
