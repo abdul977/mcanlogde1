@@ -124,9 +124,10 @@ const ChatInterface = ({ onBack }) => {
         const admin = adminResponse.data.users[0]; // Get first admin
         setAdminUser(admin);
 
-        // Generate thread ID (same logic as backend)
+        // Generate thread ID (match backend format)
         const currentUserId = auth?.user?._id;
-        const generatedThreadId = [currentUserId, admin._id].sort().join('_');
+        const sortedIds = [currentUserId, admin._id].sort();
+        const generatedThreadId = `thread_${sortedIds[0]}_${sortedIds[1]}`;
         setThreadId(generatedThreadId);
 
         // Then fetch conversation with this admin

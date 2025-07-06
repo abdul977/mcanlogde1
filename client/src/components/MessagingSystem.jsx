@@ -52,9 +52,10 @@ const MessagingSystem = ({ isOpen, onClose, recipientId, recipientName }) => {
   useEffect(() => {
     if (isOpen && recipientId) {
       fetchConversation();
-      // Generate thread ID
+      // Generate thread ID (match backend format)
       const currentUserId = auth?.user?._id;
-      const generatedThreadId = [currentUserId, recipientId].sort().join('_');
+      const sortedIds = [currentUserId, recipientId].sort();
+      const generatedThreadId = `thread_${sortedIds[0]}_${sortedIds[1]}`;
       setThreadId(generatedThreadId);
     }
   }, [isOpen, recipientId]);
