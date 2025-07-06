@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaBars, FaTimes } from 'react-icons/fa';
-import { useMobileResponsive } from '../../hooks/useMobileResponsive';
+import { useMobileResponsive } from '../../hooks/useMobileResponsive.jsx';
 
 /**
  * Universal Mobile Layout Component

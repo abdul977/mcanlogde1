@@ -7,13 +7,13 @@ This system provides a comprehensive, reusable solution for mobile responsivenes
 ## Core Components
 
 ### 1. `useMobileResponsive` Hook
-**Location**: `src/hooks/useMobileResponsive.js`
+**Location**: `src/hooks/useMobileResponsive.jsx`
 
 **Purpose**: Provides universal mobile state management and utilities.
 
 **Usage**:
 ```jsx
-import { useMobileResponsive } from '../hooks/useMobileResponsive';
+import { useMobileResponsive } from '../hooks/useMobileResponsive.jsx';
 
 const MyComponent = () => {
   const {

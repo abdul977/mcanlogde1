@@ -8,7 +8,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { AuthProvider } from "./context/UserContext.jsx";
 import { SearchProvider } from "./context/Serach.jsx";
 import { CartProvider } from "./context/Cart.jsx";
-import { MobileProvider } from "./hooks/useMobileResponsive.js";
+import { MobileProvider } from "./hooks/useMobileResponsive.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>

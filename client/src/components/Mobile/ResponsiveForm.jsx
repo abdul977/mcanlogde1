@@ -1,5 +1,5 @@
 import React from 'react';
-import { useMobileResponsive } from '../../hooks/useMobileResponsive';
+import { useMobileResponsive } from '../../hooks/useMobileResponsive.jsx';
 import { MobileButton, MobileInput } from './MobileLayout';
 
 /**

@@ -1,6 +1,6 @@
 import React from 'react';
 import { FaEye, FaEdit, FaTrash, FaList, FaTh, FaTable } from 'react-icons/fa';
-import { useMobileResponsive, useResponsiveView } from '../../hooks/useMobileResponsive';
+import { useMobileResponsive, useResponsiveView } from '../../hooks/useMobileResponsive.jsx';
 import { MobileButton } from './MobileLayout';
 
 /**
