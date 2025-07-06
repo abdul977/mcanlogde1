@@ -66,7 +66,6 @@ import UserMessages from "./pages/User/UserMessages";
 import AdminMessages from "./pages/Admin/AdminMessages";
 import { SocketProvider } from "./context/SocketContext";
 import PrayerTimesBanner from "./components/PrayerTimesBanner";
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
