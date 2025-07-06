@@ -33,7 +33,7 @@ const MessagingSystem = ({ isOpen, onClose, recipientId, recipientName }) => {
         `${import.meta.env.VITE_BASE_URL}/api/messages/conversation/${recipientId}`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );
@@ -63,7 +63,7 @@ const MessagingSystem = ({ isOpen, onClose, recipientId, recipientName }) => {
         },
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );

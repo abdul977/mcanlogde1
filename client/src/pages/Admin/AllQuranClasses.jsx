@@ -46,7 +46,7 @@ const AllQuranClasses = () => {
         `${import.meta.env.VITE_BASE_URL}/api/quran-classes/admin/get-all-classes`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );
@@ -112,7 +112,7 @@ const AllQuranClasses = () => {
         `${import.meta.env.VITE_BASE_URL}/api/quran-classes/admin/get-class-by-id/${id}`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );
@@ -142,7 +142,7 @@ const AllQuranClasses = () => {
           `${import.meta.env.VITE_BASE_URL}/api/quran-classes/admin/delete-class/${id}`,
           {
             headers: {
-              Authorization: auth?.token,
+              Authorization: `Bearer ${auth?.token}`,
             },
           }
         );

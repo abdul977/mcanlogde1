@@ -28,7 +28,7 @@ export default function PrivateRoute() {
           `${import.meta.env.VITE_BASE_URL}/auth/api/admin-auth`,
           {
             headers: {
-              Authorization: auth?.token,
+              Authorization: `Bearer ${auth?.token}`,
             },
             timeout: 10000, // 10 second timeout
           }

@@ -55,7 +55,7 @@ const AllBlogs = () => {
         `${import.meta.env.VITE_BASE_URL}/api/blog/admin/get-all-blogs?${params}`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );
@@ -85,7 +85,7 @@ const AllBlogs = () => {
         `${import.meta.env.VITE_BASE_URL}/api/blog/delete-blog/${blogId}`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );

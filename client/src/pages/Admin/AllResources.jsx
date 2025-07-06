@@ -49,7 +49,7 @@ const AllResources = () => {
         `${import.meta.env.VITE_BASE_URL}/api/resources/admin/get-all-resources`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );
@@ -115,7 +115,7 @@ const AllResources = () => {
         `${import.meta.env.VITE_BASE_URL}/api/resources/admin/get-resource-by-id/${id}`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );
@@ -144,7 +144,7 @@ const AllResources = () => {
           `${import.meta.env.VITE_BASE_URL}/api/resources/admin/delete-resource/${id}`,
           {
             headers: {
-              Authorization: auth?.token,
+              Authorization: `Bearer ${auth?.token}`,
             },
           }
         );

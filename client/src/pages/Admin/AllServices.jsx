@@ -37,7 +37,7 @@ const AllServices = () => {
         `${import.meta.env.VITE_BASE_URL}/api/services/admin/get-all-services`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );

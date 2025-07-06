@@ -19,7 +19,7 @@ const UserMessages = () => {
         `${import.meta.env.VITE_BASE_URL}/api/messages/unread-count`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );

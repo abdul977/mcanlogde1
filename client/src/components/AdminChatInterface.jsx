@@ -64,7 +64,7 @@ const AdminChatInterface = ({ onBack, recipientId, recipientName }) => {
         `${import.meta.env.VITE_BASE_URL}/api/messages/conversation/${recipientId}`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );
@@ -88,7 +88,7 @@ const AdminChatInterface = ({ onBack, recipientId, recipientName }) => {
         `${import.meta.env.VITE_BASE_URL}/api/messages/conversation/${recipientId}`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );
@@ -115,7 +115,7 @@ const AdminChatInterface = ({ onBack, recipientId, recipientName }) => {
         },
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );

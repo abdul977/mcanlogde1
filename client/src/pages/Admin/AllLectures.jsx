@@ -47,7 +47,7 @@ const AllLectures = () => {
         `${import.meta.env.VITE_BASE_URL}/api/lectures/admin/get-all-lectures`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );
@@ -113,7 +113,7 @@ const AllLectures = () => {
         `${import.meta.env.VITE_BASE_URL}/api/lectures/admin/get-lecture-by-id/${id}`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );

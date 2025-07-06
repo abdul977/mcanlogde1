@@ -50,7 +50,7 @@ const MyBookings = () => {
         `${import.meta.env.VITE_BASE_URL}/api/bookings/my-bookings?${params}`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );
@@ -86,7 +86,7 @@ const MyBookings = () => {
         {},
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );

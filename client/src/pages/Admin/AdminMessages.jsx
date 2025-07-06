@@ -25,7 +25,7 @@ const AdminMessages = () => {
         `${import.meta.env.VITE_BASE_URL}/api/messages/admin/users?search=${searchTerm}`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );
@@ -48,7 +48,7 @@ const AdminMessages = () => {
         `${import.meta.env.VITE_BASE_URL}/api/messages/conversations`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );
@@ -68,7 +68,7 @@ const AdminMessages = () => {
         `${import.meta.env.VITE_BASE_URL}/api/messages/unread-count`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );

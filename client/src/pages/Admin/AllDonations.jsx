@@ -50,7 +50,7 @@ const AllDonations = () => {
         `${import.meta.env.VITE_BASE_URL}/api/donations/admin/get-all-donations`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );
@@ -115,7 +115,7 @@ const AllDonations = () => {
         `${import.meta.env.VITE_BASE_URL}/api/donations/admin/get-donation-by-id/${id}`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );

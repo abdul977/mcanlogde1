@@ -48,7 +48,7 @@ const AllBookings = () => {
         `${import.meta.env.VITE_BASE_URL}/api/bookings/admin/all?${params}`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );
@@ -81,7 +81,7 @@ const AllBookings = () => {
         { status, adminNotes },
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );

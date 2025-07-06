@@ -43,7 +43,7 @@ const EditBlog = () => {
         `${import.meta.env.VITE_BASE_URL}/api/blog/admin/get-blog-by-id/${id}`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );
@@ -140,7 +140,7 @@ const EditBlog = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );

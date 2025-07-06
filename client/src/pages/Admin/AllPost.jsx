@@ -24,7 +24,7 @@ const AllPost = () => {
         `${import.meta.env.VITE_BASE_URL}/api/post/get-all-post`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );

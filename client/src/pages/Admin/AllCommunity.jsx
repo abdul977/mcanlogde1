@@ -53,7 +53,7 @@ const AllCommunity = () => {
         `${import.meta.env.VITE_BASE_URL}/api/community/admin/get-all-community`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );
@@ -118,7 +118,7 @@ const AllCommunity = () => {
         `${import.meta.env.VITE_BASE_URL}/api/community/admin/get-community-by-id/${id}`,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );

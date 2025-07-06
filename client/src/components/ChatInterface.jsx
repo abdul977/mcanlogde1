@@ -59,7 +59,7 @@ const ChatInterface = ({ onBack }) => {
         `${import.meta.env.VITE_BASE_URL}/api/messages/admins`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );
@@ -78,7 +78,7 @@ const ChatInterface = ({ onBack }) => {
           `${import.meta.env.VITE_BASE_URL}/api/messages/conversation/${admin._id}`,
           {
             headers: {
-              Authorization: auth?.token
+              Authorization: `Bearer ${auth?.token}`
             }
           }
         );
@@ -103,7 +103,7 @@ const ChatInterface = ({ onBack }) => {
         `${import.meta.env.VITE_BASE_URL}/api/messages/conversation/${adminUser._id}`,
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );
@@ -130,7 +130,7 @@ const ChatInterface = ({ onBack }) => {
         },
         {
           headers: {
-            Authorization: auth?.token
+            Authorization: `Bearer ${auth?.token}`
           }
         }
       );

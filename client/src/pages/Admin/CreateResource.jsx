@@ -206,7 +206,7 @@ const CreateResource = () => {
         submitData,
         {
           headers: {
-            Authorization: auth?.token,
+            Authorization: `Bearer ${auth?.token}`,
             'Content-Type': 'multipart/form-data'
           }
         }

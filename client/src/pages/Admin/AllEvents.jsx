@@ -29,7 +29,7 @@ const AllEvents = () => {
 
       const { data } = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/events/get-all-events?${queryParams}`, {
         headers: {
-          Authorization: auth?.token
+          Authorization: `Bearer ${auth?.token}`
         }
       });
       if (data?.success) {
