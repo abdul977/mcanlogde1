@@ -17,7 +17,9 @@ const Navbar = () => {
 
   // Redirect logic
   const redirectDashboard = (e) => {
-    e.stopPropagation();
+    if (e) {
+      e.stopPropagation();
+    }
     if (auth?.user?.role === "admin") {
       navigate("/admin/details");
     } else {
