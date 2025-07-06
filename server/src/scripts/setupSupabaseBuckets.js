@@ -54,6 +54,12 @@ const buckets = [
     public: true,
     allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     fileSizeLimit: 1048576 // 1MB for thumbnails
+  },
+  {
+    name: 'mcan-messages',
+    public: true,
+    allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    fileSizeLimit: 5242880 // 5MB for message images
   }
 ];
 

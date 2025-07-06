@@ -18,6 +18,7 @@ export const useMobileResponsive = () => {
   const [isTablet, setIsTablet] = useState(false);
   const [isDesktop, setIsDesktop] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
 
   useEffect(() => {
     const handleResize = () => {
@@ -44,6 +45,11 @@ export const useMobileResponsive = () => {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
   const openMobileMenu = () => setIsMobileMenuOpen(true);
 
+  // Desktop sidebar controls
+  const toggleDesktopSidebar = () => setIsDesktopSidebarOpen(!isDesktopSidebarOpen);
+  const closeDesktopSidebar = () => setIsDesktopSidebarOpen(false);
+  const openDesktopSidebar = () => setIsDesktopSidebarOpen(true);
+
   return {
     screenSize,
     isMobile,
@@ -53,6 +59,10 @@ export const useMobileResponsive = () => {
     toggleMobileMenu,
     closeMobileMenu,
     openMobileMenu,
+    isDesktopSidebarOpen,
+    toggleDesktopSidebar,
+    closeDesktopSidebar,
+    openDesktopSidebar,
     breakpoints: BREAKPOINTS
   };
 };

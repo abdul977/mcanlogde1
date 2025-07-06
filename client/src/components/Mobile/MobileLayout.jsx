@@ -27,6 +27,8 @@ const MobileLayout = ({
     closeMobileMenu,
     isMobile,
     isDesktop,
+    isDesktopSidebarOpen,
+    toggleDesktopSidebar,
   } = useMobileResponsive();
 
   return (
@@ -67,6 +69,42 @@ const MobileLayout = ({
         </div>
       )}
 
+      {/* Desktop Header with Sidebar Toggle */}
+      {isDesktop && showMobileSidebar && (
+        <div className={`hidden lg:block ${headerBackground} shadow-sm border-b border-gray-200 p-4 sticky top-0 z-30`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={toggleDesktopSidebar}
+                className="p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+                aria-label="Toggle sidebar"
+              >
+                <FaBars size={20} />
+              </button>
+              {logoSrc && (
+                <img
+                  src={logoSrc}
+                  alt={logoAlt}
+                  className="h-8 w-auto"
+                  onError={(e) => {
+                    if (fallbackLogoSrc) {
+                      e.target.src = fallbackLogoSrc;
+                    }
+                  }}
+                />
+              )}
+              <div>
+                <h2 className="text-lg font-semibold text-mcan-primary">{title}</h2>
+                {subtitle && <p className="text-sm text-gray-600">{subtitle}</p>}
+              </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              {headerActions}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex">
         {/* Mobile Sidebar */}
         {showMobileSidebar && Navbar && (
@@ -80,7 +118,7 @@ const MobileLayout = ({
         )}
 
         {/* Desktop Sidebar */}
-        {showMobileSidebar && Navbar && isDesktop && (
+        {showMobileSidebar && Navbar && isDesktop && isDesktopSidebarOpen && (
           <div className={`hidden lg:block ${sidebarWidth.includes('ml-') ? sidebarWidth : `ml-[4rem]`}`}>
             <Navbar />
           </div>
@@ -96,7 +134,7 @@ const MobileLayout = ({
         )}
 
         {/* Main Content */}
-        <div className={`flex-1 ${isMobile ? 'pt-0' : ''} ${showMobileSidebar && isDesktop ? 'lg:ml-0' : ''}`}>
+        <div className={`flex-1 ${isMobile ? 'pt-0' : isDesktop && showMobileSidebar ? 'pt-[72px]' : ''} ${showMobileSidebar && isDesktop && isDesktopSidebarOpen ? 'lg:ml-0' : ''}`}>
           {children}
         </div>
       </div>

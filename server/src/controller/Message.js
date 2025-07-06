@@ -2,7 +2,7 @@ import Message from "../models/Message.js";
 import User from "../models/User.js";
 import mongoose from "mongoose";
 import { socketUtils } from "../config/socket.js";
-import { supabaseStorage } from "../services/supabaseStorage.js";
+import supabaseStorage from "../services/supabaseStorage.js";
 
 // Send a new message
 export const sendMessageController = async (req, res) => {
