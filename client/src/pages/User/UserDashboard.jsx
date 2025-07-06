@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useAuth } from "../../context/UserContext";
 import { Link } from "react-router-dom";
 import {
@@ -16,13 +16,20 @@ import {
 } from "react-icons/fa";
 import UserDetails from "./UserDetails";
 import mcanLogo from "../../assets/mcan-logo.png";
+import { useMobileResponsive } from "../../hooks/useMobileResponsive";
 
 // Fallback logo URL
 const FALLBACK_LOGO = "https://www.mcanenugu.org.ng/img/core-img/logo.png";
 
 const UserDashboard = () => {
   const [auth, setAuth] = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const {
+    isMobileMenuOpen,
+    toggleMobileMenu,
+    closeMobileMenu,
+    isMobile,
+    isDesktop
+  } = useMobileResponsive();
 
   const handleLogout = () => {
     setAuth({
@@ -34,18 +41,9 @@ const UserDashboard = () => {
     // Redirect will be handled by protected route
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
-  };
-
   const navItems = [
     { icon: FaHome, label: "Dashboard", path: "/user" },
-    { icon: FaBed, label: "My Accommodation", path: "/user/accommodation" },
-    { icon: FaCalendarAlt, label: "Bookings", path: "/user/bookings" },
+    { icon: FaBed, label: "Accommodation", path: "/user/bookings" },
     { icon: FaComments, label: "Messages", path: "/user/messages" },
     { icon: FaMosque, label: "Nearby Mosques", path: "/user/mosques" },
     { icon: FaBookOpen, label: "Islamic Resources", path: "/user/resources" },
@@ -77,7 +75,7 @@ const UserDashboard = () => {
       </div>
 
       {/* Side Navigation - Desktop */}
-      <div className={`fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-20 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+      <div className={`fixed top-0 left-0 h-screen w-64 bg-white shadow-lg z-40 transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
         isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
       } lg:block`}>
         {/* Logo - Desktop */}
@@ -178,7 +176,7 @@ const UserDashboard = () => {
                 to="/user/bookings"
                 className="block bg-blue-50 hover:bg-blue-100 rounded-lg p-3 transition-colors"
               >
-                <p className="text-sm font-medium text-blue-800">Book Accommodation</p>
+                <p className="text-sm font-medium text-blue-800">View Accommodation</p>
                 <p className="text-xs text-blue-600">Reserve your stay</p>
               </Link>
               <Link
@@ -258,7 +256,7 @@ const UserDashboard = () => {
             </h3>
             <div className="space-y-3">
               <div className="bg-blue-50 rounded-lg p-3">
-                <p className="text-xs text-blue-600 mb-1">Booking</p>
+                <p className="text-xs text-blue-600 mb-1">Accommodation</p>
                 <p className="text-sm text-gray-800">Room 101 reserved for Dec 15-17</p>
               </div>
               <div className="bg-green-50 rounded-lg p-3">
@@ -316,7 +314,7 @@ const UserDashboard = () => {
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
           onClick={closeMobileMenu}
         ></div>
       )}

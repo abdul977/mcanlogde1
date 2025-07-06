@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 
 const navbarMenu = [
   { id: 1, name: "User Details", link: "/user", icon: <FaUser /> },
-  { id: 2, name: "My Bookings", link: "/user/bookings", icon: <FaClipboardList /> },
+  { id: 2, name: "Accommodation", link: "/user/bookings", icon: <FaClipboardList /> },
   { id: 3, name: "Messages", link: "/user/messages", icon: <FaComments /> },
   // { id: 4, name: "Contribute", link: "/user/create-post", icon: <FaList /> },
 ];
