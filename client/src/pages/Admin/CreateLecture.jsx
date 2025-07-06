@@ -5,6 +5,8 @@ import { FaChalkboardTeacher, FaImage, FaPlus, FaMinus, FaSave } from "react-ico
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import MobileLayout, { MobilePageHeader, MobileButton, MobileInput } from "../../components/Mobile/MobileLayout";
+import { ResponsiveForm, FormSection, FormField, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
 
 const CreateLecture = () => {
   const [auth] = useAuth();
@@ -212,181 +214,35 @@ const CreateLecture = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
-          <Navbar />
-        </div>
-        <div className="flex-1 p-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
-                <FaChalkboardTeacher className="text-white text-xl" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-800">Create New Lecture</h1>
-                <p className="text-gray-600">Add a new lecture to the MCAN system</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Form */}
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Basic Information */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Lecture Title *
-                  </label>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    placeholder="Enter lecture title"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Type
-                  </label>
-                  <select
-                    name="type"
-                    value={formData.type}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                  >
-                    {types.map(type => (
-                      <option key={type.value} value={type.value}>
-                        {type.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Description *
-                </label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                  required
-                  rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                  placeholder="Enter lecture description"
-                />
-              </div>
-
-              {/* Speaker Information */}
-              <div className="border-t pt-6">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">Speaker Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Speaker Name *
-                    </label>
-                    <input
-                      type="text"
-                      name="name"
-                      value={speaker.name}
-                      onChange={handleSpeakerChange}
-                      required
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                      placeholder="Enter speaker name"
-                    />
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Speaker Title
-                    </label>
-                    <input
-                      type="text"
-                      name="title"
-                      value={speaker.title}
-                      onChange={handleSpeakerChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                      placeholder="e.g., Dr., Ustadh, Professor"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Speaker Bio
-                  </label>
-                  <textarea
-                    name="bio"
-                    value={speaker.bio}
-                    onChange={handleSpeakerChange}
-                    rows="3"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-                    placeholder="Enter speaker biography"
-                  />
-                </div>
-
-                {/* Speaker Image */}
-                <div className="mt-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Speaker Image
-                  </label>
-                  <div className="flex items-center space-x-4">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageChange(e, 'speaker')}
-                      className="hidden"
-                      id="speaker-image"
-                    />
-                    <label
-                      htmlFor="speaker-image"
-                      className="flex items-center px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 cursor-pointer transition duration-300"
-                    >
-                      <FaImage className="mr-2" />
-                      Choose Image
-                    </label>
-                    {speakerImagePreview && (
-                      <img
-                        src={speakerImagePreview}
-                        alt="Speaker preview"
-                        className="w-16 h-16 object-cover rounded-md"
-                      />
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Submit Button */}
-              <div className="flex justify-end space-x-4 pt-6 border-t">
-                <button
-                  type="button"
-                  onClick={() => navigate("/admin/lectures")}
-                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 transition duration-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="flex items-center px-6 py-2 bg-mcan-primary text-white rounded-md hover:bg-mcan-secondary transition duration-300 disabled:opacity-50"
-                >
-                  <FaSave className="mr-2" />
-                  {loading ? "Creating..." : "Create Lecture"}
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
+    <MobileLayout
+      title="Create Lecture"
+      subtitle="Schedule new lecture"
+      icon={FaChalkboardTeacher}
+      navbar={Navbar}
+    >
+      <div className="p-4 lg:p-8">
+        <ResponsiveForm
+          onSubmit={handleSubmit}
+          loading={loading}
+          submitText="Create Lecture"
+        >
+          <FormSection
+            title="Basic Information"
+            icon={FaChalkboardTeacher}
+          >
+            <FormField label="Title *" required>
+              <MobileInput
+                name="title"
+                value={formData.title}
+                onChange={handleInputChange}
+                placeholder="Lecture title"
+                required
+              />
+            </FormField>
+          </FormSection>
+        </ResponsiveForm>
       </div>
-    </div>
+    </MobileLayout>
   );
 };
 

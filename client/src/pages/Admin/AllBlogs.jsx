@@ -1,48 +1,57 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaPen, FaEdit, FaTrash, FaEye, FaPlus, FaFilter, FaSearch, FaStar } from "react-icons/fa";
+import { FaPen, FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaSearch, FaFilter } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import MobileLayout, { MobilePageHeader, MobileButton, MobileInput } from "../../components/Mobile/MobileLayout";
+import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
+import { FormField, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
 
 const AllBlogs = () => {
   const [auth] = useAuth();
+  const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState({
-    status: "all",
-    category: "all",
-    search: ""
-  });
+  const [currentPage, setCurrentPage] = useState(1);
   const [pagination, setPagination] = useState({
+    totalBlogs: 0,
+    totalPages: 0,
     currentPage: 1,
-    totalPages: 1,
-    totalBlogs: 0
+    hasNext: false,
+    hasPrev: false
   });
-
-  // Categories for filtering
-  const categories = [
-    { value: "all", label: "All Categories" },
-    { value: "general", label: "General" },
-    { value: "islamic", label: "Islamic" },
-    { value: "education", label: "Education" },
-    { value: "community", label: "Community" },
-    { value: "events", label: "Events" },
-    { value: "announcements", label: "Announcements" }
-  ];
+  const [filters, setFilters] = useState({
+    search: "",
+    status: "all",
+    category: "all"
+  });
 
   const statusOptions = [
     { value: "all", label: "All Status" },
-    { value: "published", label: "Published" },
     { value: "draft", label: "Draft" },
+    { value: "published", label: "Published" },
     { value: "archived", label: "Archived" }
   ];
 
+  const categories = [
+    { value: "all", label: "All Categories" },
+    { value: "islamic-teachings", label: "Islamic Teachings" },
+    { value: "community-news", label: "Community News" },
+    { value: "events", label: "Events" },
+    { value: "announcements", label: "Announcements" },
+    { value: "spiritual-guidance", label: "Spiritual Guidance" }
+  ];
+
   // Fetch blogs
-  const fetchBlogs = async (page = 1) => {
+  const fetchBlogs = async (page = 1, showRefreshLoader = false) => {
     try {
-      setLoading(true);
+      if (showRefreshLoader) {
+        toast.info("Refreshing blogs...", { position: "bottom-left" });
+      } else {
+        setLoading(true);
+      }
       const params = new URLSearchParams({
         page: page.toString(),
         limit: "10",
@@ -63,48 +72,25 @@ const AllBlogs = () => {
       if (response.data.success) {
         setBlogs(response.data.blogs);
         setPagination(response.data.pagination);
+        setCurrentPage(page);
+        if (showRefreshLoader) {
+          toast.success("Blogs refreshed successfully!", { position: "bottom-left" });
+        }
       } else {
         toast.error("Failed to fetch blogs");
       }
     } catch (error) {
       console.error("Error fetching blogs:", error);
-      toast.error("Failed to fetch blogs");
+      toast.error("Failed to fetch blogs. Please try again.");
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Delete blog
-  const handleDelete = async (blogId) => {
-    if (!window.confirm("Are you sure you want to delete this blog post?")) {
-      return;
-    }
-
-    try {
-      const response = await axios.delete(
-        `${import.meta.env.VITE_BASE_URL}/api/blog/delete-blog/${blogId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${auth?.token}`,
-          },
-        }
-      );
-
-      if (response.data.success) {
-        toast.success("Blog deleted successfully");
-        fetchBlogs(pagination.currentPage);
-      } else {
-        toast.error("Failed to delete blog");
-      }
-    } catch (error) {
-      console.error("Error deleting blog:", error);
-      toast.error("Failed to delete blog");
     }
   };
 
   // Handle filter changes
   const handleFilterChange = (key, value) => {
     setFilters(prev => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
   };
 
   // Handle search
@@ -113,13 +99,37 @@ const AllBlogs = () => {
     fetchBlogs(1);
   };
 
-  // Format date
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
+  // Handle page change
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      fetchBlogs(page);
+    }
+  };
+
+  // Handle delete
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this blog post?")) {
+      try {
+        const response = await axios.delete(
+          `${import.meta.env.VITE_BASE_URL}/api/blog/admin/delete-blog/${id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${auth?.token}`,
+            },
+          }
+        );
+
+        if (response.data.success) {
+          toast.success("Blog post deleted successfully");
+          fetchBlogs(currentPage);
+        } else {
+          toast.error("Failed to delete blog post");
+        }
+      } catch (error) {
+        console.error("Error deleting blog:", error);
+        toast.error("Failed to delete blog post. Please try again.");
+      }
+    }
   };
 
   // Get status badge color
@@ -136,6 +146,15 @@ const AllBlogs = () => {
     }
   };
 
+  // Format date
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
   // Strip HTML tags from content
   const stripHtml = (html) => {
     const tmp = document.createElement("DIV");
@@ -147,267 +166,240 @@ const AllBlogs = () => {
     fetchBlogs();
   }, [filters.status, filters.category]);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
-          <Navbar />
+  // Define columns for ResponsiveDataDisplay
+  const columns = [
+    {
+      key: 'title',
+      label: 'Title',
+      sortable: true,
+      render: (blog) => (
+        <div className="font-medium text-gray-900 truncate max-w-xs">
+          {blog.title}
         </div>
-        <div className="flex-1 p-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
-                  <FaPen className="text-white text-xl" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-800">Manage Blog Posts</h1>
-                  <p className="text-gray-600">Create, edit, and manage all blog content</p>
-                </div>
-              </div>
-              <Link
-                to="/admin/create-blog"
-                className="bg-mcan-primary text-white px-6 py-3 rounded-md hover:bg-mcan-secondary transition duration-300 flex items-center"
+      )
+    },
+    {
+      key: 'author',
+      label: 'Author',
+      render: (blog) => (
+        <span className="text-gray-600">{blog.author || 'Admin'}</span>
+      )
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (blog) => (
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+          blog.status === 'published' 
+            ? 'bg-green-100 text-green-800' 
+            : blog.status === 'draft'
+            ? 'bg-yellow-100 text-yellow-800'
+            : 'bg-gray-100 text-gray-800'
+        }`}>
+          {blog.status}
+        </span>
+      )
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      render: (blog) => (
+        <span className="text-gray-600">{blog.category || 'General'}</span>
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      sortable: true,
+      render: (blog) => (
+        <span className="text-gray-500 text-sm">
+          {new Date(blog.createdAt).toLocaleDateString()}
+        </span>
+      )
+    }
+  ];
+
+  // Blog Card Component for mobile view
+  const BlogCard = ({ item: blog, onView, onEdit, onDelete }) => (
+    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+      <div className="flex justify-between items-start mb-3">
+        <h3 className="font-semibold text-gray-900 text-sm line-clamp-2">
+          {blog.title}
+        </h3>
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+          blog.status === 'published' 
+            ? 'bg-green-100 text-green-800' 
+            : blog.status === 'draft'
+            ? 'bg-yellow-100 text-yellow-800'
+            : 'bg-gray-100 text-gray-800'
+        }`}>
+          {blog.status}
+        </span>
+      </div>
+      
+      <div className="space-y-2 mb-4">
+        <p className="text-gray-600 text-sm">
+          <span className="font-medium">Author:</span> {blog.author || 'Admin'}
+        </p>
+        <p className="text-gray-600 text-sm">
+          <span className="font-medium">Category:</span> {blog.category || 'General'}
+        </p>
+        <p className="text-gray-500 text-xs">
+          Created: {new Date(blog.createdAt).toLocaleDateString()}
+        </p>
+      </div>
+
+      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onView && onView(blog)}
+            className="text-blue-600 hover:text-blue-800 p-1"
+            title="View Blog"
+          >
+            <FaEye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onEdit && onEdit(blog)}
+            className="text-mcan-primary hover:text-mcan-secondary p-1"
+            title="Edit Blog"
+          >
+            <FaEdit className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onDelete && onDelete(blog._id)}
+            className="text-red-600 hover:text-red-800 p-1"
+            title="Delete Blog"
+          >
+            <FaTrash className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Handle actions
+  const handleView = (blog) => {
+    window.open(`/blog/${blog.slug}`, '_blank');
+  };
+
+  const handleEdit = (blog) => {
+    navigate(`/admin/edit-blog/${blog._id}`);
+  };
+
+  const handleRefresh = () => {
+    fetchBlogs(currentPage, true);
+  };
+
+  return (
+    <MobileLayout
+      title="Blog Posts"
+      subtitle="Manage content"
+      icon={FaPen}
+      navbar={Navbar}
+      headerActions={
+        <Link to="/admin/create-blog">
+          <MobileButton
+            variant="primary"
+            size="sm"
+            icon={FaPlus}
+          >
+            Add
+          </MobileButton>
+        </Link>
+      }
+    >
+      <div className="p-4 lg:p-8">
+        {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="Manage Blog Posts"
+          subtitle="Create, edit, and manage all blog content"
+          icon={FaPen}
+          showOnMobile={false}
+          actions={
+            <div className="flex space-x-3">
+              <MobileButton
+                onClick={handleRefresh}
+                variant="secondary"
+                icon={FaSync}
+                disabled={loading}
               >
-                <FaPlus className="mr-2" />
-                New Blog Post
+                {loading ? 'Refreshing...' : 'Refresh'}
+              </MobileButton>
+              <Link to="/admin/create-blog">
+                <MobileButton
+                  variant="primary"
+                  icon={FaPlus}
+                >
+                  Create New Blog Post
+                </MobileButton>
               </Link>
             </div>
-          </div>
+          }
+        />
 
-          {/* Filters */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-              {/* Search */}
-              <form onSubmit={handleSearch} className="flex">
-                <input
+        {/* Filters */}
+        <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {/* Search */}
+            <FormField label="Search Blogs">
+              <div className="flex">
+                <MobileInput
                   type="text"
                   placeholder="Search blogs..."
                   value={filters.search}
                   onChange={(e) => handleFilterChange("search", e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-l-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
+                  className="flex-1 rounded-r-none"
                 />
-                <button
-                  type="submit"
-                  className="px-4 py-2 bg-mcan-primary text-white rounded-r-md hover:bg-mcan-secondary transition duration-300"
-                >
-                  <FaSearch />
-                </button>
-              </form>
+                <MobileButton
+                  onClick={handleSearch}
+                  variant="primary"
+                  className="rounded-l-none px-4"
+                  icon={FaSearch}
+                />
+              </div>
+            </FormField>
 
-              {/* Status Filter */}
-              <select
+            {/* Status Filter */}
+            <FormField label="Status">
+              <ResponsiveSelect
                 value={filters.status}
                 onChange={(e) => handleFilterChange("status", e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-              >
-                {statusOptions.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                options={statusOptions}
+              />
+            </FormField>
 
-              {/* Category Filter */}
-              <select
+            {/* Category Filter */}
+            <FormField label="Category">
+              <ResponsiveSelect
                 value={filters.category}
                 onChange={(e) => handleFilterChange("category", e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
-              >
-                {categories.map(option => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
+                options={categories}
+              />
+            </FormField>
 
-              {/* Results Count */}
-              <div className="flex items-center text-gray-600">
-                <FaFilter className="mr-2" />
-                {pagination.totalBlogs} blog(s) found
-              </div>
+            {/* Results Count */}
+            <div className="flex items-center text-gray-600">
+              <FaFilter className="mr-2" />
+              {pagination.totalBlogs} blog(s) found
             </div>
           </div>
-
-          {/* Blog List */}
-          {loading ? (
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <div className="flex justify-center items-center h-32">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-mcan-primary"></div>
-                <span className="ml-3 text-gray-600">Loading blogs...</span>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              {blogs.length === 0 ? (
-                <div className="p-8 text-center">
-                  <FaPen className="mx-auto text-4xl text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No blog posts found</h3>
-                  <p className="text-gray-600 mb-4">Get started by creating your first blog post.</p>
-                  <Link
-                    to="/admin/create-blog"
-                    className="bg-mcan-primary text-white px-6 py-3 rounded-md hover:bg-mcan-secondary transition duration-300 inline-flex items-center"
-                  >
-                    <FaPlus className="mr-2" />
-                    Create Blog Post
-                  </Link>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Blog Post
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Category
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Date
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Views
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {blogs.map((blog) => (
-                        <tr key={blog._id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4">
-                            <div className="flex items-start space-x-4">
-                              <img
-                                src={blog.featuredImage}
-                                alt={blog.title}
-                                className="w-16 h-16 object-cover rounded-md"
-                              />
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center">
-                                  <h3 className="text-sm font-medium text-gray-900 truncate">
-                                    {blog.title}
-                                  </h3>
-                                  {blog.featured && (
-                                    <FaStar className="ml-2 text-yellow-500" />
-                                  )}
-                                </div>
-                                <p className="text-sm text-gray-500 mt-1 line-clamp-2">
-                                  {blog.excerpt}
-                                </p>
-                                <p className="text-xs text-gray-400 mt-1">
-                                  By {blog.author} • {blog.readTime} min read
-                                </p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="text-sm text-gray-900 capitalize">
-                              {blog.category}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadgeColor(blog.status)}`}>
-                              {blog.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {formatDate(blog.publishDate || blog.createdAt)}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {blog.views.toLocaleString()}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex space-x-3">
-                              <button
-                                onClick={() => window.open(`/blog/${blog.slug}`, '_blank')}
-                                className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
-                                title="View Blog"
-                              >
-                                <FaEye className="w-5 h-5" />
-                              </button>
-                              <Link
-                                to={`/admin/edit-blog/${blog._id}`}
-                                className="text-mcan-primary hover:text-mcan-secondary transition-colors duration-200"
-                                title="Edit Blog"
-                              >
-                                <FaEdit className="w-5 h-5" />
-                              </Link>
-                              <button
-                                onClick={() => handleDelete(blog._id)}
-                                className="text-red-600 hover:text-red-900 transition-colors duration-200"
-                                title="Delete Blog"
-                              >
-                                <FaTrash className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-
-              {/* Pagination */}
-              {pagination.totalPages > 1 && (
-                <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1 flex justify-between sm:hidden">
-                      <button
-                        onClick={() => fetchBlogs(pagination.currentPage - 1)}
-                        disabled={!pagination.hasPrev}
-                        className="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        Previous
-                      </button>
-                      <button
-                        onClick={() => fetchBlogs(pagination.currentPage + 1)}
-                        disabled={!pagination.hasNext}
-                        className="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
-                      >
-                        Next
-                      </button>
-                    </div>
-                    <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm text-gray-700">
-                          Showing page <span className="font-medium">{pagination.currentPage}</span> of{' '}
-                          <span className="font-medium">{pagination.totalPages}</span>
-                        </p>
-                      </div>
-                      <div>
-                        <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-                          <button
-                            onClick={() => fetchBlogs(pagination.currentPage - 1)}
-                            disabled={!pagination.hasPrev}
-                            className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                          >
-                            Previous
-                          </button>
-                          <button
-                            onClick={() => fetchBlogs(pagination.currentPage + 1)}
-                            disabled={!pagination.hasNext}
-                            className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50"
-                          >
-                            Next
-                          </button>
-                        </nav>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </div>
+
+        {/* Data Display */}
+        <ResponsiveDataDisplay
+          data={blogs}
+          columns={columns}
+          loading={loading}
+          emptyMessage={blogs.length === 0 ? "Get started by creating your first blog post." : "Try adjusting your search criteria or clear the filters."}
+          emptyIcon={FaPen}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          cardComponent={BlogCard}
+          showViewToggle={true}
+        />
       </div>
-    </div>
+    </MobileLayout>
   );
 };
 

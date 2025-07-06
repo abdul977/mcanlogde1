@@ -5,6 +5,9 @@ import { FaPlus, FaEdit, FaTrash, FaEye, FaSync, FaHandsHelping, FaBars, FaTimes
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
+import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
+import { FormField, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
 
 const AllServices = () => {
   const [auth] = useAuth();
@@ -12,7 +15,6 @@ const AllServices = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const categories = [
     { value: "all", label: "All Categories" },
@@ -48,36 +50,26 @@ const AllServices = () => {
           toast.success("Services refreshed successfully!", { position: "bottom-left" });
         }
       } else {
-        toast.error(data?.message || "Error fetching services", { position: "bottom-left" });
+        toast.error("Failed to fetch services");
       }
     } catch (error) {
       console.error("Error fetching services:", error);
-      toast.error("Failed to fetch services. Please try again.", { position: "bottom-left" });
+      toast.error("Failed to fetch services. Please try again.");
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  // Load services on component mount
-  useEffect(() => {
-    fetchServices();
-  }, []);
-
-  // Handle refresh button click
-  const handleRefresh = () => {
-    fetchServices(true);
-  };
-
   // Handle delete service
-  const handleDelete = async (serviceId, serviceName) => {
-    if (window.confirm(`Are you sure you want to delete "${serviceName}"? This action cannot be undone.`)) {
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this service?")) {
       try {
         const { data } = await axios.delete(
-          `${import.meta.env.VITE_BASE_URL}/api/services/admin/delete-service/${serviceId}`,
+          `${import.meta.env.VITE_BASE_URL}/api/services/admin/delete-service/${id}`,
           {
             headers: {
-              Authorization: auth?.token,
+              Authorization: `Bearer ${auth?.token}`,
             },
           }
         );
@@ -86,7 +78,7 @@ const AllServices = () => {
           toast.success("Service deleted successfully!");
           fetchServices();
         } else {
-          toast.error(data?.message || "Error deleting service");
+          toast.error("Failed to delete service");
         }
       } catch (error) {
         console.error("Error deleting service:", error);
@@ -95,7 +87,17 @@ const AllServices = () => {
     }
   };
 
-  // Filter services by category
+  // Handle refresh
+  const handleRefresh = () => {
+    fetchServices(true);
+  };
+
+  // Load services on component mount
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  // Filter services based on selected category
   const filteredServices = selectedCategory === "all"
     ? services
     : services.filter(service => service.category === selectedCategory);
@@ -123,295 +125,194 @@ const AllServices = () => {
     return colors[category] || "bg-gray-100 text-gray-800";
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
-          <Navbar />
+  // Define columns for ResponsiveDataDisplay
+  const columns = [
+    {
+      key: 'title',
+      label: 'Service',
+      sortable: true,
+      render: (service) => (
+        <div className="font-medium text-gray-900 truncate max-w-xs">
+          {service.title}
         </div>
-        <div className="flex-1 p-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-3">
-                <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
-                  <FaHandsHelping className="text-white text-xl" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-800">Manage Services</h1>
-                  <p className="text-gray-600">View and manage all MCAN services</p>
-                </div>
-              </div>
-              <div className="flex space-x-3">
-                <button
-                  onClick={handleRefresh}
-                  disabled={refreshing}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
-                    refreshing
-                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                  title="Refresh Services"
-                >
-                  <FaSync className={`${refreshing ? 'animate-spin' : ''}`} />
-                  {refreshing ? 'Refreshing...' : 'Refresh'}
-                </button>
-                <Link
-                  to="/admin/create-service"
-                  className="flex items-center gap-2 px-4 py-2 bg-mcan-primary text-white rounded-lg hover:bg-mcan-secondary transition duration-300"
-                >
-                  <FaPlus />
-                  Add Service
-                </Link>
-              </div>
-            </div>
-          </div>
+      )
+    },
+    {
+      key: 'category',
+      label: 'Category',
+      render: (service) => (
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getCategoryBadge(service.category)}`}>
+          {service.category}
+        </span>
+      )
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      render: (service) => (
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(service.status)}`}>
+          {service.status}
+        </span>
+      )
+    },
+    {
+      key: 'displayOrder',
+      label: 'Order',
+      render: (service) => (
+        <span className="text-gray-600">{service.displayOrder || 0}</span>
+      )
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      sortable: true,
+      render: (service) => (
+        <span className="text-gray-500 text-sm">
+          {new Date(service.createdAt).toLocaleDateString()}
+        </span>
+      )
+    }
+  ];
 
-          {/* Category Filter */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex flex-wrap gap-3">
-              {categories.map((category) => (
-                <button
-                  key={category.value}
-                  onClick={() => setSelectedCategory(category.value)}
-                  className={`px-4 py-2 rounded-full transition duration-300 ${
-                    selectedCategory === category.value
-                      ? "bg-mcan-primary text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-mcan-primary/10"
-                  }`}
-                >
-                  {category.label}
-                </button>
-              ))}
-            </div>
-          </div>
+  // Service Card Component for mobile view
+  const ServiceCard = ({ item: service, onView, onEdit, onDelete }) => (
+    <div className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow">
+      <div className="flex justify-between items-start mb-3">
+        <h3 className="font-semibold text-gray-900 text-sm line-clamp-2">
+          {service.title}
+        </h3>
+        <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusBadge(service.status)}`}>
+          {service.status}
+        </span>
+      </div>
+      
+      <div className="space-y-2 mb-4">
+        <p className="text-gray-600 text-sm">
+          <span className="font-medium">Category:</span> 
+          <span className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${getCategoryBadge(service.category)}`}>
+            {service.category}
+          </span>
+        </p>
+        <p className="text-gray-600 text-sm">
+          <span className="font-medium">Order:</span> {service.displayOrder || 0}
+        </p>
+        <p className="text-gray-500 text-xs">
+          Created: {new Date(service.createdAt).toLocaleDateString()}
+        </p>
+      </div>
 
-          {/* Services List */}
-          <div className="bg-white rounded-lg shadow-lg">
-            {loading ? (
-              <div className="flex justify-center items-center py-16">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mcan-primary"></div>
-                <span className="ml-3 text-gray-600">Loading services...</span>
-              </div>
-            ) : filteredServices.length === 0 ? (
-              <div className="text-center py-16">
-                <FaHandsHelping className="mx-auto text-6xl text-gray-300 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-600 mb-2">No Services Found</h3>
-                <p className="text-gray-500 mb-4">
-                  {selectedCategory === "all"
-                    ? "No services are currently available."
-                    : `No ${selectedCategory} services found.`
-                  }
-                </p>
-                <Link
-                  to="/admin/create-service"
-                  className="inline-flex items-center gap-2 px-4 py-2 bg-mcan-primary text-white rounded-lg hover:bg-mcan-secondary transition duration-300"
-                >
-                  <FaPlus />
-                  Create First Service
-                </Link>
-              </div>
-            ) : (
-              <>
-                {/* Desktop Table View */}
-                <div className="hidden lg:block overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Service
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Category
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Features
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Order
-                        </th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {filteredServices.map((service) => (
-                        <tr key={service._id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              {service.image && (
-                                <img
-                                  src={service.image}
-                                  alt={service.title}
-                                  className="h-10 w-10 rounded-lg object-cover mr-3"
-                                />
-                              )}
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">
-                                  {service.title}
-                                </div>
-                                <div className="text-sm text-gray-500 truncate max-w-xs">
-                                  {service.description}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(service.category)}`}>
-                              {service.category}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(service.status)}`}>
-                              {service.status}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">
-                              {service.features?.length || 0} features
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {service.displayOrder}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                            <div className="flex space-x-2">
-                              <Link
-                                to={`/services/${service.slug}`}
-                                className="text-blue-600 hover:text-blue-900"
-                                title="View Service"
-                              >
-                                <FaEye />
-                              </Link>
-                              <Link
-                                to={`/admin/edit-service/${service._id}`}
-                                className="text-indigo-600 hover:text-indigo-900"
-                                title="Edit Service"
-                              >
-                                <FaEdit />
-                              </Link>
-                              <button
-                                onClick={() => handleDelete(service._id, service.title)}
-                                className="text-red-600 hover:text-red-900"
-                                title="Delete Service"
-                              >
-                                <FaTrash />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Mobile Card View */}
-                <div className="lg:hidden space-y-4">
-                  {filteredServices.map((service) => (
-                    <div key={service._id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                      <div className="p-6">
-                        <div className="flex items-start space-x-4">
-                          {service.image && (
-                            <div className="h-16 w-16 flex-shrink-0">
-                              <img
-                                src={service.image}
-                                alt={service.title}
-                                className="h-16 w-16 rounded-lg object-cover"
-                              />
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                              {service.title}
-                            </h3>
-                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                              {service.description}
-                            </p>
-
-                            <div className="flex flex-wrap gap-2 mb-3">
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getCategoryBadge(service.category)}`}>
-                                {service.category}
-                              </span>
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(service.status)}`}>
-                                {service.status}
-                              </span>
-                              <span className="inline-flex px-2 py-1 text-xs bg-gray-100 text-gray-800 rounded-full">
-                                Order: {service.displayOrder}
-                              </span>
-                              <span className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                                {service.features?.length || 0} features
-                              </span>
-                            </div>
-
-                            <div className="flex space-x-3">
-                              <Link
-                                to={`/services/${service.slug}`}
-                                className="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2"
-                                title="View Service"
-                              >
-                                <FaEye className="w-5 h-5" />
-                              </Link>
-                              <Link
-                                to={`/admin/edit-service/${service._id}`}
-                                className="text-indigo-600 hover:text-indigo-900 transition-colors duration-200 p-2"
-                                title="Edit Service"
-                              >
-                                <FaEdit className="w-5 h-5" />
-                              </Link>
-                              <button
-                                onClick={() => handleDelete(service._id, service.title)}
-                                className="text-red-600 hover:text-red-900 transition-colors duration-200 p-2"
-                                title="Delete Service"
-                              >
-                                <FaTrash className="w-5 h-5" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Summary */}
-          {!loading && filteredServices.length > 0 && (
-            <div className="mt-6 bg-white rounded-lg shadow-lg p-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
-                <div>
-                  <div className="text-2xl font-bold text-mcan-primary">{services.length}</div>
-                  <div className="text-sm text-gray-600">Total Services</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-green-600">
-                    {services.filter(s => s.status === 'active').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Active</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-yellow-600">
-                    {services.filter(s => s.status === 'draft').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Draft</div>
-                </div>
-                <div>
-                  <div className="text-2xl font-bold text-red-600">
-                    {services.filter(s => s.status === 'inactive').length}
-                  </div>
-                  <div className="text-sm text-gray-600">Inactive</div>
-                </div>
-              </div>
-            </div>
-          )}
+      <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+        <div className="flex space-x-2">
+          <button
+            onClick={() => onView && onView(service)}
+            className="text-blue-600 hover:text-blue-800 p-1"
+            title="View Service"
+          >
+            <FaEye className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onEdit && onEdit(service)}
+            className="text-mcan-primary hover:text-mcan-secondary p-1"
+            title="Edit Service"
+          >
+            <FaEdit className="w-4 h-4" />
+          </button>
+          <button
+            onClick={() => onDelete && onDelete(service._id)}
+            className="text-red-600 hover:text-red-800 p-1"
+            title="Delete Service"
+          >
+            <FaTrash className="w-4 h-4" />
+          </button>
         </div>
       </div>
     </div>
+  );
+
+  // Handle actions
+  const handleView = (service) => {
+    // Navigate to service details or open modal
+    console.log('View service:', service);
+  };
+
+  const handleEdit = (service) => {
+    // Navigate to edit service page
+    console.log('Edit service:', service);
+  };
+
+  return (
+    <MobileLayout
+      title="Services"
+      subtitle="Manage services"
+      icon={FaHandsHelping}
+      navbar={Navbar}
+      headerActions={
+        <Link to="/admin/create-service">
+          <MobileButton
+            variant="primary"
+            size="sm"
+            icon={FaPlus}
+          >
+            Add
+          </MobileButton>
+        </Link>
+      }
+    >
+      <div className="p-4 lg:p-8">
+        {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="Manage Services"
+          subtitle="View and manage all MCAN services"
+          icon={FaHandsHelping}
+          showOnMobile={false}
+          actions={
+            <div className="flex space-x-3">
+              <MobileButton
+                onClick={handleRefresh}
+                variant="secondary"
+                icon={FaSync}
+                disabled={refreshing}
+              >
+                {refreshing ? 'Refreshing...' : 'Refresh'}
+              </MobileButton>
+              <Link to="/admin/create-service">
+                <MobileButton
+                  variant="primary"
+                  icon={FaPlus}
+                >
+                  Create New Service
+                </MobileButton>
+              </Link>
+            </div>
+          }
+        />
+
+        {/* Category Filter */}
+        <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6 mb-6">
+          <FormField label="Filter by Category">
+            <ResponsiveSelect
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              options={categories}
+            />
+          </FormField>
+        </div>
+
+        {/* Data Display */}
+        <ResponsiveDataDisplay
+          data={filteredServices}
+          columns={columns}
+          loading={loading}
+          emptyMessage="Get started by creating your first service."
+          emptyIcon={FaHandsHelping}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          cardComponent={ServiceCard}
+          showViewToggle={true}
+        />
+      </div>
+    </MobileLayout>
   );
 };
 

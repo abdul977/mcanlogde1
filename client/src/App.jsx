@@ -2,6 +2,8 @@ import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import { ToastContainer } from "react-toastify";
 import { Route, Routes } from "react-router-dom";
+// Development tools - only import in development
+const isDevelopment = import.meta.env.DEV;
 import HomePage from "./pages/HomePage";
 import SearchPage from "./pages/SearchPage";
 import Programs from "./pages/Programs";
@@ -68,6 +70,13 @@ function App() {
   return (
     <SocketProvider>
       <div className="min-h-screen bg-gray-50">
+        {/* Stagewise Toolbar - Development Only */}
+        {isDevelopment && (
+          <div>
+            {/* Development toolbar would go here if needed */}
+          </div>
+        )}
+
         {/* Main Navigation */}
         <ToastContainer position="bottom-left" />
         <Navbar />

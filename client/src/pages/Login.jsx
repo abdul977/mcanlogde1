@@ -34,9 +34,9 @@ const Login = () => {
       );
       toast.success("Login successful. Welcome to MCAN Lodge!");
       setAuth({
-        ...auth,
         user: res.data?.user,
         token: res.data.token,
+        isLoading: false,
       });
       localStorage.setItem("auth", JSON.stringify(res.data));
       navigate(location.state || "/");

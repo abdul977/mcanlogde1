@@ -9,18 +9,29 @@ export default function PrivateRoute() {
   const [authState, setAuthState] = useState({
     loading: true,
     authenticated: false,
-    error: null
+    error: null,
+    initializing: true
   });
 
   useEffect(() => {
     const authCheck = async () => {
-      // Reset state when starting auth check
-      setAuthState({ loading: true, authenticated: false, error: null });
+      // Wait for auth context to finish loading
+      if (auth.isLoading) {
+        return; // Wait for auth context to initialize
+      }
+
+      // Reset loading state when starting auth check
+      setAuthState(prev => ({ ...prev, loading: true, authenticated: false, error: null }));
 
       try {
-        // If no token, redirect to login
+        // If no token after initialization, redirect to login
         if (!auth?.token) {
-          setAuthState({ loading: false, authenticated: false, error: "No authentication token" });
+          setAuthState({
+            loading: false,
+            authenticated: false,
+            error: "No authentication token",
+            initializing: false
+          });
           return;
         }
 
@@ -37,9 +48,19 @@ export default function PrivateRoute() {
         console.log("Admin auth response:", res);
 
         if (res.data.ok) {
-          setAuthState({ loading: false, authenticated: true, error: null });
+          setAuthState({
+            loading: false,
+            authenticated: true,
+            error: null,
+            initializing: false
+          });
         } else {
-          setAuthState({ loading: false, authenticated: false, error: "Authentication failed" });
+          setAuthState({
+            loading: false,
+            authenticated: false,
+            error: "Authentication failed",
+            initializing: false
+          });
         }
       } catch (error) {
         console.error("Admin auth error:", error);
@@ -61,12 +82,17 @@ export default function PrivateRoute() {
           errorMessage = "Network error - please check your connection";
         }
 
-        setAuthState({ loading: false, authenticated: false, error: errorMessage });
+        setAuthState({
+          loading: false,
+          authenticated: false,
+          error: errorMessage,
+          initializing: false
+        });
       }
     };
 
     authCheck();
-  }, [auth?.token]);
+  }, [auth?.token, auth.isLoading]);
 
   // Show loading spinner while checking authentication
   if (authState.loading) {
