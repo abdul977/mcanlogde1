@@ -4,10 +4,12 @@ import { FaImage } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../context/UserContext";
 
 const UpdatePost = () => {
   const navigate = useNavigate();
   const params = useParams();
+  const { auth } = useAuth();
   const [title, setTitle] = useState("");
   const [hotelLocation, setHotelLocation] = useState("");
   const [description, setDescription] = useState("");
@@ -20,26 +22,41 @@ const UpdatePost = () => {
   const [isAvailable, setIsAvailable] = useState(false);
   const [price, setPrice] = useState("");
   const [id, setId] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   // Fetch a single post
   const getSinglePost = async () => {
     try {
+      setLoading(true);
       const { data } = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/api/post/get-post/${params.slug}`
       );
-      const post = data.product;
-      setTitle(post.title);
-      setId(post._id);
-      setDescription(post.description);
-      setPrice(post.price);
-      setSelectedCategory(post.category._id);
-      setImages(post.images); // The image URLs will be set here
-      setNearArea(post.nearArea);
-      setFacilities(post.facilities);
-      setGuest(post.guest);
-      setHotelLocation(post.hotelLocation);
+
+      if (data.success && data.post) {
+        const post = data.post; // Fixed: changed from data.product to data.post
+        setTitle(post.title || "");
+        setId(post._id || "");
+        setDescription(post.description || "");
+        setPrice(post.price || "");
+        setSelectedCategory(post.category?._id || "");
+        setImages(post.images || []); // The image URLs will be set here
+        setNearArea(Array.isArray(post.nearArea) ? post.nearArea.join(", ") : "");
+        setFacilities(Array.isArray(post.facilities) ? post.facilities.join(", ") : "");
+        setGuest(post.guest || "1");
+        setHotelLocation(post.location || ""); // Fixed: changed from hotelLocation to location
+        setIsAvailable(post.isAvailable || false);
+      } else {
+        toast.error("Failed to fetch accommodation data");
+        console.error("API response:", data);
+        navigate("/admin/accommodations");
+      }
     } catch (error) {
       console.error("Error fetching post:", error);
+      toast.error("Error loading accommodation data. Please try again.");
+      navigate("/admin/accommodations");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -85,13 +102,23 @@ const UpdatePost = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (!id) {
+      toast.error("Post ID not found. Please try refreshing the page.");
+      return;
+    }
+
     try {
+      setSubmitting(true);
       const formData = new FormData();
       formData.append("title", title);
-      formData.append("hotelLocation", hotelLocation);
+      formData.append("location", hotelLocation); // Fixed: changed from hotelLocation to location
       formData.append("description", description);
-      formData.append("facilities", facilities);
-      formData.append("nearArea", nearArea);
+      // Convert comma-separated strings to arrays for backend
+      const facilitiesArray = facilities.split(',').map(item => item.trim()).filter(item => item);
+      const nearAreaArray = nearArea.split(',').map(item => item.trim()).filter(item => item);
+
+      formData.append("facilities", JSON.stringify(facilitiesArray));
+      formData.append("nearArea", JSON.stringify(nearAreaArray));
       formData.append("category", selectedCategory);
       formData.append("guest", guest);
       formData.append("isAvailable", isAvailable);
@@ -104,16 +131,42 @@ const UpdatePost = () => {
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${auth?.token}`,
           },
         }
       );
-      toast.success("Post updated successfully!");
-      navigate("/posts");
+
+      if (response.data.success) {
+        toast.success("Accommodation updated successfully!");
+        navigate("/admin/accommodations");
+      } else {
+        toast.error(response.data.message || "Failed to update accommodation");
+      }
     } catch (error) {
       console.error("Error updating post:", error);
-      toast.error("Failed to update post. Please try again.");
+      toast.error("Failed to update accommodation. Please try again.");
+    } finally {
+      setSubmitting(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-between text-black">
+        <div className="ml-[4rem]">
+          <Navbar />
+        </div>
+        <div className="flex flex-col p-8 w-[81%]">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-mcan-primary mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading accommodation data...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-between text-black">
@@ -122,7 +175,7 @@ const UpdatePost = () => {
       </div>
       <div className="flex flex-col p-8 w-[81%]">
         <h1 className="text-2xl font-bold mb-6 text-gray-800">
-          Update Your Post
+          Update Accommodation
         </h1>
         <form className="space-y-4" onSubmit={handleSubmit}>
           <input
@@ -241,9 +294,10 @@ const UpdatePost = () => {
 
           <button
             type="submit"
-            className="w-[81%] bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition duration-300"
+            disabled={submitting}
+            className="w-[81%] bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Submit Post
+            {submitting ? "Updating..." : "Update Accommodation"}
           </button>
         </form>
       </div>

@@ -228,8 +228,8 @@ export const updatePostController = async (req, res) => {
       accommodationType,
       location,
       description,
-      facilities,
-      nearArea,
+      facilities: facilitiesRaw,
+      nearArea: nearAreaRaw,
       category,
       guest,
       isAvailable,
@@ -241,6 +241,28 @@ export const updatePostController = async (req, res) => {
       rules,
       landlordContact,
     } = req.body;
+
+    // Parse JSON arrays if they are strings
+    let facilities = facilitiesRaw;
+    let nearArea = nearAreaRaw;
+
+    try {
+      if (typeof facilitiesRaw === 'string') {
+        facilities = JSON.parse(facilitiesRaw);
+      }
+    } catch (e) {
+      // If parsing fails, treat as comma-separated string
+      facilities = facilitiesRaw ? facilitiesRaw.split(',').map(item => item.trim()) : [];
+    }
+
+    try {
+      if (typeof nearAreaRaw === 'string') {
+        nearArea = JSON.parse(nearAreaRaw);
+      }
+    } catch (e) {
+      // If parsing fails, treat as comma-separated string
+      nearArea = nearAreaRaw ? nearAreaRaw.split(',').map(item => item.trim()) : [];
+    }
     const files = req.files?.images;
 
     const post = await Post.findById(id);
