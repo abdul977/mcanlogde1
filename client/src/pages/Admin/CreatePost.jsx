@@ -4,8 +4,8 @@ import Navbar from "./Navbar";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
-import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
-import { ResponsiveForm, FormSection, FormField, ResponsiveSelect, ResponsiveTextarea, ResponsiveCheckboxGroup, MobileInput, ResponsiveFileUpload } from "../../components/Mobile/ResponsiveForm";
+import MobileLayout, { MobilePageHeader, MobileInput } from "../../components/Mobile/MobileLayout";
+import { ResponsiveForm, FormSection, FormField, ResponsiveSelect, ResponsiveTextarea, ResponsiveCheckboxGroup, ResponsiveFileUpload } from "../../components/Mobile/ResponsiveForm";
 
 const CreatePost = () => {
   const [auth] = useAuth();
