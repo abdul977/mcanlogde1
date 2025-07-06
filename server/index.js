@@ -64,7 +64,15 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(morgan("dev"));
-app.use(fileUpload({ useTempFiles: true }));
+app.use(fileUpload({
+  useTempFiles: true,
+  tempFileDir: '/tmp/',
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  abortOnLimit: true,
+  preserveExtension: true,
+  safeFileNames: true,
+  debug: process.env.NODE_ENV === 'development'
+}));
 
 // Middleware
 app.use(bodyParser.json());

@@ -35,6 +35,7 @@ import AllPost from "./pages/Admin/AllPost";
 import UpdatePost from "./pages/Admin/UpdatePost";
 import CreateBlog from "./pages/Admin/CreateBlog";
 import AllBlogs from "./pages/Admin/AllBlogs";
+import EditBlog from "./pages/Admin/EditBlog";
 import CreateService from "./pages/Admin/CreateService";
 import AllServices from "./pages/Admin/AllServices";
 import CreateLecture from "./pages/Admin/CreateLecture";
@@ -147,6 +148,7 @@ function App() {
             <Route path="edit/:slug" element={<UpdatePost />} />
             <Route path="create-blog" element={<CreateBlog />} />
             <Route path="blogs" element={<AllBlogs />} />
+            <Route path="edit-blog/:id" element={<EditBlog />} />
             <Route path="create-service" element={<CreateService />} />
             <Route path="services" element={<AllServices />} />
             <Route path="create-lecture" element={<CreateLecture />} />

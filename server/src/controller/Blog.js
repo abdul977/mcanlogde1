@@ -140,6 +140,33 @@ export const getBlogController = async (req, res) => {
   }
 };
 
+// Get single blog by ID (admin only)
+export const getBlogByIdController = async (req, res) => {
+  try {
+    const blog = await Blog.findById(req.params.id);
+
+    if (!blog) {
+      return res.status(404).json({
+        success: false,
+        message: "Blog not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Blog fetched successfully",
+      blog
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching blog",
+      error: error.message
+    });
+  }
+};
+
 // Get featured blogs
 export const getFeaturedBlogsController = async (req, res) => {
   try {
@@ -200,9 +227,11 @@ export const createBlogController = async (req, res) => {
     );
 
     if (!result.success) {
+      console.error("Featured image upload failed:", result.error);
       return res.status(400).json({
         success: false,
-        message: "Error uploading featured image"
+        message: result.error || "Error uploading featured image",
+        details: "Please ensure you're uploading a valid image file (JPEG, PNG, WebP, or GIF)"
       });
     }
 
@@ -259,9 +288,11 @@ export const updateBlogController = async (req, res) => {
       if (result.success) {
         updateData.featuredImage = result.data.secure_url;
       } else {
+        console.error("Featured image upload failed:", result.error);
         return res.status(400).json({
           success: false,
-          message: "Error uploading featured image"
+          message: result.error || "Error uploading featured image",
+          details: "Please ensure you're uploading a valid image file (JPEG, PNG, WebP, or GIF)"
         });
       }
     }

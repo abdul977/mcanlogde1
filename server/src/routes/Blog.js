@@ -3,6 +3,7 @@ import {
   getAllBlogsController,
   getAllBlogsAdminController,
   getBlogController,
+  getBlogByIdController,
   getFeaturedBlogsController,
   createBlogController,
   updateBlogController,
@@ -25,6 +26,9 @@ router.get("/get-blog/:slug", getBlogController);
 // Admin routes (protected)
 // Get all blogs for admin (includes drafts)
 router.get("/admin/get-all-blogs", requireSignIn, isAdmin, getAllBlogsAdminController);
+
+// Get single blog by ID (admin)
+router.get("/admin/get-blog-by-id/:id", requireSignIn, isAdmin, getBlogByIdController);
 
 // Create blog
 router.post("/create-blog", requireSignIn, isAdmin, createBlogController);
