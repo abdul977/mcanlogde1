@@ -37,6 +37,12 @@ Before setting up the environment variables, make sure you have accounts and API
 - **SUPABASE_SERVICE_KEY**: Your Supabase service role key (for server-side operations)
   - Get these from [Supabase Dashboard](https://supabase.com/dashboard) → Project Settings → API
 
+### Redis Configuration (for real-time messaging)
+- **REDIS_HOST**: Your Redis server hostname
+- **REDIS_PORT**: Your Redis server port (usually 6379 for local, custom for cloud)
+- **REDIS_PASSWORD**: Your Redis password (required for Redis Cloud)
+  - Get these from [Redis Cloud Dashboard](https://redis.com/redis-enterprise-cloud/) → Database → Configuration
+
 ## Frontend Environment Setup (client/.env)
 
 1. Copy the example file:
@@ -91,6 +97,12 @@ After setting up the environment variables:
    - Verify all Supabase credentials are correct (URL, anon key, service key)
    - Check Supabase dashboard for storage bucket configuration
    - Ensure storage buckets exist and have proper permissions
+
+3. **Redis Connection Issues**:
+   - Check Redis credentials (host, port, password)
+   - Verify Redis Cloud instance is active and accessible
+   - Ensure REDIS_PASSWORD is set correctly in environment variables
+   - Test Redis connection using Redis CLI or GUI tools
 
 4. **CORS Issues**:
    - Ensure FRONTEND_URL in backend .env matches your frontend URL

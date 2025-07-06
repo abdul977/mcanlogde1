@@ -1,11 +1,14 @@
 import { createClient } from 'redis';
+import dotenv from 'dotenv';
+
+// Load environment variables
+dotenv.config();
 
 // Redis configuration
 const redisConfig = {
-  host: 'redis-15049.c274.us-east-1-3.ec2.redns.redis-cloud.com',
-  port: 15049,
-  // Add password if you have one
-  // password: 'your-redis-password'
+  host: process.env.REDIS_HOST || 'redis-15049.c274.us-east-1-3.ec2.redns.redis-cloud.com',
+  port: parseInt(process.env.REDIS_PORT) || 15049,
+  password: process.env.REDIS_PASSWORD
 };
 
 // Create Redis client
@@ -14,7 +17,7 @@ const redisClient = createClient({
     host: redisConfig.host,
     port: redisConfig.port,
   },
-  // password: redisConfig.password, // Uncomment if you have a password
+  password: redisConfig.password,
 });
 
 // Redis connection event handlers
