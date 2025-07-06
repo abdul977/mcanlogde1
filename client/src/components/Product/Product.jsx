@@ -21,7 +21,8 @@ import {
   FaUser,
   FaArrowLeft,
   FaHeart,
-  FaShare
+  FaShare,
+  FaSync
 } from "react-icons/fa";
 import { MdLocationOn } from "react-icons/md";
 import axios from "axios";
