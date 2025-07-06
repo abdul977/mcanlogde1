@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { FaComments, FaUser, FaSearch, FaSync, FaEnvelope, FaEnvelopeOpen, FaBars, FaTimes, FaArrowLeft } from "react-icons/fa";
+import { FaComments, FaUser, FaSearch, FaSync, FaEnvelope, FaEnvelopeOpen, FaArrowLeft } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
 import AdminChatInterface from "../../components/AdminChatInterface";
+import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
+import { useMobileResponsive } from "../../hooks/useMobileResponsive";
 
 const AdminMessages = () => {
+  const { isMobile } = useMobileResponsive();
   const [users, setUsers] = useState([]);
   const [conversations, setConversations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [showChatInterface, setShowChatInterface] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [auth] = useAuth();
 
   // Fetch users for messaging
@@ -109,12 +112,9 @@ const AdminMessages = () => {
     });
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  const closeMobileMenu = () => {
-    setIsMobileMenuOpen(false);
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchUsers().finally(() => setRefreshing(false));
   };
 
   // Filter users based on search term
@@ -126,102 +126,52 @@ const AdminMessages = () => {
   // If chat interface is shown, render it directly
   if (showChatInterface && selectedUser) {
     return (
-      <div className="min-h-screen bg-gray-50">
-        {/* Mobile Header for Chat */}
-        <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={handleBackToMessages}
-              className="text-mcan-primary hover:text-mcan-secondary"
-            >
-              <FaArrowLeft size={20} />
-            </button>
-            <h2 className="text-lg font-semibold text-mcan-primary">Chat with {selectedUser.name}</h2>
-          </div>
-          <button
-            onClick={toggleMobileMenu}
-            className="text-mcan-primary hover:text-mcan-secondary transition-colors"
+      <MobileLayout
+        title={`Chat with ${selectedUser.name}`}
+        subtitle="Admin messaging"
+        icon={FaComments}
+        navbar={Navbar}
+        headerActions={
+          <MobileButton
+            onClick={handleBackToMessages}
+            variant="secondary"
+            size="sm"
+            icon={FaArrowLeft}
           >
-            {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-          </button>
+            {isMobile ? 'Back' : 'Back to Messages'}
+          </MobileButton>
+        }
+      >
+        <div className="h-[calc(100vh-120px)]">
+          <AdminChatInterface
+            onBack={handleBackToMessages}
+            recipientId={selectedUser._id}
+            recipientName={selectedUser.name}
+          />
         </div>
-
-        <div className="flex h-screen">
-          {/* Mobile Sidebar */}
-          <div className={`fixed top-0 left-0 h-full z-20 transform transition-transform duration-300 ease-in-out lg:hidden ${
-            isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-          }`}>
-            <Navbar onItemClick={closeMobileMenu} />
-          </div>
-
-          {/* Desktop Sidebar */}
-          <div className="hidden lg:block ml-[4rem]">
-            <Navbar />
-          </div>
-
-          {/* Mobile Overlay */}
-          {isMobileMenuOpen && (
-            <div
-              className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
-              onClick={closeMobileMenu}
-            ></div>
-          )}
-
-          {/* Chat Interface */}
-          <div className="flex-1 flex flex-col pt-16 lg:pt-0">
-            <AdminChatInterface
-              onBack={handleBackToMessages}
-              recipientId={selectedUser._id}
-              recipientName={selectedUser.name}
-            />
-          </div>
-        </div>
-      </div>
+      </MobileLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Mobile Header */}
-      <div className="lg:hidden bg-white shadow-lg p-4 flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <h2 className="text-lg font-semibold text-mcan-primary">Admin Messages</h2>
-          {unreadCount > 0 && (
-            <div className="bg-red-500 text-white px-2 py-1 rounded-full text-xs">
-              {unreadCount}
-            </div>
-          )}
-        </div>
-        <button
-          onClick={toggleMobileMenu}
-          className="text-mcan-primary hover:text-mcan-secondary transition-colors"
+    <MobileLayout
+      title="Messages"
+      subtitle={`Admin messaging ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}
+      icon={FaComments}
+      navbar={Navbar}
+      headerActions={
+        <MobileButton
+          onClick={handleRefresh}
+          variant="secondary"
+          size="sm"
+          icon={FaSync}
+          disabled={refreshing}
         >
-          {isMobileMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
-        </button>
-      </div>
-
-      <div className="flex">
-        {/* Mobile Sidebar */}
-        <div className={`fixed top-0 left-0 h-full z-20 transform transition-transform duration-300 ease-in-out lg:hidden ${
-          isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}>
-          <Navbar onItemClick={closeMobileMenu} />
-        </div>
-
-        {/* Desktop Sidebar */}
-        <div className="hidden lg:block ml-[4rem]">
-          <Navbar />
-        </div>
-
-        {/* Mobile Overlay */}
-        {isMobileMenuOpen && (
-          <div
-            className="fixed inset-0 bg-black bg-opacity-50 z-10 lg:hidden"
-            onClick={closeMobileMenu}
-          ></div>
-        )}
-
-        <div className="flex-1 p-4 lg:p-8 pt-20 lg:pt-8">
+          {refreshing ? 'Refreshing...' : 'Refresh'}
+        </MobileButton>
+      }
+    >
+      <div className="p-4 lg:p-8">
           {/* Header */}
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <div className="flex items-center justify-between">
@@ -358,10 +308,7 @@ const AdminMessages = () => {
             </div>
           </div>
         </div>
-      </div>
-
-
-    </div>
+      </MobileLayout>
   );
 };
 

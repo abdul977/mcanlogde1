@@ -1,13 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaCalendar, FaUser, FaClock, FaSearch, FaFilter, FaStar, FaTags } from "react-icons/fa";
+import { FaCalendar, FaUser, FaClock, FaSearch, FaFilter, FaStar, FaTags, FaNewspaper, FaSync } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
+import MobileLayout, { MobilePageHeader, MobileButton, ResponsiveContainer } from "../components/Mobile/MobileLayout";
+import { FormSection, ResponsiveSelect } from "../components/Mobile/ResponsiveForm";
+import { useMobileResponsive } from "../hooks/useMobileResponsive";
 
 const Blog = () => {
+  const { isMobile, isTablet } = useMobileResponsive();
   const [blogs, setBlogs] = useState([]);
   const [featuredBlogs, setFeaturedBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [filters, setFilters] = useState({
     category: "all",
     search: "",
@@ -110,6 +115,12 @@ const Blog = () => {
   useEffect(() => {
     fetchBlogs(1);
   }, [filters.category]);
+
+  const handleRefresh = () => {
+    setRefreshing(true);
+    fetchBlogs(1).finally(() => setRefreshing(false));
+    fetchFeaturedBlogs();
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
