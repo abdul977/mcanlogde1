@@ -34,7 +34,14 @@ const ChatInterface = ({ onBack }) => {
       // Listen for new messages
       const unsubscribe = onNewMessage((data) => {
         if (data.threadId === threadId) {
-          setMessages(prev => [...prev, data.message]);
+          setMessages(prev => {
+            // Check if message already exists to prevent duplicates
+            const messageExists = prev.some(msg => msg._id === data.message._id);
+            if (messageExists) {
+              return prev;
+            }
+            return [...prev, data.message];
+          });
         }
       });
 
@@ -136,7 +143,14 @@ const ChatInterface = ({ onBack }) => {
       );
 
       if (response.data.success) {
-        setMessages(prev => [...prev, response.data.data]);
+        setMessages(prev => {
+          // Check if message already exists to prevent duplicates
+          const messageExists = prev.some(msg => msg._id === response.data.data._id);
+          if (messageExists) {
+            return prev;
+          }
+          return [...prev, response.data.data];
+        });
         setNewMessage("");
       }
     } catch (error) {

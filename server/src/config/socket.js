@@ -117,11 +117,8 @@ export const socketUtils = {
       threadId
     };
 
-    if (excludeUserId) {
-      io.to(`thread:${threadId}`).except(`user:${excludeUserId}`).emit('new-message', socketData);
-    } else {
-      io.to(`thread:${threadId}`).emit('new-message', socketData);
-    }
+    // Emit to all users in the thread (including sender for real-time sync)
+    io.to(`thread:${threadId}`).emit('new-message', socketData);
 
     // Cache the message in Redis
     await redisUtils.cacheMessage(threadId, message);

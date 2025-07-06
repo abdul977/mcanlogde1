@@ -3,13 +3,16 @@ import { FaPaperPlane, FaTimes, FaUser, FaComments } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/UserContext";
+import { useSocket } from "../context/SocketContext";
 
 const MessagingSystem = ({ isOpen, onClose, recipientId, recipientName }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const [threadId, setThreadId] = useState(null);
   const [auth] = useAuth();
+  const { joinThread, leaveThread, onNewMessage, isConnected } = useSocket();
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -19,8 +22,40 @@ const MessagingSystem = ({ isOpen, onClose, recipientId, recipientName }) => {
   useEffect(() => {
     if (isOpen && recipientId) {
       fetchConversation();
+      // Generate thread ID
+      const currentUserId = auth?.user?._id;
+      const generatedThreadId = [currentUserId, recipientId].sort().join('_');
+      setThreadId(generatedThreadId);
     }
   }, [isOpen, recipientId]);
+
+  // Socket.IO real-time message handling
+  useEffect(() => {
+    if (threadId && isConnected && isOpen) {
+      // Join the thread for real-time updates
+      joinThread(threadId);
+
+      // Listen for new messages
+      const unsubscribe = onNewMessage((data) => {
+        if (data.threadId === threadId) {
+          setMessages(prev => {
+            // Check if message already exists to prevent duplicates
+            const messageExists = prev.some(msg => msg._id === data.message._id);
+            if (messageExists) {
+              return prev;
+            }
+            return [...prev, data.message];
+          });
+        }
+      });
+
+      // Cleanup when component unmounts or threadId changes
+      return () => {
+        if (unsubscribe) unsubscribe();
+        leaveThread(threadId);
+      };
+    }
+  }, [threadId, isConnected, isOpen, joinThread, leaveThread, onNewMessage]);
 
   useEffect(() => {
     scrollToBottom();
@@ -69,7 +104,14 @@ const MessagingSystem = ({ isOpen, onClose, recipientId, recipientName }) => {
       );
 
       if (response.data.success) {
-        setMessages(prev => [...prev, response.data.data]);
+        setMessages(prev => {
+          // Check if message already exists to prevent duplicates
+          const messageExists = prev.some(msg => msg._id === response.data.data._id);
+          if (messageExists) {
+            return prev;
+          }
+          return [...prev, response.data.data];
+        });
         setNewMessage("");
       }
     } catch (error) {
