@@ -52,6 +52,7 @@ import AllCommunity from "./pages/Admin/AllCommunity";
 import EditCommunity from "./pages/Admin/EditCommunity";
 import CreateDonation from "./pages/Admin/CreateDonation";
 import AllDonations from "./pages/Admin/AllDonations";
+import EditDonation from "./pages/Admin/EditDonation";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AllBookings from "./pages/Admin/AllBookings";
 import CartPage from "./pages/CartPage";
@@ -165,6 +166,7 @@ function App() {
             <Route path="edit-community/:id" element={<EditCommunity />} />
             <Route path="create-donation" element={<CreateDonation />} />
             <Route path="donations" element={<AllDonations />} />
+            <Route path="edit-donation/:id" element={<EditDonation />} />
             <Route path="bookings" element={<AllBookings />} />
             <Route path="messages" element={<AdminMessages />} />
           </Route>
