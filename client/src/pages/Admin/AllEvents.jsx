@@ -2,9 +2,12 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
-import { FaEdit, FaTrash, FaCalendar, FaPlus, FaMapMarkerAlt, FaEye } from "react-icons/fa";
+import { FaEdit, FaTrash, FaCalendar, FaPlus, FaMapMarkerAlt, FaEye, FaClock, FaUsers } from "react-icons/fa";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
+import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
+import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
+import { FormField, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
 
 const AllEvents = () => {
   const [auth] = useAuth();
@@ -51,14 +54,23 @@ const AllEvents = () => {
     setFilters(newFilters);
   };
 
+  // Handle actions
+  const handleView = (event) => {
+    window.open(`/events/${event.slug}`, '_blank');
+  };
+
+  const handleEdit = (event) => {
+    window.open(`/admin/edit-event/${event._id}`, '_self');
+  };
+
   // Delete event
-  const handleDelete = async (id) => {
+  const handleDelete = async (event) => {
     if (!window.confirm("Are you sure you want to delete this event?")) {
       return;
     }
 
     try {
-      const { data } = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/events/delete-event/${id}`, {
+      const { data } = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/events/delete-event/${event._id}`, {
         headers: {
           Authorization: auth?.token
         }
@@ -95,214 +107,182 @@ const AllEvents = () => {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-r from-mcan-primary/5 to-mcan-secondary/5">
-      <div className="flex">
-        <div className="ml-[4rem]">
-          <Navbar />
+  // Define columns for table view
+  const columns = [
+    {
+      key: 'title',
+      header: 'Event Title',
+      render: (value) => <span className="font-medium">{value}</span>
+    },
+    {
+      key: 'eventDate',
+      header: 'Date & Time',
+      render: (value) => (
+        <div className="flex items-center">
+          <FaClock className="mr-1 text-mcan-primary" />
+          {formatDate(value)}
         </div>
-        <div className="flex-1 p-8">
-          {/* Header */}
-          <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary p-3 rounded-lg">
-                  <FaCalendar className="text-white text-xl" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-800">Manage Events</h1>
-                  <p className="text-gray-600">View and manage all MCAN events</p>
-                </div>
-              </div>
-              <Link
-                to="/admin/create-event"
-                className="bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white px-6 py-3 rounded-lg hover:opacity-90 transition duration-300 flex items-center space-x-2"
-              >
-                <FaPlus className="text-sm" />
-                <span>Create New Event</span>
-              </Link>
-            </div>
+      )
+    },
+    {
+      key: 'location',
+      header: 'Location',
+      render: (value) => (
+        <div className="flex items-center">
+          <FaMapMarkerAlt className="mr-1 text-mcan-secondary" />
+          {value}
+        </div>
+      )
+    },
+    {
+      key: 'maxAttendees',
+      header: 'Capacity',
+      render: (value) => (
+        <div className="flex items-center">
+          <FaUsers className="mr-1 text-gray-500" />
+          {value || 'Unlimited'}
+        </div>
+      )
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (value) => (
+        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(value)}`}>
+          {value.charAt(0).toUpperCase() + value.slice(1)}
+        </span>
+      )
+    }
+  ];
+
+  // Custom card component for events
+  const EventCard = ({ item, onView, onEdit, onDelete }) => (
+    <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+      {/* Image */}
+      <div className="relative h-48">
+        <img
+          src={item.image || 'https://via.placeholder.com/400x200?text=Event'}
+          alt={item.title}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            e.target.src = 'https://via.placeholder.com/400x200?text=Event';
+          }}
+        />
+        <div className="absolute top-2 right-2">
+          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(item.status)}`}>
+            {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-6">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+          {item.title}
+        </h3>
+        <div className="flex items-center text-gray-600 mb-2">
+          <FaClock className="mr-2 text-mcan-primary" />
+          <span className="text-sm">{formatDate(item.eventDate)}</span>
+        </div>
+        <div className="flex items-center text-gray-600 mb-4">
+          <FaMapMarkerAlt className="mr-2 text-mcan-secondary" />
+          <span className="text-sm">{item.location}</span>
+        </div>
+        <p className="text-gray-600 text-sm mb-4 line-clamp-3">
+          {item.description}
+        </p>
+        {item.maxAttendees && (
+          <div className="flex items-center text-gray-600 mb-4">
+            <FaUsers className="mr-2 text-gray-500" />
+            <span className="text-sm">Max {item.maxAttendees} attendees</span>
           </div>
+        )}
+      </div>
 
-          {loading ? (
-            <div className="bg-white rounded-lg shadow-lg p-8">
-              <div className="flex justify-center items-center h-32">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-mcan-primary"></div>
-                <span className="ml-3 text-gray-600">Loading events...</span>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              {events.length === 0 ? (
-                <div className="p-8 text-center">
-                  <FaCalendar className="mx-auto text-4xl text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No events found</h3>
-                  <p className="text-gray-600 mb-4">Get started by creating your first event.</p>
-                  <Link
-                    to="/admin/create-event"
-                    className="bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white px-6 py-3 rounded-lg hover:opacity-90 transition duration-300 inline-flex items-center space-x-2"
-                  >
-                    <FaPlus className="text-sm" />
-                    <span>Create Event</span>
-                  </Link>
-                </div>
-              ) : (
-                <>
-                  {/* Desktop Table View */}
-                  <div className="hidden lg:block overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gradient-to-r from-mcan-primary/10 to-mcan-secondary/10">
-                        <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                            Event
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                            Date & Location
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                            Status
-                          </th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider">
-                            Actions
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody className="bg-white divide-y divide-gray-200">
-                        {events.map((event) => (
-                          <tr key={event._id}>
-                            <td className="px-6 py-4">
-                              <div className="flex items-center">
-                                <div className="h-12 w-12 flex-shrink-0">
-                                  <img
-                                    className="h-12 w-12 rounded-md object-cover"
-                                    src={event.image}
-                                    alt={event.title}
-                                  />
-                                </div>
-                                <div className="ml-4">
-                                  <div className="text-sm font-medium text-gray-900">
-                                    {event.title}
-                                  </div>
-                                  <div className="text-sm text-gray-500">
-                                    {event.description.substring(0, 100)}...
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <div className="text-sm text-gray-900">
-                                {formatDate(event.date)}
-                              </div>
-                              <div className="text-sm text-gray-500">{event.location}</div>
-                            </td>
-                            <td className="px-6 py-4">
-                              <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(event.status)}`}>
-                                {event.status}
-                              </span>
-                            </td>
-                            <td className="px-6 py-4 text-sm font-medium">
-                              <div className="flex space-x-3">
-                                <button
-                                  onClick={() => window.open(`/events/${event.slug}`, '_blank')}
-                                  className="text-blue-600 hover:text-blue-900 transition-colors duration-200"
-                                  title="View Event"
-                                >
-                                  <FaEye className="w-5 h-5" />
-                                </button>
-                                <Link
-                                  to={`/admin/edit-event/${event._id}`}
-                                  className="text-mcan-primary hover:text-mcan-secondary transition-colors duration-200"
-                                  title="Edit Event"
-                                >
-                                  <FaEdit className="w-5 h-5" />
-                                </Link>
-                                <button
-                                  onClick={() => handleDelete(event._id)}
-                                  className="text-red-600 hover:text-red-900 transition-colors duration-200"
-                                  title="Delete Event"
-                                >
-                                  <FaTrash className="w-5 h-5" />
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Mobile Card View */}
-                  <div className="lg:hidden space-y-4">
-                    {events.map((event) => (
-                      <div key={event._id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                        <div className="p-6">
-                          <div className="flex items-start space-x-4">
-                            <div className="h-16 w-16 flex-shrink-0">
-                              <img
-                                className="h-16 w-16 rounded-lg object-cover"
-                                src={event.image}
-                                alt={event.title}
-                              />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                                {event.title}
-                              </h3>
-                              <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                                {event.description}
-                              </p>
-                              <div className="flex items-center space-x-4 text-sm text-gray-600 mb-3">
-                                <div className="flex items-center">
-                                  <FaCalendar className="mr-1 text-mcan-primary" />
-                                  <span>{formatDate(event.date)}</span>
-                                </div>
-                                <div className="flex items-center">
-                                  <FaMapMarkerAlt className="mr-1 text-mcan-primary" />
-                                  <span>{event.location}</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-between">
-                                <span className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(event.status)}`}>
-                                  {event.status}
-                                </span>
-                                <div className="flex space-x-3">
-                                  <button
-                                    onClick={() => window.open(`/events/${event.slug}`, '_blank')}
-                                    className="text-blue-600 hover:text-blue-900 transition-colors duration-200 p-2"
-                                    title="View Event"
-                                  >
-                                    <FaEye className="w-5 h-5" />
-                                  </button>
-                                  <Link
-                                    to={`/admin/edit-event/${event._id}`}
-                                    className="text-mcan-primary hover:text-mcan-secondary transition-colors duration-200 p-2"
-                                    title="Edit Event"
-                                  >
-                                    <FaEdit className="w-5 h-5" />
-                                  </Link>
-                                  <button
-                                    onClick={() => handleDelete(event._id)}
-                                    className="text-red-600 hover:text-red-900 transition-colors duration-200 p-2"
-                                    title="Delete Event"
-                                  >
-                                    <FaTrash className="w-5 h-5" />
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </>
-
-              )}
-            </div>
-          )}
+      {/* Actions */}
+      <div className="px-6 py-4 bg-gray-50 border-t flex justify-between items-center">
+        <div className="flex space-x-3">
+          <MobileButton
+            onClick={() => onView(item)}
+            variant="ghost"
+            size="sm"
+            icon={FaEye}
+            className="text-blue-600 hover:text-blue-900"
+            title="View Event"
+          />
+          <MobileButton
+            onClick={() => onEdit(item)}
+            variant="ghost"
+            size="sm"
+            icon={FaEdit}
+            className="text-mcan-primary hover:text-mcan-secondary"
+            title="Edit Event"
+          />
+          <MobileButton
+            onClick={() => onDelete(item)}
+            variant="ghost"
+            size="sm"
+            icon={FaTrash}
+            className="text-red-600 hover:text-red-900"
+            title="Delete Event"
+          />
         </div>
       </div>
     </div>
+  );
+
+  return (
+    <MobileLayout
+      title="Events"
+      subtitle="Manage events"
+      icon={FaCalendar}
+      navbar={Navbar}
+      headerActions={
+        <Link to="/admin/create-event">
+          <MobileButton
+            variant="primary"
+            size="sm"
+            icon={FaPlus}
+          >
+            Add
+          </MobileButton>
+        </Link>
+      }
+    >
+      <div className="p-4 lg:p-8">
+        {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="Manage Events"
+          subtitle="View and manage all MCAN events"
+          icon={FaCalendar}
+          showOnMobile={false}
+          actions={
+            <Link to="/admin/create-event">
+              <MobileButton
+                variant="primary"
+                icon={FaPlus}
+              >
+                Create New Event
+              </MobileButton>
+            </Link>
+          }
+        />
+
+        {/* Data Display */}
+        <ResponsiveDataDisplay
+          data={events}
+          columns={columns}
+          loading={loading}
+          emptyMessage="Get started by creating your first event."
+          emptyIcon={FaCalendar}
+          onView={handleView}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+          cardComponent={EventCard}
+          showViewToggle={true}
+        />
+      </div>
+    </MobileLayout>
   );
 };
 

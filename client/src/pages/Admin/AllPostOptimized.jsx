@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "./Navbar";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate, Link } from "react-router-dom";
-import { FaHome, FaEdit, FaTrash, FaEye, FaPlus, FaFilter, FaSearch, FaUsers, FaMapMarkerAlt } from "react-icons/fa";
+import { FaHome, FaEdit, FaTrash, FaEye, FaPlus, FaMapMarkerAlt, FaUsers } from "react-icons/fa";
 import { useAuth } from "../../context/UserContext";
+import Navbar from "./Navbar";
 import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
 import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
 import { FormField, ResponsiveSelect, MobileInput } from "../../components/Mobile/ResponsiveForm";
 
-const AllPost = () => {
+/**
+ * EXAMPLE: Mobile-Optimized AllPost Component
+ * This demonstrates how to use the universal mobile components
+ */
+const AllPostOptimized = () => {
   const [auth] = useAuth();
   const [posts, setPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
@@ -41,15 +45,6 @@ const AllPost = () => {
     }
   };
 
-  // Handle actions
-  const handleView = (post) => {
-    window.open(`/accommodation/${post.slug}`, '_blank');
-  };
-
-  const handleEdit = (post) => {
-    navigate(`/admin/edit/${post.slug}`);
-  };
-
   // Delete post
   const handleDelete = async (post) => {
     if (!window.confirm("Are you sure you want to delete this accommodation?")) {
@@ -74,6 +69,15 @@ const AllPost = () => {
       console.error(error);
       toast.error(error.response?.data?.message || "Failed to delete accommodation");
     }
+  };
+
+  // Handle actions
+  const handleView = (post) => {
+    window.open(`/accommodation/${post.slug}`, '_blank');
+  };
+
+  const handleEdit = (post) => {
+    navigate(`/admin/edit/${post.slug}`);
   };
 
   // Filter posts based on search and filters
@@ -283,10 +287,9 @@ const AllPost = () => {
                 placeholder="Search accommodations..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                icon={FaSearch}
               />
             </FormField>
-
+            
             <FormField label="Gender">
               <ResponsiveSelect
                 value={filterGender}
@@ -299,7 +302,7 @@ const AllPost = () => {
                 placeholder="All Genders"
               />
             </FormField>
-
+            
             <FormField label="Availability">
               <ResponsiveSelect
                 value={filterAvailability}
@@ -311,7 +314,7 @@ const AllPost = () => {
                 placeholder="All Status"
               />
             </FormField>
-
+            
             <FormField label="Actions">
               <MobileButton
                 onClick={() => {
@@ -346,4 +349,4 @@ const AllPost = () => {
   );
 };
 
-export default AllPost;
+export default AllPostOptimized;
