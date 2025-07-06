@@ -1,32 +1,85 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/UserContext";
-import { FaPrayingHands, FaMosque, FaUserCircle, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaIdCard, FaStream } from "react-icons/fa";
+import { FaPrayingHands, FaMosque, FaUserCircle, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaIdCard, FaStream, FaEdit, FaSpinner } from "react-icons/fa";
 import { GiPathDistance } from "react-icons/gi";
 import mcanLogo from "../../assets/mcan-logo.png";
 import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
 import { FormSection, FormField } from "../../components/Mobile/ResponsiveForm";
+import DualCalendar from "../../components/DualCalendar";
+import DynamicPrayerTimes from "../../components/DynamicPrayerTimes";
+import Navbar from "./Navbar";
+import { getUserProfile, formatNyscDetails, validateProfileCompletion } from "../../services/userService";
+import { toast } from "react-toastify";
+import ProfileEditModal from "../../components/ProfileEditModal";
 
 // Fallback logo URL
 const FALLBACK_LOGO = "https://www.mcanenugu.org.ng/img/core-img/logo.png";
 
 const UserDetails = () => {
   const [auth] = useAuth();
-  const [prayerTimes, setPrayerTimes] = useState({
-    fajr: "05:30",
-    dhuhr: "13:00",
-    asr: "16:15",
-    maghrib: "18:45",
-    isha: "20:00"
-  });
+  const [userProfile, setUserProfile] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [profileValidation, setProfileValidation] = useState(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
-  const user = {
-    name: auth?.user?.name || "N/A",
-    email: auth?.user?.email || "N/A",
-    gender: auth?.user?.gender || "N/A",
-    stateCode: auth?.user?.stateCode || "N/A",
-    batch: auth?.user?.batch || "N/A",
-    stream: auth?.user?.stream || "N/A",
-    callUpNumber: auth?.user?.callUpNumber || "N/A",
+  // Fetch user profile data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        setLoading(true);
+        const response = await getUserProfile();
+        if (response.success) {
+          setUserProfile(response.user);
+          setProfileValidation(validateProfileCompletion(response.user));
+        } else {
+          toast.error('Failed to load profile data');
+        }
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+        toast.error('Failed to load profile data');
+        // Fallback to auth context data
+        if (auth?.user) {
+          setUserProfile(auth.user);
+          setProfileValidation(validateProfileCompletion(auth.user));
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (auth?.user && auth?.token) {
+      fetchUserProfile();
+    } else {
+      setLoading(false);
+    }
+  }, [auth]);
+
+  // Format user data for display
+  const user = userProfile ? formatNyscDetails(userProfile) : {
+    name: "Loading...",
+    email: "Loading...",
+    gender: "Loading...",
+    stateCode: "Loading...",
+    batch: "Loading...",
+    stream: "Loading...",
+    callUpNumber: "Loading...",
+    phone: "Loading...",
+    institution: "Loading...",
+    course: "Loading..."
+  };
+
+  // Handle profile update
+  const handleProfileUpdate = (updatedUser) => {
+    setUserProfile(updatedUser);
+    setProfileValidation(validateProfileCompletion(updatedUser));
+    // Update auth context if needed
+    if (auth?.user) {
+      const updatedAuth = {
+        ...auth,
+        user: { ...auth.user, ...updatedUser }
+      };
+      localStorage.setItem('auth', JSON.stringify(updatedAuth));
+    }
   };
 
   // Mock data - In real app, these would come from API
@@ -44,87 +97,153 @@ const UserDetails = () => {
       logoSrc={mcanLogo}
       logoAlt="MCAN Logo"
       fallbackLogoSrc={FALLBACK_LOGO}
+      navbar={Navbar}
     >
       <div className="p-4 lg:p-8">
         {/* Page Header for Desktop */}
         <MobilePageHeader
           title="User Profile"
-          subtitle={`Welcome back, ${user.name}`}
+          subtitle={loading ? "Loading..." : `Welcome back, ${userProfile?.name || 'User'}`}
           icon={FaUserCircle}
           showOnMobile={false}
         />
 
+        {/* Profile Completion Status */}
+        {!loading && profileValidation && !profileValidation.isComplete && (
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-sm font-medium text-yellow-800">Complete Your Profile</h3>
+                <p className="text-xs text-yellow-600 mt-1">
+                  {profileValidation.completionPercentage}% complete - Please fill in the missing information
+                </p>
+              </div>
+              <button
+                onClick={() => setShowEditModal(true)}
+                className="text-yellow-600 hover:text-yellow-800 transition-colors"
+              >
+                <FaEdit className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="mt-2 bg-yellow-200 rounded-full h-2">
+              <div
+                className="bg-yellow-500 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${profileValidation.completionPercentage}%` }}
+              ></div>
+            </div>
+          </div>
+        )}
+
+        {/* Loading State */}
+        {loading && (
+          <div className="flex items-center justify-center py-12">
+            <FaSpinner className="animate-spin text-mcan-primary text-2xl mr-3" />
+            <span className="text-gray-600">Loading profile data...</span>
+          </div>
+        )}
+
         {/* User Information Section */}
-        <FormSection
-          title="Personal Information"
-          icon={FaUserCircle}
-          columns={2}
-          className="mb-6"
-        >
-          <FormField label="Full Name">
-            <div className="p-3 bg-gray-50 rounded-md border">
-              {user.name}
-            </div>
-          </FormField>
+        {!loading && (
+          <FormSection
+            title="Personal Information"
+            icon={FaUserCircle}
+            columns={2}
+            className="mb-6"
+          >
+            <FormField label="Full Name">
+              <div className="p-3 bg-gray-50 rounded-md border">
+                {userProfile?.name || 'Not provided'}
+              </div>
+            </FormField>
 
-          <FormField label="Email Address">
-            <div className="p-3 bg-gray-50 rounded-md border">
-              {user.email}
-            </div>
-          </FormField>
+            <FormField label="Email Address">
+              <div className="p-3 bg-gray-50 rounded-md border">
+                {userProfile?.email || 'Not provided'}
+              </div>
+            </FormField>
 
-          <FormField label="Gender">
-            <div className="p-3 bg-gray-50 rounded-md border">
-              {user.gender}
-            </div>
-          </FormField>
+            <FormField label="Gender">
+              <div className="p-3 bg-gray-50 rounded-md border flex items-center">
+                <FaUser className="mr-2 text-mcan-primary" />
+                {user.gender}
+              </div>
+            </FormField>
 
-          <FormField label="State Code">
-            <div className="p-3 bg-gray-50 rounded-md border flex items-center">
-              <FaMapMarkerAlt className="mr-2 text-mcan-primary" />
-              {user.stateCode}
-            </div>
-          </FormField>
+            <FormField label="State Code">
+              <div className="p-3 bg-gray-50 rounded-md border flex items-center">
+                <FaMapMarkerAlt className="mr-2 text-mcan-primary" />
+                {user.stateCode}
+              </div>
+            </FormField>
 
-          <FormField label="Batch">
-            <div className="p-3 bg-gray-50 rounded-md border flex items-center">
-              <FaCalendarAlt className="mr-2 text-mcan-secondary" />
-              {user.batch}
-            </div>
-          </FormField>
+            <FormField label="Batch">
+              <div className="p-3 bg-gray-50 rounded-md border flex items-center">
+                <FaCalendarAlt className="mr-2 text-mcan-primary" />
+                {user.batch}
+              </div>
+            </FormField>
 
-          <FormField label="Stream">
-            <div className="p-3 bg-gray-50 rounded-md border flex items-center">
-              <FaStream className="mr-2 text-gray-500" />
-              {user.stream}
-            </div>
-          </FormField>
+            <FormField label="Stream">
+              <div className="p-3 bg-gray-50 rounded-md border flex items-center">
+                <FaStream className="mr-2 text-mcan-primary" />
+                {user.stream}
+              </div>
+            </FormField>
 
-          <FormField label="Call-Up Number" fullWidth>
-            <div className="p-3 bg-gray-50 rounded-md border flex items-center">
-              <FaIdCard className="mr-2 text-mcan-primary" />
-              {user.callUpNumber}
-            </div>
-          </FormField>
-        </FormSection>
+            <FormField label="Call-Up Number" fullWidth>
+              <div className="p-3 bg-gray-50 rounded-md border flex items-center">
+                <FaIdCard className="mr-2 text-mcan-primary" />
+                {user.callUpNumber}
+              </div>
+            </FormField>
+
+            {/* Additional Fields */}
+            {userProfile?.phone && (
+              <FormField label="Phone Number">
+                <div className="p-3 bg-gray-50 rounded-md border">
+                  {userProfile.phone}
+                </div>
+              </FormField>
+            )}
+
+            {userProfile?.institution && (
+              <FormField label="Institution">
+                <div className="p-3 bg-gray-50 rounded-md border">
+                  {userProfile.institution}
+                </div>
+              </FormField>
+            )}
+
+            {userProfile?.course && (
+              <FormField label="Course of Study">
+                <div className="p-3 bg-gray-50 rounded-md border">
+                  {userProfile.course}
+                </div>
+              </FormField>
+            )}
+          </FormSection>
+        )}
 
         {/* Prayer Times Section */}
         <FormSection
           title="Prayer Times"
           icon={FaPrayingHands}
-          subtitle="Today's prayer schedule"
+          subtitle="Live prayer schedule with current prayer highlighted"
           columns={1}
           className="mb-6"
         >
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {Object.entries(prayerTimes).map(([prayer, time]) => (
-              <div key={prayer} className="bg-white p-4 rounded-lg shadow border text-center">
-                <FaMosque className="text-mcan-primary text-xl mx-auto mb-2" />
-                <h4 className="font-semibold text-gray-800 capitalize mb-1">{prayer}</h4>
-                <p className="text-mcan-secondary font-medium">{time}</p>
-              </div>
-            ))}
-          </div>
+          <DynamicPrayerTimes />
+        </FormSection>
+
+        {/* Calendar Section */}
+        <FormSection
+          title="Calendar"
+          icon={FaCalendarAlt}
+          subtitle="Georgian and Islamic dates"
+          columns={1}
+          className="mb-6"
+        >
+          <DualCalendar />
         </FormSection>
 
         {/* Upcoming Activities Section */}
@@ -156,6 +275,14 @@ const UserDetails = () => {
           </div>
         </FormSection>
       </div>
+
+      {/* Profile Edit Modal */}
+      <ProfileEditModal
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        userProfile={userProfile}
+        onProfileUpdate={handleProfileUpdate}
+      />
     </MobileLayout>
   );
 };

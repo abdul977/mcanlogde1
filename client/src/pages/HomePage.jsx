@@ -4,12 +4,41 @@ import AccommodationTypes from "../components/DreamVacation";
 import IslamicLiving from "../components/NextTrip";
 import Accommodations from "../components/Hotels";
 import BlogSection from "../components/BlogSection";
+import DualCalendar from "../components/DualCalendar";
+import DynamicPrayerTimes from "../components/DynamicPrayerTimes";
 
 const HomePage = () => {
   return (
     <div className="bg-gray-50">
       {/* Hero Banner */}
       <Banner />
+
+      {/* Islamic Information Section - Moved up to be under search */}
+      <div className="bg-white py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl font-bold text-mcan-primary mb-3">
+              Islamic Calendar & Prayer Times
+            </h2>
+            <p className="text-gray-600 max-w-2xl mx-auto text-sm sm:text-base">
+              Stay connected with your Islamic obligations. View today's date in both Gregorian and Islamic calendars,
+              and keep track of prayer times throughout the day.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+            {/* Calendar Component */}
+            <div>
+              <DualCalendar />
+            </div>
+
+            {/* Prayer Times Component */}
+            <div>
+              <DynamicPrayerTimes />
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto">

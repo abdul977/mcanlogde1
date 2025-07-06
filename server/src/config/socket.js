@@ -110,12 +110,21 @@ export const initializeSocket = (server) => {
 export const socketUtils = {
   // Emit new message to thread participants
   emitNewMessage: async (threadId, message, excludeUserId = null) => {
-    if (!io) return;
+    if (!io) {
+      console.log('Socket.IO not initialized');
+      return;
+    }
 
     const socketData = {
       message,
       threadId
     };
+
+    console.log(`Emitting message to thread:${threadId}`, socketData);
+
+    // Get all sockets in the thread room for debugging
+    const socketsInRoom = await io.in(`thread:${threadId}`).fetchSockets();
+    console.log(`Sockets in thread:${threadId}:`, socketsInRoom.length);
 
     // Emit to all users in the thread (including sender for real-time sync)
     io.to(`thread:${threadId}`).emit('new-message', socketData);

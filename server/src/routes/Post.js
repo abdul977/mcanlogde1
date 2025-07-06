@@ -7,7 +7,8 @@ import {
   deletePostController,
   nearMosqueController,
   getAccommodationsByGender,
-  getRelatedPostController
+  getRelatedPostController,
+  searchAccommodationsController
 } from "../controller/Post.js";
 import { requireSignIn, isAdmin } from "../middlewares/Auth.js";
 
@@ -33,5 +34,8 @@ router.delete("/delete-post/:pid", requireSignIn, isAdmin, deletePostController)
 
 // Get accommodations near mosques
 router.get("/near-mosque", nearMosqueController);
+
+// Search accommodations
+router.get("/search/:keyword", searchAccommodationsController);
 
 export default router;

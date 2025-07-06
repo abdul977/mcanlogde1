@@ -72,20 +72,24 @@ const BlogSection = () => {
         </div>
 
         {/* Featured Blogs Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-12">
+        <div className={`grid gap-8 mb-12 ${
+          featuredBlogs.length === 1
+            ? 'grid-cols-1 max-w-2xl mx-auto'
+            : featuredBlogs.length === 2
+            ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto'
+            : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+        }`}>
           {featuredBlogs.map((blog, index) => (
-            <article 
-              key={blog._id} 
-              className={`bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300 ${
-                index === 0 ? 'md:col-span-2 lg:col-span-1' : ''
-              }`}
+            <article
+              key={blog._id}
+              className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition duration-300"
             >
               <div className="relative">
                 <img
                   src={blog.featuredImage}
                   alt={blog.title}
                   className={`w-full object-cover ${
-                    index === 0 ? 'h-64' : 'h-48'
+                    featuredBlogs.length === 1 ? 'h-80' : 'h-48'
                   }`}
                 />
                 <div className="absolute top-4 left-4 flex space-x-2">
@@ -113,7 +117,7 @@ const BlogSection = () => {
 
                 {/* Title */}
                 <h3 className={`font-bold text-gray-800 mb-3 line-clamp-2 ${
-                  index === 0 ? 'text-xl' : 'text-lg'
+                  featuredBlogs.length === 1 ? 'text-2xl' : 'text-lg'
                 }`}>
                   {blog.title}
                 </h3>

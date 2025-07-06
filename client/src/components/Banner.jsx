@@ -17,9 +17,9 @@ const Banner = () => {
       return;
     }
     try {
-      const url = `${import.meta.env.VITE_BASE_URL}/api/booking/search/${search.keyword}`;
+      const url = `${import.meta.env.VITE_BASE_URL}/api/post/search/${search.keyword}`;
       const { data } = await axios.get(url);
-      setSearch({ ...search, results: data });
+      setSearch({ ...search, results: data.results || data });
       navigate("/search");
     } catch (error) {
       console.error("Error during search API call:", error);
@@ -36,7 +36,7 @@ const Banner = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center mb-6">
           <FaMosque className="text-3xl sm:text-4xl mb-2 sm:mb-0 sm:mr-3 text-mcan-light" />
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-center">
-            Welcome to MCAN Lodge
+            Welcome to MCAN FCT
           </h1>
         </div>
 

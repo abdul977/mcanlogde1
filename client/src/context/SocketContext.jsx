@@ -21,26 +21,31 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (auth?.token && auth?.user) {
       // Initialize socket connection
-      const newSocket = io(import.meta.env.VITE_BASE_URL || 'http://localhost:3000', {
+      const socketUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
+      console.log('Connecting to socket server:', socketUrl);
+
+      const newSocket = io(socketUrl, {
         auth: {
           token: auth.token
         },
-        autoConnect: true
+        autoConnect: true,
+        transports: ['websocket', 'polling']
       });
 
       // Connection event handlers
       newSocket.on('connect', () => {
-        console.log('Connected to server');
+        console.log('✅ Socket connected to server:', socketUrl);
+        console.log('Socket ID:', newSocket.id);
         setIsConnected(true);
       });
 
-      newSocket.on('disconnect', () => {
-        console.log('Disconnected from server');
+      newSocket.on('disconnect', (reason) => {
+        console.log('❌ Socket disconnected from server:', reason);
         setIsConnected(false);
       });
 
       newSocket.on('connect_error', (error) => {
-        console.error('Connection error:', error);
+        console.error('🚨 Socket connection error:', error);
         setIsConnected(false);
       });
 
@@ -80,7 +85,10 @@ export const SocketProvider = ({ children }) => {
     // Join a chat thread
     joinThread: (threadId) => {
       if (socket && isConnected) {
+        console.log('Frontend: Joining thread:', threadId);
         socket.emit('join-thread', threadId);
+      } else {
+        console.log('Frontend: Cannot join thread - socket:', !!socket, 'isConnected:', isConnected);
       }
     },
 

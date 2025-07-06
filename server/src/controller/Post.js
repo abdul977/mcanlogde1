@@ -447,7 +447,7 @@ export const deletePostController = async (req, res) => {
 export const nearMosqueController = async (req, res) => {
   try {
     const { maxDistance = 1000 } = req.query; // Default 1km
-    
+
     const posts = await Post.find({
       mosqueProximity: { $lte: maxDistance },
       isAvailable: true,
@@ -465,6 +465,105 @@ export const nearMosqueController = async (req, res) => {
       success: false,
       message: "Error while fetching posts near mosques",
       error: error.message,
+    });
+  }
+};
+
+// Search accommodations
+export const searchAccommodationsController = async (req, res) => {
+  try {
+    const { keyword } = req.params;
+    const {
+      gender,
+      minPrice,
+      maxPrice,
+      accommodationType,
+      guests,
+      page = 1,
+      limit = 12
+    } = req.query;
+
+    if (!keyword || keyword.trim() === '') {
+      return res.status(400).json({
+        success: false,
+        message: "Search keyword is required"
+      });
+    }
+
+    // Build search query
+    let query = {
+      isAvailable: true,
+      $or: [
+        { title: { $regex: keyword, $options: 'i' } },
+        { location: { $regex: keyword, $options: 'i' } },
+        { description: { $regex: keyword, $options: 'i' } },
+        { accommodationType: { $regex: keyword, $options: 'i' } },
+        { nearArea: { $in: [new RegExp(keyword, 'i')] } },
+        { facilities: { $in: [new RegExp(keyword, 'i')] } }
+      ]
+    };
+
+    // Add filters
+    if (gender && gender !== 'all') {
+      const genderRestriction = gender === 'brothers' ? 'brothers' :
+                              gender === 'sisters' ? 'sisters' : 'family';
+      query.genderRestriction = genderRestriction;
+    }
+
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = parseInt(minPrice);
+      if (maxPrice) query.price.$lte = parseInt(maxPrice);
+    }
+
+    if (accommodationType && accommodationType !== 'all') {
+      query.accommodationType = accommodationType;
+    }
+
+    if (guests) {
+      query.guest = { $gte: parseInt(guests) };
+    }
+
+    // Calculate pagination
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    // Execute search
+    const posts = await Post.find(query)
+      .populate('category', 'name')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parseInt(limit))
+      .select('title location price accommodationType images slug guest genderRestriction mosqueProximity prayerFacilities nearbyFacilities facilities');
+
+    const total = await Post.countDocuments(query);
+
+    res.status(200).json({
+      success: true,
+      message: `Found ${total} accommodations matching "${keyword}"`,
+      results: posts,
+      pagination: {
+        current: parseInt(page),
+        pages: Math.ceil(total / parseInt(limit)),
+        total,
+        limit: parseInt(limit)
+      },
+      searchQuery: {
+        keyword,
+        filters: {
+          gender,
+          minPrice,
+          maxPrice,
+          accommodationType,
+          guests
+        }
+      }
+    });
+  } catch (error) {
+    console.error("Error searching accommodations:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error searching accommodations",
+      error: error.message
     });
   }
 };

@@ -64,20 +64,26 @@ const AdminChatInterface = ({ onBack, recipientId, recipientName }) => {
   // Socket.IO real-time message handling
   useEffect(() => {
     if (threadId && isConnected) {
+      console.log('AdminChat: Joining thread:', threadId, 'isConnected:', isConnected);
       // Join the thread for real-time updates
       joinThread(threadId);
 
       // Listen for new messages
       const unsubscribeNewMessage = onNewMessage((data) => {
+        console.log('AdminChat: Received new message:', data);
         if (data.threadId === threadId) {
           setMessages(prev => {
             // Check if message already exists to prevent duplicates
             const messageExists = prev.some(msg => msg._id === data.message._id);
             if (messageExists) {
+              console.log('AdminChat: Message already exists, skipping');
               return prev;
             }
+            console.log('AdminChat: Adding new message to state');
             return [...prev, data.message];
           });
+        } else {
+          console.log('AdminChat: Message threadId mismatch:', data.threadId, 'vs', threadId);
         }
       });
 
@@ -163,6 +169,9 @@ const AdminChatInterface = ({ onBack, recipientId, recipientName }) => {
     if (!newMessage.trim() || !recipientId) return;
 
     handleStopTyping(); // Stop typing when sending message
+
+    console.log('AdminChat: Sending message with threadId:', threadId);
+    console.log('AdminChat: Recipient ID:', recipientId);
 
     try {
       setSending(true);

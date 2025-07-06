@@ -65,6 +65,9 @@ import MyBookings from "./pages/User/MyBookings";
 import UserMessages from "./pages/User/UserMessages";
 import AdminMessages from "./pages/Admin/AdminMessages";
 import { SocketProvider } from "./context/SocketContext";
+import PrayerTimesBanner from "./components/PrayerTimesBanner";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const location = useLocation();
@@ -83,34 +86,7 @@ function App() {
         <Navbar />
 
       {/* Prayer Times Banner - Shows local prayer times */}
-      <div className="bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white text-xs sm:text-sm py-2">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-center items-center">
-            {/* Desktop Layout */}
-            <div className="hidden sm:flex items-center space-x-4 md:space-x-6">
-              <span>Fajr 5:30</span>
-              <span>Dhuhr 13:00</span>
-              <span>Asr 16:15</span>
-              <span>Maghrib 18:45</span>
-              <span>Isha 20:00</span>
-            </div>
-
-            {/* Mobile Layout */}
-            <div className="sm:hidden flex items-center justify-center">
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <span>Fajr 5:30</span>
-                <span>Dhuhr 13:00</span>
-                <span>Asr 16:15</span>
-              </div>
-              <div className="mx-2 text-gray-300">|</div>
-              <div className="grid grid-cols-2 gap-2 text-center">
-                <span>Maghrib 18:45</span>
-                <span>Isha 20:00</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <PrayerTimesBanner />
 
       {/* Main Content */}
       <main className="flex-grow">
@@ -196,6 +172,20 @@ function App() {
           </div>
         </div>
       )}
+
+      {/* Toast Notifications */}
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
       </div>
     </SocketProvider>
   );
