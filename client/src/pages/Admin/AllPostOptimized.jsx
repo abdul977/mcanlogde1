@@ -5,9 +5,9 @@ import { useNavigate, Link } from "react-router-dom";
 import { FaHome, FaEdit, FaTrash, FaEye, FaPlus, FaMapMarkerAlt, FaUsers } from "react-icons/fa";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
-import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
+import MobileLayout, { MobilePageHeader, MobileButton, MobileInput } from "../../components/Mobile/MobileLayout";
 import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
-import { FormField, ResponsiveSelect, MobileInput } from "../../components/Mobile/ResponsiveForm";
+import { FormField, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
 
 /**
  * EXAMPLE: Mobile-Optimized AllPost Component

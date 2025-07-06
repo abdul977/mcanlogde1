@@ -7,8 +7,8 @@ import "react-quill/dist/quill.snow.css";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
-import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
-import { ResponsiveForm, FormSection, FormField, MobileInput, ResponsiveTextarea, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
+import MobileLayout, { MobilePageHeader, MobileButton, MobileInput } from "../../components/Mobile/MobileLayout";
+import { ResponsiveForm, FormSection, FormField, ResponsiveTextarea, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
 
 const CreateBlog = () => {
   const [auth] = useAuth();

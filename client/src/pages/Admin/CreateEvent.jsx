@@ -5,8 +5,8 @@ import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
 import { FaCalendarAlt, FaMapMarkerAlt, FaImage, FaUsers, FaClock, FaEdit, FaSave } from "react-icons/fa";
 import Navbar from "./Navbar";
-import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
-import { ResponsiveForm, FormSection, FormField, MobileInput, ResponsiveTextarea, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
+import MobileLayout, { MobilePageHeader, MobileButton, MobileInput } from "../../components/Mobile/MobileLayout";
+import { ResponsiveForm, FormSection, FormField, ResponsiveTextarea, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
