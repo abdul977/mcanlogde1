@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaPlus, FaEye, FaSync, FaBars, FaTimes, FaTachometerAlt, FaChartBar } from "react-icons/fa";
+import { FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaPlus, FaEye, FaSync, FaBars, FaTimes, FaTachometerAlt, FaChartBar, FaShoppingBag, FaShoppingCart } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
@@ -15,7 +15,9 @@ const AdminDashboard = () => {
     quranClasses: 0,
     resources: 0,
     community: 0,
-    donations: 0
+    donations: 0,
+    products: 0,
+    orders: 0
   });
   const [loading, setLoading] = useState(true);
 
@@ -30,7 +32,9 @@ const AdminDashboard = () => {
         { key: 'quranClasses', url: '/api/quran-classes/admin/get-all-classes' },
         { key: 'resources', url: '/api/resources/admin/get-all-resources' },
         { key: 'community', url: '/api/community/admin/get-all-community' },
-        { key: 'donations', url: '/api/donations/admin/get-all-donations' }
+        { key: 'donations', url: '/api/donations/admin/get-all-donations' },
+        { key: 'products', url: '/api/products/admin/stats' },
+        { key: 'orders', url: '/api/orders/admin/stats' }
       ];
 
       const newStats = { ...stats };
@@ -121,6 +125,24 @@ const AdminDashboard = () => {
       createLink: "/admin/create-donation",
       viewLink: "/admin/donations",
       description: "Manage donation campaigns and sponsorships"
+    },
+    {
+      title: "Products",
+      count: stats.products,
+      icon: <FaShoppingBag className="text-4xl text-white" />,
+      color: "from-indigo-500 to-indigo-600",
+      createLink: "/admin/create-product",
+      viewLink: "/admin/products",
+      description: "Manage MCAN Store products and inventory"
+    },
+    {
+      title: "Orders",
+      count: stats.orders,
+      icon: <FaShoppingCart className="text-4xl text-white" />,
+      color: "from-teal-500 to-teal-600",
+      createLink: "/admin/orders",
+      viewLink: "/admin/orders",
+      description: "Manage customer orders and fulfillment"
     }
   ];
 

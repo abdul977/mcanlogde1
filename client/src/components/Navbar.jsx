@@ -102,6 +102,9 @@ const Navbar = () => {
             <Link to="/resources" className="text-white hover:text-mcan-light transition duration-300">
               Resources
             </Link>
+            <Link to="/shop" className="text-white hover:text-mcan-light transition duration-300">
+              Shop
+            </Link>
             <Link to="/contact" className="text-white hover:text-mcan-light transition duration-300">
               Contact
             </Link>
@@ -211,6 +214,13 @@ const Navbar = () => {
               onClick={closeMobileMenu}
             >
               Islamic Resources
+            </Link>
+            <Link
+              to="/shop"
+              className="block px-3 py-2 text-white hover:bg-mcan-secondary rounded-md transition duration-300"
+              onClick={closeMobileMenu}
+            >
+              Shop
             </Link>
             <Link
               to="/contact"

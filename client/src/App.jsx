@@ -57,6 +57,16 @@ import AllDonations from "./pages/Admin/AllDonations";
 import EditDonation from "./pages/Admin/EditDonation";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AllBookings from "./pages/Admin/AllBookings";
+import CreateProduct from "./pages/Admin/CreateProduct";
+import EditProduct from "./pages/Admin/EditProduct";
+import AllProducts from "./pages/Admin/AllProducts";
+import CreateProductCategory from "./pages/Admin/CreateProductCategory";
+import AllProductCategories from "./pages/Admin/AllProductCategories";
+import AllOrders from "./pages/Admin/AllOrders";
+import Shop from "./pages/Shop";
+import ProductDetail from "./pages/ProductDetail";
+import Checkout from "./pages/Checkout";
+import OrderConfirmation from "./pages/OrderConfirmation";
 import CartPage from "./pages/CartPage";
 import ThankYou from "./components/ThankYou";
 import SelectedCategory from "./pages/SelectedCategory";
@@ -113,6 +123,11 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/saved-accommodations" element={<CartPage />} />
           <Route path="/category/:slug" element={<SelectedCategory />} />
+          {/* Shop routes */}
+          <Route path="/shop" element={<Shop />} />
+          <Route path="/shop/product/:slug" element={<ProductDetail />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-confirmation/:orderNumber" element={<OrderConfirmation />} />
 
           {/* User Routes */}
           <Route path="/user" element={<UserRoutes />}>
@@ -154,6 +169,13 @@ function App() {
             <Route path="edit-donation/:id" element={<EditDonation />} />
             <Route path="bookings" element={<AllBookings />} />
             <Route path="messages" element={<AdminMessages />} />
+            {/* E-commerce routes */}
+            <Route path="create-product" element={<CreateProduct />} />
+            <Route path="edit-product/:id" element={<EditProduct />} />
+            <Route path="products" element={<AllProducts />} />
+            <Route path="create-product-category" element={<CreateProductCategory />} />
+            <Route path="product-categories" element={<AllProductCategories />} />
+            <Route path="orders" element={<AllOrders />} />
           </Route>
         </Routes>
       </main>

@@ -20,6 +20,9 @@ import quranClassRoutes from "./src/routes/QuranClass.js";
 import resourceRoutes from "./src/routes/Resource.js";
 import communityRoutes from "./src/routes/Community.js";
 import donationRoutes from "./src/routes/Donation.js";
+import productRoutes from "./src/routes/Product.js";
+import productCategoryRoutes from "./src/routes/ProductCategory.js";
+import orderRoutes from "./src/routes/Order.js";
 import bookingRoutes from "./src/routes/Booking.js";
 import messageRoutes from "./src/routes/Message.js";
 
@@ -97,6 +100,10 @@ app.use("/api/donations", donationRoutes);
 app.use("/api/lectures", lectureRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/messages", messageRoutes);
+// E-commerce routes
+app.use("/api/products", productRoutes);
+app.use("/api/product-categories", productCategoryRoutes);
+app.use("/api/orders", orderRoutes);
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';

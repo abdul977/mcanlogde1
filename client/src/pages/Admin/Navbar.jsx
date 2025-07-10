@@ -1,5 +1,5 @@
 import React from "react";
-import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt, FaPen, FaBlog, FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaClipboardList, FaComments } from "react-icons/fa";
+import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt, FaPen, FaBlog, FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaClipboardList, FaComments, FaShoppingBag, FaShoppingCart } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const navbarMenu = [
@@ -44,6 +44,13 @@ const navbarMenu = [
   // Bookings & Messages
   { id: 21, name: "All Bookings", link: "/admin/bookings", icon: <FaClipboardList /> },
   { id: 22, name: "Messages", link: "/admin/messages", icon: <FaComments /> },
+
+  // E-commerce / Shop
+  { id: 23, name: "Create Product", link: "/admin/create-product", icon: <FaShoppingBag /> },
+  { id: 24, name: "All Products", link: "/admin/products", icon: <FaShoppingBag /> },
+  { id: 25, name: "Create Product Category", link: "/admin/create-product-category", icon: <FaFolder /> },
+  { id: 26, name: "Product Categories", link: "/admin/product-categories", icon: <FaFolder /> },
+  { id: 27, name: "All Orders", link: "/admin/orders", icon: <FaShoppingCart /> },
 ];
 
 const Navbar = ({ onItemClick }) => {
