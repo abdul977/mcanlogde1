@@ -61,6 +61,7 @@ import CreateProduct from "./pages/Admin/CreateProduct";
 import EditProduct from "./pages/Admin/EditProduct";
 import AllProducts from "./pages/Admin/AllProducts";
 import CreateProductCategory from "./pages/Admin/CreateProductCategory";
+import EditProductCategory from "./pages/Admin/EditProductCategory";
 import AllProductCategories from "./pages/Admin/AllProductCategories";
 import AllOrders from "./pages/Admin/AllOrders";
 import Shop from "./pages/Shop";
@@ -174,6 +175,7 @@ function App() {
             <Route path="edit-product/:id" element={<EditProduct />} />
             <Route path="products" element={<AllProducts />} />
             <Route path="create-product-category" element={<CreateProductCategory />} />
+            <Route path="edit-product-category/:id" element={<EditProductCategory />} />
             <Route path="product-categories" element={<AllProductCategories />} />
             <Route path="orders" element={<AllOrders />} />
           </Route>

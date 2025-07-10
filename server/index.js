@@ -69,7 +69,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 app.use(fileUpload({
   useTempFiles: true,
-  tempFileDir: '/tmp/',
+  tempFileDir: './tmp/',
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   abortOnLimit: true,
   preserveExtension: true,

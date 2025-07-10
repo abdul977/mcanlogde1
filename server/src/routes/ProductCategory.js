@@ -3,6 +3,7 @@ import {
   createProductCategoryController,
   getAllProductCategoriesController,
   getProductCategoryController,
+  getProductCategoryByIdController,
   updateProductCategoryController,
   deleteProductCategoryController,
   getFeaturedCategoriesController,
@@ -26,6 +27,7 @@ router.get("/:id/subcategories", getSubcategoriesController);
 router.get("/:slug", getProductCategoryController);
 
 // Admin routes - Category management
+router.get("/admin/get-by-id/:id", requireSignIn, isAdmin, getProductCategoryByIdController);
 router.post("/admin/create", requireSignIn, isAdmin, createProductCategoryController);
 router.put("/admin/update/:id", requireSignIn, isAdmin, updateProductCategoryController);
 router.delete("/admin/delete/:id", requireSignIn, isAdmin, deleteProductCategoryController);

@@ -32,11 +32,11 @@ export const getAllProductCategoriesController = async (req, res) => {
 export const getProductCategoryController = async (req, res) => {
   try {
     const { slug } = req.params;
-    
-    const category = await ProductCategory.findOne({ 
-      slug, 
-      isActive: true, 
-      isVisible: true 
+
+    const category = await ProductCategory.findOne({
+      slug,
+      isActive: true,
+      isVisible: true
     });
 
     if (!category) {
@@ -49,6 +49,35 @@ export const getProductCategoryController = async (req, res) => {
     res.status(200).send({
       success: true,
       message: "Category fetched successfully",
+      category
+    });
+  } catch (error) {
+    console.error("Error fetching product category:", error);
+    res.status(500).send({
+      success: false,
+      message: "Error while getting product category",
+      error: error.message
+    });
+  }
+};
+
+// Get single product category by ID (admin only)
+export const getProductCategoryByIdController = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const category = await ProductCategory.findById(id).populate('parent', 'name slug');
+
+    if (!category) {
+      return res.status(404).send({
+        success: false,
+        message: "Product category not found"
+      });
+    }
+
+    res.status(200).send({
+      success: true,
+      message: "Product category fetched successfully",
       category
     });
   } catch (error) {
