@@ -226,65 +226,78 @@ const AllProductCategories = () => {
   ];
 
   const CategoryCard = ({ item: category, onEdit, onDelete, onView }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-center space-x-3">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-3 sm:p-4 lg:p-5 hover:shadow-md transition-shadow duration-200">
+      {/* Header Section - Responsive Layout */}
+      <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between mb-3 gap-2 xs:gap-3">
+        <div className="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
           {category.image && (
-            <img 
-              src={category.image} 
+            <img
+              src={category.image}
               alt={category.name}
-              className="w-12 h-12 rounded-lg object-cover"
+              className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 rounded-lg object-cover flex-shrink-0"
             />
           )}
-          <div>
-            <h3 className="font-medium text-gray-900">{category.name}</h3>
-            <p className="text-sm text-gray-500">Level {category.level}</p>
+          <div className="min-w-0 flex-1">
+            <h3 className="font-medium text-gray-900 text-sm sm:text-base lg:text-lg truncate">
+              {category.name}
+            </h3>
+            <p className="text-xs sm:text-sm text-gray-500">Level {category.level}</p>
           </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <span className={`px-2 py-1 text-xs rounded-full ${
-            category.isActive 
-              ? 'bg-green-100 text-green-800' 
+
+        {/* Status and Featured - Responsive */}
+        <div className="flex items-center space-x-1 sm:space-x-2 flex-shrink-0">
+          <span className={`px-2 py-1 text-xs rounded-full whitespace-nowrap ${
+            category.isActive
+              ? 'bg-green-100 text-green-800'
               : 'bg-red-100 text-red-800'
           }`}>
             {category.isActive ? 'Active' : 'Inactive'}
           </span>
           {category.isFeatured && (
-            <FaStar className="text-yellow-500" />
+            <FaStar className="text-yellow-500 text-sm sm:text-base" />
           )}
         </div>
       </div>
-      
-      <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+
+      {/* Description - Responsive Text */}
+      <p className="text-gray-600 text-xs sm:text-sm lg:text-base mb-3 line-clamp-2 leading-relaxed">
         {category.description}
       </p>
-      
-      <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-        <span>{category.productCount || 0} products</span>
-        <span>{new Date(category.createdAt).toLocaleDateString()}</span>
+
+      {/* Stats Section - Responsive Layout */}
+      <div className="flex flex-col xs:flex-row xs:items-center xs:justify-between text-xs sm:text-sm text-gray-500 mb-4 gap-1 xs:gap-2">
+        <span className="font-medium">{category.productCount || 0} products</span>
+        <span className="text-gray-400 xs:text-gray-500">
+          {new Date(category.createdAt).toLocaleDateString()}
+        </span>
       </div>
-      
-      <div className="flex space-x-2">
+
+      {/* Action Buttons - Enhanced Responsive Layout */}
+      <div className="flex flex-col xs:flex-row gap-2 xs:gap-1 sm:gap-2">
         <button
           onClick={() => onView(category)}
-          className="flex-1 bg-blue-50 text-blue-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
+          className="flex-1 bg-blue-50 text-blue-600 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium hover:bg-blue-100 transition-colors min-h-[44px] xs:min-h-[36px] sm:min-h-[40px] flex items-center justify-center"
         >
-          <FaEye className="inline mr-1" />
-          View
+          <FaEye className="inline mr-1 text-xs sm:text-sm" />
+          <span className="hidden xs:inline">View</span>
+          <span className="xs:hidden">View Details</span>
         </button>
         <button
           onClick={() => onEdit(category)}
-          className="flex-1 bg-yellow-50 text-yellow-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-yellow-100 transition-colors"
+          className="flex-1 bg-yellow-50 text-yellow-600 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium hover:bg-yellow-100 transition-colors min-h-[44px] xs:min-h-[36px] sm:min-h-[40px] flex items-center justify-center"
         >
-          <FaEdit className="inline mr-1" />
-          Edit
+          <FaEdit className="inline mr-1 text-xs sm:text-sm" />
+          <span className="hidden xs:inline">Edit</span>
+          <span className="xs:hidden">Edit Category</span>
         </button>
         <button
           onClick={() => onDelete(category._id)}
-          className="flex-1 bg-red-50 text-red-600 px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
+          className="flex-1 bg-red-50 text-red-600 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg text-xs sm:text-sm font-medium hover:bg-red-100 transition-colors min-h-[44px] xs:min-h-[36px] sm:min-h-[40px] flex items-center justify-center"
         >
-          <FaTrash className="inline mr-1" />
-          Delete
+          <FaTrash className="inline mr-1 text-xs sm:text-sm" />
+          <span className="hidden xs:inline">Delete</span>
+          <span className="xs:hidden">Delete Category</span>
         </button>
       </div>
     </div>
@@ -297,58 +310,65 @@ const AllProductCategories = () => {
       icon={FaFolder}
       navbar={Navbar}
     >
-      <div className="p-4 lg:p-8">
-        {/* Header Actions */}
-        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4 flex-1">
-            {/* Search */}
-            <div className="relative flex-1 max-w-md">
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+      <div className="p-3 sm:p-4 md:p-6 lg:p-8">
+        {/* Header Actions - Enhanced Responsive Layout */}
+        <div className="flex flex-col sm:flex-row lg:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6">
+          {/* Search Section */}
+          <div className="flex flex-col xs:flex-row gap-3 sm:gap-4 flex-1 min-w-0">
+            <div className="relative flex-1 max-w-full sm:max-w-md lg:max-w-lg xl:max-w-xl">
+              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm" />
               <MobileInput
                 type="text"
                 placeholder="Search categories..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 text-sm sm:text-base"
               />
             </div>
           </div>
 
-          <Link to="/admin/create-product-category">
-            <MobileButton icon={FaPlus}>
-              Add Category
-            </MobileButton>
-          </Link>
+          {/* Add Button - Responsive */}
+          <div className="flex-shrink-0 w-full sm:w-auto">
+            <Link to="/admin/create-product-category" className="block w-full sm:w-auto">
+              <MobileButton icon={FaPlus} className="w-full sm:w-auto justify-center sm:justify-start">
+                <span className="sm:hidden">Add New Category</span>
+                <span className="hidden sm:inline">Add Category</span>
+              </MobileButton>
+            </Link>
+          </div>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-4 lg:p-6 mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <FormField label="Status">
+        {/* Filters - Enhanced Responsive Grid */}
+        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4 lg:p-6 mb-4 sm:mb-6">
+          <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+            <FormField label="Status" className="w-full">
               <ResponsiveSelect
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
                 options={statusOptions}
+                className="text-sm sm:text-base"
               />
             </FormField>
 
-            <FormField label="Level">
+            <FormField label="Level" className="w-full">
               <ResponsiveSelect
                 value={levelFilter}
                 onChange={(e) => setLevelFilter(e.target.value)}
                 options={levelOptions}
+                className="text-sm sm:text-base"
               />
             </FormField>
 
-            <FormField label="Sort By">
+            <FormField label="Sort By" className="w-full xs:col-span-2 md:col-span-1">
               <ResponsiveSelect
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
                 options={sortOptions}
+                className="text-sm sm:text-base"
               />
             </FormField>
 
-            <FormField label="Order">
+            <FormField label="Order" className="w-full xs:col-span-2 md:col-span-1">
               <ResponsiveSelect
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
@@ -356,6 +376,7 @@ const AllProductCategories = () => {
                   { value: "desc", label: "Descending" },
                   { value: "asc", label: "Ascending" }
                 ]}
+                className="text-sm sm:text-base"
               />
             </FormField>
           </div>

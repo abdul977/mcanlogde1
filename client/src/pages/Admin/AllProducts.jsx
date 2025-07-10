@@ -82,7 +82,7 @@ const AllProducts = () => {
       if (statusFilter) params.append('status', statusFilter);
 
       const { data } = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/products?${params}`,
+        `${import.meta.env.VITE_BASE_URL}/api/products/admin/all?${params}`,
         {
           headers: {
             Authorization: `Bearer ${auth?.token}`

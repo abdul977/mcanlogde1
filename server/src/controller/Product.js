@@ -4,6 +4,32 @@ import supabaseStorage from "../services/supabaseStorage.js";
 import slug from "slugify";
 import mongoose from "mongoose";
 
+// Helper function to generate unique SKU
+const generateUniqueSKU = async (brand = "MCAN") => {
+  let attempts = 0;
+  const maxAttempts = 10;
+
+  while (attempts < maxAttempts) {
+    const prefix = brand.replace(/\s+/g, '').toUpperCase();
+    const timestamp = Date.now().toString();
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    const uniqueId = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const generatedSKU = `${prefix}-${timestamp}-${random}-${uniqueId}`;
+
+    // Check if this SKU already exists
+    const existingSku = await Product.findOne({ sku: generatedSKU });
+    if (!existingSku) {
+      return generatedSKU;
+    }
+
+    attempts++;
+    // Add a small delay to ensure different timestamps
+    await new Promise(resolve => setTimeout(resolve, 1));
+  }
+
+  throw new Error('Unable to generate unique SKU after multiple attempts');
+};
+
 // Get all products (public)
 export const getAllProductsController = async (req, res) => {
   try {
@@ -350,20 +376,27 @@ export const createProductController = async (req, res) => {
     } = req.body;
 
     // Validate required fields
-    if (!name || !description || !price || !sku || !category) {
+    if (!name || !description || !price || !category) {
       return res.status(400).send({
         success: false,
-        message: "Name, description, price, SKU, and category are required"
+        message: "Name, description, price, and category are required"
       });
     }
 
-    // Check if SKU already exists
-    const existingSku = await Product.findOne({ sku: sku.toUpperCase() });
-    if (existingSku) {
-      return res.status(409).send({
-        success: false,
-        message: "Product with this SKU already exists"
-      });
+    // Handle SKU - generate unique one if not provided or if conflict exists
+    let finalSku;
+    if (!sku || sku.trim() === '') {
+      console.log('No SKU provided, generating unique SKU...');
+      finalSku = await generateUniqueSKU(brand || "MCAN");
+      console.log(`Generated SKU: ${finalSku}`);
+    } else {
+      finalSku = sku.toUpperCase();
+      const existingSku = await Product.findOne({ sku: finalSku });
+      if (existingSku) {
+        console.log(`SKU conflict detected for ${finalSku}, generating unique SKU...`);
+        finalSku = await generateUniqueSKU(brand || "MCAN");
+        console.log(`Generated unique SKU: ${finalSku}`);
+      }
     }
 
     // Validate category exists
@@ -413,7 +446,7 @@ export const createProductController = async (req, res) => {
       shortDescription,
       price: Number(price),
       comparePrice: comparePrice ? Number(comparePrice) : undefined,
-      sku: sku.toUpperCase(),
+      sku: finalSku,
       category,
       brand,
       collection,
@@ -427,7 +460,7 @@ export const createProductController = async (req, res) => {
       metaTitle,
       metaDescription,
       isFeatured: isFeatured === 'true',
-      status: 'draft'
+      status: 'active'
     });
 
     await product.save();
@@ -459,9 +492,10 @@ export const createProductController = async (req, res) => {
     }
 
     if (error.code === 11000) {
+      console.error('Duplicate key error despite SKU generation:', error);
       return res.status(409).send({
         success: false,
-        message: "Product with this SKU already exists"
+        message: "Unexpected duplicate key error. Please try again."
       });
     }
 
@@ -730,6 +764,92 @@ export const bulkUpdateProductsController = async (req, res) => {
     res.status(500).send({
       success: false,
       message: "Error while bulk updating products",
+      error: error.message
+    });
+  }
+};
+
+// Get all products for admin (includes all statuses)
+export const getAllProductsAdminController = async (req, res) => {
+  try {
+    const {
+      category,
+      featured,
+      status, // No default status for admin
+      sort = 'createdAt',
+      order = 'desc',
+      page = 1,
+      limit = 20,
+      minPrice,
+      maxPrice,
+      inStock
+    } = req.query;
+
+    const query = {}; // No default filters for admin
+
+    // Add status filter only if specified
+    if (status) {
+      query.status = status;
+    }
+
+    // Add category filter
+    if (category) {
+      query.category = category;
+    }
+
+    // Add featured filter
+    if (featured === 'true') {
+      query.isFeatured = true;
+    }
+
+    // Add price range filter
+    if (minPrice || maxPrice) {
+      query.price = {};
+      if (minPrice) query.price.$gte = Number(minPrice);
+      if (maxPrice) query.price.$lte = Number(maxPrice);
+    }
+
+    // Add stock filter
+    if (inStock === 'true') {
+      query.$expr = {
+        $gt: [
+          { $subtract: ["$inventory.quantity", "$inventory.reservedQuantity"] },
+          0
+        ]
+      };
+    }
+
+    // Calculate pagination
+    const skip = (page - 1) * limit;
+    const sortOrder = order === 'desc' ? -1 : 1;
+    const sortObj = { [sort]: sortOrder };
+
+    // Get products with populated category
+    const products = await Product.find(query)
+      .populate('category', 'name slug description')
+      .sort(sortObj)
+      .skip(skip)
+      .limit(Number(limit));
+
+    // Get total count for pagination
+    const total = await Product.countDocuments(query);
+
+    res.status(200).send({
+      success: true,
+      message: "Products fetched successfully",
+      products,
+      pagination: {
+        page: Number(page),
+        limit: Number(limit),
+        total,
+        pages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching products for admin:", error);
+    res.status(500).send({
+      success: false,
+      message: "Error while getting products",
       error: error.message
     });
   }

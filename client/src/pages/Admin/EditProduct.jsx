@@ -417,15 +417,10 @@ const EditProduct = () => {
                 name="category"
                 value={formData.category}
                 onChange={handleInputChange}
+                options={categories.map(cat => ({ value: cat._id, label: cat.name }))}
+                placeholder="Select Category"
                 required
-              >
-                <option value="">Select Category</option>
-                {categories.map((category) => (
-                  <option key={category._id} value={category._id}>
-                    {category.name}
-                  </option>
-                ))}
-              </ResponsiveSelect>
+              />
             </FormField>
 
             <FormField label="Brand">
@@ -433,13 +428,8 @@ const EditProduct = () => {
                 name="brand"
                 value={formData.brand}
                 onChange={handleInputChange}
-              >
-                {brandOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </ResponsiveSelect>
+                options={brandOptions}
+              />
             </FormField>
 
             <FormField label="Collection">
@@ -447,13 +437,8 @@ const EditProduct = () => {
                 name="collection"
                 value={formData.collection}
                 onChange={handleInputChange}
-              >
-                {collectionOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </ResponsiveSelect>
+                options={collectionOptions}
+              />
             </FormField>
 
             <FormField label="Status">
@@ -461,13 +446,8 @@ const EditProduct = () => {
                 name="status"
                 value={formData.status}
                 onChange={handleInputChange}
-              >
-                {statusOptions.map((option) => (
-                  <option key={option.value} value={option.value}>
-                    {option.label}
-                  </option>
-                ))}
-              </ResponsiveSelect>
+                options={statusOptions}
+              />
             </FormField>
           </FormSection>
 

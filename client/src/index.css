@@ -36,8 +36,10 @@ select option {
   overflow: hidden;
 }
 
-/* Touch targets for mobile */
-@media (max-width: 768px) {
+/* Enhanced responsive utilities for better mobile experience */
+
+/* Touch targets for mobile - Enhanced */
+@media (max-width: 640px) {
   button, a, input, select, textarea {
     min-height: 44px;
   }
@@ -47,10 +49,60 @@ select option {
     min-height: 44px;
     min-width: 44px;
   }
+
+  /* Better button spacing on mobile */
+  .mobile-button-group button {
+    min-height: 48px;
+    padding: 12px 16px;
+  }
 }
 
-/* Responsive text scaling */
+/* Tablet optimizations */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .touch-target {
+    min-height: 40px;
+    min-width: 40px;
+  }
+}
+
+/* Enhanced responsive grid utilities */
+.responsive-grid-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-grid-auto {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 2rem;
+  }
+}
+
+/* Enhanced responsive text scaling */
 @media (max-width: 640px) {
+  .responsive-text-xs {
+    font-size: 0.75rem;
+    line-height: 1rem;
+  }
+
+  .responsive-text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .responsive-text-base {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
   .responsive-text-lg {
     font-size: 1rem;
     line-height: 1.5rem;
@@ -64,6 +116,62 @@ select option {
   .responsive-text-2xl {
     font-size: 1.25rem;
     line-height: 1.75rem;
+  }
+
+  .responsive-text-3xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+/* Tablet text scaling */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .responsive-text-lg {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+  }
+
+  .responsive-text-xl {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+
+  .responsive-text-2xl {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+}
+
+/* Enhanced spacing utilities */
+.responsive-spacing-sm {
+  padding: 0.75rem;
+}
+
+.responsive-spacing-md {
+  padding: 1rem;
+}
+
+.responsive-spacing-lg {
+  padding: 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-spacing-sm {
+    padding: 1rem;
+  }
+
+  .responsive-spacing-md {
+    padding: 1.5rem;
+  }
+
+  .responsive-spacing-lg {
+    padding: 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-spacing-lg {
+    padding: 2.5rem;
   }
 }
 

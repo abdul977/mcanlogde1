@@ -2,6 +2,7 @@ import express from "express";
 import {
   createProductController,
   getAllProductsController,
+  getAllProductsAdminController,
   getProductController,
   getProductByIdController,
   updateProductController,
@@ -28,6 +29,7 @@ router.get("/:slug", getProductController);
 router.get("/:id/related", getRelatedProductsController);
 
 // Admin routes - Product management
+router.get("/admin/all", requireSignIn, isAdmin, getAllProductsAdminController);
 router.get("/admin/get-product-by-id/:id", requireSignIn, isAdmin, getProductByIdController);
 router.post("/admin/create", requireSignIn, isAdmin, createProductController);
 router.put("/admin/update/:id", requireSignIn, isAdmin, updateProductController);

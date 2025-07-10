@@ -195,9 +195,10 @@ const CreateProduct = () => {
   // Generate SKU automatically
   const generateSKU = () => {
     const prefix = formData.brand.replace(/\s+/g, '').toUpperCase();
-    const timestamp = Date.now().toString().slice(-6);
-    const random = Math.floor(Math.random() * 100).toString().padStart(2, '0');
-    return `${prefix}-${timestamp}${random}`;
+    const timestamp = Date.now().toString();
+    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+    const uniqueId = Math.random().toString(36).substring(2, 8).toUpperCase();
+    return `${prefix}-${timestamp}-${random}-${uniqueId}`;
   };
 
   // Handle form submission

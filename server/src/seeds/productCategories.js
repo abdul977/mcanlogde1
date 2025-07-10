@@ -1,5 +1,5 @@
 import ProductCategory from "../models/ProductCategory.js";
-import connectDB from "../config/db.js";
+import { connectToDb } from "../config/db.js";
 
 const seedCategories = [
   {
@@ -220,7 +220,7 @@ const seedCategories = [
 
 const seedProductCategories = async () => {
   try {
-    await connectDB();
+    await connectToDb();
     
     console.log("Seeding product categories...");
     

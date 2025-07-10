@@ -156,12 +156,12 @@ export const ResponsiveDataDisplay = ({
 };
 
 /**
- * Card View Component
+ * Card View Component - Enhanced Responsive Layout
  */
 const CardView = ({ data, columns, onView, onEdit, onDelete, CardComponent }) => {
   if (CardComponent) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4 lg:space-y-6">
         {data.map((item, index) => (
           <CardComponent
             key={item.id || item._id || index}
@@ -176,7 +176,7 @@ const CardView = ({ data, columns, onView, onEdit, onDelete, CardComponent }) =>
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4 lg:space-y-6">
       {data.map((item, index) => (
         <DefaultCard
           key={item.id || item._id || index}
@@ -192,7 +192,7 @@ const CardView = ({ data, columns, onView, onEdit, onDelete, CardComponent }) =>
 };
 
 /**
- * Grid View Component
+ * Grid View Component - Enhanced Responsive Grid
  */
 const GridView = ({ data, columns, onView, onEdit, onDelete, GridComponent }) => {
   const { getResponsiveColumns } = useMobileResponsive();
@@ -200,7 +200,7 @@ const GridView = ({ data, columns, onView, onEdit, onDelete, GridComponent }) =>
 
   if (GridComponent) {
     return (
-      <div className={`grid grid-cols-${gridCols} gap-4`}>
+      <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
         {data.map((item, index) => (
           <GridComponent
             key={item.id || item._id || index}
@@ -215,7 +215,7 @@ const GridView = ({ data, columns, onView, onEdit, onDelete, GridComponent }) =>
   }
 
   return (
-    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4`}>
+    <div className="grid grid-cols-1 xs:grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
       {data.map((item, index) => (
         <DefaultGridCard
           key={item.id || item._id || index}

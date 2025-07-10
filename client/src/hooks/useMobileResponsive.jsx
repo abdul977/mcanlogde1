@@ -1,7 +1,14 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 
-// Mobile breakpoints
+// Enhanced Mobile breakpoints - Tailwind CSS compatible
 const BREAKPOINTS = {
+  xs: 0,      // Extra small devices
+  sm: 640,    // Small devices (landscape phones)
+  md: 768,    // Medium devices (tablets)
+  lg: 1024,   // Large devices (desktops)
+  xl: 1280,   // Extra large devices
+  '2xl': 1536, // 2X Extra large devices
+  // Legacy support
   mobile: 768,
   tablet: 1024,
   desktop: 1200
@@ -20,15 +27,33 @@ export const useMobileResponsive = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
 
+  // Enhanced breakpoint states
+  const [isXs, setIsXs] = useState(false);
+  const [isSm, setIsSm] = useState(false);
+  const [isMd, setIsMd] = useState(false);
+  const [isLg, setIsLg] = useState(false);
+  const [isXl, setIsXl] = useState(false);
+  const [is2Xl, setIs2Xl] = useState(false);
+
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
 
       setScreenSize({ width, height });
+
+      // Legacy breakpoints
       setIsMobile(width < BREAKPOINTS.mobile);
       setIsTablet(width >= BREAKPOINTS.mobile && width < BREAKPOINTS.tablet);
       setIsDesktop(width >= BREAKPOINTS.tablet);
+
+      // Enhanced breakpoints
+      setIsXs(width >= BREAKPOINTS.xs && width < BREAKPOINTS.sm);
+      setIsSm(width >= BREAKPOINTS.sm && width < BREAKPOINTS.md);
+      setIsMd(width >= BREAKPOINTS.md && width < BREAKPOINTS.lg);
+      setIsLg(width >= BREAKPOINTS.lg && width < BREAKPOINTS.xl);
+      setIsXl(width >= BREAKPOINTS.xl && width < BREAKPOINTS['2xl']);
+      setIs2Xl(width >= BREAKPOINTS['2xl']);
     };
 
     // Set initial values
@@ -50,11 +75,59 @@ export const useMobileResponsive = () => {
   const closeDesktopSidebar = () => setIsDesktopSidebarOpen(false);
   const openDesktopSidebar = () => setIsDesktopSidebarOpen(true);
 
+  // Enhanced responsive utilities
+  const isBreakpoint = (breakpoint) => {
+    const width = screenSize.width;
+    switch (breakpoint) {
+      case 'xs': return width >= BREAKPOINTS.xs && width < BREAKPOINTS.sm;
+      case 'sm': return width >= BREAKPOINTS.sm && width < BREAKPOINTS.md;
+      case 'md': return width >= BREAKPOINTS.md && width < BREAKPOINTS.lg;
+      case 'lg': return width >= BREAKPOINTS.lg && width < BREAKPOINTS.xl;
+      case 'xl': return width >= BREAKPOINTS.xl && width < BREAKPOINTS['2xl'];
+      case '2xl': return width >= BREAKPOINTS['2xl'];
+      default: return false;
+    }
+  };
+
+  const isBreakpointUp = (breakpoint) => {
+    return screenSize.width >= BREAKPOINTS[breakpoint];
+  };
+
+  const isBreakpointDown = (breakpoint) => {
+    return screenSize.width < BREAKPOINTS[breakpoint];
+  };
+
+  const getResponsiveColumns = (mobile = 1, tablet = 2, desktop = 3, xl = 4) => {
+    if (isMobile) return mobile;
+    if (isTablet) return tablet;
+    if (isXl || is2Xl) return xl;
+    return desktop;
+  };
+
+  const getResponsiveValue = (values) => {
+    const { xs, sm, md, lg, xl, '2xl': xxl } = values;
+    if (is2Xl && xxl !== undefined) return xxl;
+    if (isXl && xl !== undefined) return xl;
+    if (isLg && lg !== undefined) return lg;
+    if (isMd && md !== undefined) return md;
+    if (isSm && sm !== undefined) return sm;
+    return xs;
+  };
+
   return {
     screenSize,
+    // Legacy breakpoints
     isMobile,
     isTablet,
     isDesktop,
+    // Enhanced breakpoints
+    isXs,
+    isSm,
+    isMd,
+    isLg,
+    isXl,
+    is2Xl,
+    // Menu states
     isMobileMenuOpen,
     toggleMobileMenu,
     closeMobileMenu,
@@ -63,6 +136,12 @@ export const useMobileResponsive = () => {
     toggleDesktopSidebar,
     closeDesktopSidebar,
     openDesktopSidebar,
+    // Utilities
+    isBreakpoint,
+    isBreakpointUp,
+    isBreakpointDown,
+    getResponsiveColumns,
+    getResponsiveValue,
     breakpoints: BREAKPOINTS
   };
 };
