@@ -60,6 +60,18 @@ const buckets = [
     public: true,
     allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     fileSizeLimit: 5242880 // 5MB for message images
+  },
+  {
+    name: 'mcan-products',
+    public: true,
+    allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    fileSizeLimit: 5242880 // 5MB for product images
+  },
+  {
+    name: 'mcan-categories',
+    public: true,
+    allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    fileSizeLimit: 2097152 // 2MB for category images
   }
 ];
 

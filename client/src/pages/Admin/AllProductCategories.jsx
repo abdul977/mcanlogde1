@@ -147,66 +147,81 @@ const AllProductCategories = () => {
     {
       key: "name",
       label: "Category",
-      render: (category) => (
-        <div className="flex items-center space-x-3">
-          {category.image && (
-            <img 
-              src={category.image} 
-              alt={category.name}
-              className="w-10 h-10 rounded-lg object-cover"
-            />
-          )}
-          <div>
-            <div className="font-medium text-gray-900">{category.name}</div>
-            <div className="text-sm text-gray-500">Level {category.level}</div>
+      render: (category) => {
+        if (!category) return <span className="text-gray-400">-</span>;
+        return (
+          <div className="flex items-center space-x-3">
+            {category.image && (
+              <img
+                src={category.image}
+                alt={category.name}
+                className="w-10 h-10 rounded-lg object-cover"
+              />
+            )}
+            <div>
+              <div className="font-medium text-gray-900">{category.name}</div>
+              <div className="text-sm text-gray-500">Level {category.level}</div>
+            </div>
           </div>
-        </div>
-      )
+        );
+      }
     },
     {
       key: "description",
       label: "Description",
-      render: (category) => (
-        <div className="max-w-xs truncate text-gray-600">
-          {category.description}
-        </div>
-      )
+      render: (category) => {
+        if (!category) return <span className="text-gray-400">-</span>;
+        return (
+          <div className="max-w-xs truncate text-gray-600">
+            {category.description}
+          </div>
+        );
+      }
     },
     {
       key: "status",
       label: "Status",
-      render: (category) => (
-        <div className="flex items-center space-x-2">
-          <span className={`px-2 py-1 text-xs rounded-full ${
-            category.isActive 
-              ? 'bg-green-100 text-green-800' 
-              : 'bg-red-100 text-red-800'
-          }`}>
-            {category.isActive ? 'Active' : 'Inactive'}
-          </span>
-          {category.isFeatured && (
-            <FaStar className="text-yellow-500" />
-          )}
-        </div>
-      )
+      render: (category) => {
+        if (!category) return <span className="text-gray-400">-</span>;
+        return (
+          <div className="flex items-center space-x-2">
+            <span className={`px-2 py-1 text-xs rounded-full ${
+              category.isActive
+                ? 'bg-green-100 text-green-800'
+                : 'bg-red-100 text-red-800'
+            }`}>
+              {category.isActive ? 'Active' : 'Inactive'}
+            </span>
+            {category.isFeatured && (
+              <FaStar className="text-yellow-500" />
+            )}
+          </div>
+        );
+      }
     },
     {
       key: "productCount",
       label: "Products",
-      render: (category) => (
-        <span className="text-gray-900 font-medium">
-          {category.productCount || 0}
-        </span>
-      )
+      render: (category) => {
+        if (!category) return <span className="text-gray-400">-</span>;
+        return (
+          <span className="text-gray-900 font-medium">
+            {category.productCount || 0}
+          </span>
+        );
+      }
     },
     {
       key: "createdAt",
       label: "Created",
-      render: (category) => (
-        <span className="text-gray-600">
-          {new Date(category.createdAt).toLocaleDateString()}
-        </span>
-      )
+      render: (category) => {
+        if (!category) return <span className="text-gray-400">-</span>;
+        return (
+          <span className="text-gray-600">
+            {new Date(category.createdAt).toLocaleDateString()}
+          </span>
+        );
+      }
     }
   ];
 

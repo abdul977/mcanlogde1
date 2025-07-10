@@ -31,7 +31,9 @@ const validateMimeType = (mimeType, bucketName) => {
     'mcan-quran-classes': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     'mcan-authors': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     'mcan-participants': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-    'mcan-thumbnails': ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    'mcan-thumbnails': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    'mcan-products': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    'mcan-categories': ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
   };
 
   const allowedTypes = bucketRestrictions[bucketName];
@@ -50,14 +52,16 @@ class SupabaseStorageService {
   constructor() {
     this.buckets = {
       donations: 'mcan-donations',
-      posts: 'mcan-posts', 
+      posts: 'mcan-posts',
       community: 'mcan-community',
       resources: 'mcan-resources',
       services: 'mcan-services',
       quranClasses: 'mcan-quran-classes',
       authors: 'mcan-authors',
       participants: 'mcan-participants',
-      thumbnails: 'mcan-thumbnails'
+      thumbnails: 'mcan-thumbnails',
+      products: 'mcan-products',
+      categories: 'mcan-categories'
     };
   }
 

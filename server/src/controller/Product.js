@@ -382,11 +382,11 @@ export const createProductController = async (req, res) => {
 
       for (let i = 0; i < imageFiles.length; i++) {
         const file = imageFiles[i];
-        const uploadResult = await supabaseStorage.uploadFile(file, 'products');
+        const uploadResult = await supabaseStorage.uploadFromTempFile(file, 'mcan-products', 'products');
 
         if (uploadResult.success) {
           images.push({
-            url: uploadResult.url,
+            url: uploadResult.data.secure_url,
             alt: `${name} - Image ${i + 1}`,
             isPrimary: i === 0,
             sortOrder: i

@@ -223,9 +223,9 @@ export const createProductCategoryController = async (req, res) => {
     // Handle image upload if provided
     let image = null;
     if (req.files && req.files.image) {
-      const uploadResult = await supabaseStorage.uploadFile(req.files.image, 'categories');
+      const uploadResult = await supabaseStorage.uploadFromTempFile(req.files.image, 'mcan-categories', 'categories');
       if (uploadResult.success) {
-        image = uploadResult.url;
+        image = uploadResult.data.secure_url;
       }
     }
 

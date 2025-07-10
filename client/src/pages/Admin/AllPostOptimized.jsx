@@ -115,12 +115,12 @@ const AllPostOptimized = () => {
     {
       key: 'title',
       header: 'Title',
-      render: (value) => <span className="font-medium">{value}</span>
+      render: (item, value) => <span className="font-medium">{value}</span>
     },
     {
       key: 'location',
       header: 'Location',
-      render: (value) => (
+      render: (item, value) => (
         <div className="flex items-center">
           <FaMapMarkerAlt className="mr-1 text-mcan-primary" />
           {value}
@@ -130,7 +130,7 @@ const AllPostOptimized = () => {
     {
       key: 'guest',
       header: 'Guests',
-      render: (value) => (
+      render: (item, value) => (
         <div className="flex items-center">
           <FaUsers className="mr-1 text-mcan-secondary" />
           {value}
@@ -140,12 +140,12 @@ const AllPostOptimized = () => {
     {
       key: 'price',
       header: 'Price',
-      render: (value) => `₦${value?.toLocaleString()}/month`
+      render: (item, value) => `₦${value?.toLocaleString()}/month`
     },
     {
       key: 'isAvailable',
       header: 'Status',
-      render: (value) => (
+      render: (item, value) => (
         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
           value ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
         }`}>
