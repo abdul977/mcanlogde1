@@ -395,6 +395,17 @@ export const createProductController = async (req, res) => {
       }
     }
 
+    // Helper function to safely parse JSON
+    const safeJsonParse = (str, defaultValue) => {
+      if (!str || str === '') return defaultValue;
+      try {
+        return typeof str === 'string' ? JSON.parse(str) : str;
+      } catch (error) {
+        console.warn('JSON parse error:', error.message, 'for value:', str);
+        return defaultValue;
+      }
+    };
+
     // Create product
     const product = new Product({
       name,
@@ -406,11 +417,11 @@ export const createProductController = async (req, res) => {
       category,
       brand,
       collection,
-      variants: variants ? JSON.parse(variants) : [],
-      inventory: inventory ? JSON.parse(inventory) : { trackQuantity: true, quantity: 0 },
-      specifications: specifications ? JSON.parse(specifications) : [],
-      dimensions: dimensions ? JSON.parse(dimensions) : {},
-      weight: weight ? JSON.parse(weight) : {},
+      variants: safeJsonParse(variants, []),
+      inventory: safeJsonParse(inventory, { trackQuantity: true, quantity: 0 }),
+      specifications: safeJsonParse(specifications, []),
+      dimensions: safeJsonParse(dimensions, {}),
+      weight: safeJsonParse(weight, {}),
       tags: tags ? tags.split(',').map(tag => tag.trim().toLowerCase()) : [],
       images,
       metaTitle,
@@ -433,6 +444,27 @@ export const createProductController = async (req, res) => {
     });
   } catch (error) {
     console.error("Error creating product:", error);
+    console.error("Error stack:", error.stack);
+    console.error("Request body:", req.body);
+    console.error("Request files:", req.files);
+
+    // Handle specific error types
+    if (error.name === 'ValidationError') {
+      const validationErrors = Object.values(error.errors).map(err => err.message);
+      return res.status(400).send({
+        success: false,
+        message: "Validation failed",
+        errors: validationErrors
+      });
+    }
+
+    if (error.code === 11000) {
+      return res.status(409).send({
+        success: false,
+        message: "Product with this SKU already exists"
+      });
+    }
+
     res.status(500).send({
       success: false,
       message: "Error while creating product",
