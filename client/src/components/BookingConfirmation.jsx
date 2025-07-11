@@ -14,6 +14,7 @@ const BookingConfirmation = ({
   const [formData, setFormData] = useState({
     checkInDate: "",
     checkOutDate: "",
+    bookingDuration: 1,
     numberOfGuests: 1,
     userNotes: "",
     contactInfo: {
@@ -117,8 +118,17 @@ const BookingConfirmation = ({
       if (bookingType === "accommodation") {
         bookingData.accommodationId = accommodation._id;
         bookingData.checkInDate = formData.checkInDate;
-        bookingData.checkOutDate = formData.checkOutDate;
+        // Calculate check-out date based on duration
+        const checkOutDate = new Date(formData.checkInDate);
+        checkOutDate.setMonth(checkOutDate.getMonth() + parseInt(formData.bookingDuration || 1));
+        bookingData.checkOutDate = checkOutDate.toISOString().split('T')[0];
+        bookingData.bookingDuration = {
+          months: parseInt(formData.bookingDuration || 1),
+          startDate: formData.checkInDate,
+          endDate: checkOutDate.toISOString().split('T')[0]
+        };
         bookingData.numberOfGuests = formData.numberOfGuests;
+        bookingData.totalAmount = accommodation.price * parseInt(formData.bookingDuration || 1);
       } else {
         bookingData.programId = program._id;
         bookingData.programModel = program.model || "QuranClass";
@@ -212,8 +222,20 @@ const BookingConfirmation = ({
                   <FaUsers className="mr-2" />
                   {accommodation?.accommodationType} • Max {accommodation?.guest} guests
                 </div>
-                <div className="text-lg font-semibold text-green-600">
-                  ₦{accommodation?.price?.toLocaleString()}/month
+                <div className="space-y-1">
+                  <div className="text-sm text-gray-600">
+                    Monthly Rate: ₦{accommodation?.price?.toLocaleString()}
+                  </div>
+                  {formData.bookingDuration && formData.bookingDuration > 1 && (
+                    <div className="text-lg font-semibold text-green-600">
+                      Total ({formData.bookingDuration} months): ₦{(accommodation?.price * (formData.bookingDuration || 1))?.toLocaleString()}
+                    </div>
+                  )}
+                  {(!formData.bookingDuration || formData.bookingDuration === 1) && (
+                    <div className="text-lg font-semibold text-green-600">
+                      ₦{accommodation?.price?.toLocaleString()}/month
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (
@@ -248,17 +270,24 @@ const BookingConfirmation = ({
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Check-out Date *
+                  Booking Duration *
                 </label>
-                <input
-                  type="date"
-                  name="checkOutDate"
-                  value={formData.checkOutDate}
+                <select
+                  name="bookingDuration"
+                  value={formData.bookingDuration || 1}
                   onChange={handleInputChange}
-                  min={formData.checkInDate || new Date().toISOString().split('T')[0]}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mcan-primary focus:border-transparent"
                   required
-                />
+                >
+                  {[...Array(12)].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1} Month{i > 0 ? 's' : ''}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-sm text-gray-500 mt-1">
+                  Maximum booking duration is 12 months
+                </p>
               </div>
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -278,6 +307,41 @@ const BookingConfirmation = ({
                   ))}
                 </select>
               </div>
+            </div>
+          )}
+
+          {/* Payment Schedule Preview for Accommodations */}
+          {bookingType === "accommodation" && formData.bookingDuration > 1 && formData.checkInDate && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
+                <FaCalendar className="mr-2" />
+                Payment Schedule Preview
+              </h4>
+              <div className="space-y-2 text-sm">
+                {[...Array(parseInt(formData.bookingDuration || 1))].map((_, i) => {
+                  const dueDate = new Date(formData.checkInDate);
+                  dueDate.setMonth(dueDate.getMonth() + i);
+                  return (
+                    <div key={i} className="flex justify-between items-center py-1 border-b border-blue-100 last:border-b-0">
+                      <span className="text-blue-700">
+                        Month {i + 1}: {dueDate.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}
+                      </span>
+                      <span className="font-semibold text-blue-800">
+                        ₦{accommodation?.price?.toLocaleString()}
+                      </span>
+                    </div>
+                  );
+                })}
+                <div className="pt-2 mt-2 border-t border-blue-200">
+                  <div className="flex justify-between items-center font-semibold text-blue-800">
+                    <span>Total Amount:</span>
+                    <span>₦{(accommodation?.price * (formData.bookingDuration || 1))?.toLocaleString()}</span>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-blue-600 mt-3">
+                💡 You'll receive monthly payment reminders and can upload payment proofs for verification.
+              </p>
             </div>
           )}
 

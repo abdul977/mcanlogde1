@@ -67,6 +67,48 @@ const bookingSchema = new Schema({
     min: 1,
     max: 6
   },
+  // Yearly booking support
+  bookingDuration: {
+    months: {
+      type: Number,
+      min: 1,
+      max: 12,
+      default: 1
+    },
+    startDate: {
+      type: Date
+    },
+    endDate: {
+      type: Date
+    }
+  },
+  // Payment tracking
+  paymentSchedule: [{
+    monthNumber: {
+      type: Number,
+      required: true
+    },
+    dueDate: {
+      type: Date,
+      required: true
+    },
+    amount: {
+      type: Number,
+      required: true
+    },
+    status: {
+      type: String,
+      enum: ["pending", "paid", "overdue", "waived"],
+      default: "pending"
+    },
+    paidDate: {
+      type: Date
+    },
+    paymentProof: {
+      type: Schema.Types.ObjectId,
+      ref: "PaymentVerification"
+    }
+  }],
   // For program enrollments
   enrollmentDetails: {
     previousExperience: {
