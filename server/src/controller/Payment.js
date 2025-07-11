@@ -16,7 +16,14 @@ export const submitPaymentProof = async (req, res) => {
     console.log('=== Payment Proof Submission Started ===');
     console.log('Request body:', req.body);
     console.log('Request files:', req.files ? Object.keys(req.files) : 'No files');
-    console.log('Request file (multer):', req.file ? 'Present' : 'Not present');
+    if (req.files && req.files.paymentScreenshot) {
+      console.log('File details:', {
+        name: req.files.paymentScreenshot.name,
+        size: req.files.paymentScreenshot.size,
+        mimetype: req.files.paymentScreenshot.mimetype,
+        tempFilePath: req.files.paymentScreenshot.tempFilePath
+      });
+    }
     const {
       bookingId,
       monthNumber,
@@ -37,21 +44,36 @@ export const submitPaymentProof = async (req, res) => {
       });
     }
 
-    // Handle both multer (req.file) and express-fileupload (req.files) formats
+    // Handle express-fileupload format
     let uploadedFile = null;
 
-    if (req.file) {
-      // Multer format
-      uploadedFile = req.file;
-    } else if (req.files && req.files.paymentScreenshot) {
+    if (req.files && req.files.paymentScreenshot) {
       // Express-fileupload format
       const file = req.files.paymentScreenshot;
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'];
+      if (!allowedTypes.includes(file.mimetype)) {
+        return res.status(400).json({
+          success: false,
+          message: "Only image files (JPEG, PNG, GIF) and PDF files are allowed"
+        });
+      }
+
+      // Validate file size (10MB limit)
+      if (file.size > 10 * 1024 * 1024) {
+        return res.status(400).json({
+          success: false,
+          message: "File size too large. Maximum size is 10MB"
+        });
+      }
+
       uploadedFile = {
         filename: `payment_${bookingId}_${monthNumber}_${Date.now()}${path.extname(file.name)}`,
         originalname: file.name,
         size: file.size,
         mimetype: file.mimetype,
-        path: file.tempFilePath
+        tempFilePath: file.tempFilePath
       };
     }
 
@@ -62,13 +84,7 @@ export const submitPaymentProof = async (req, res) => {
       });
     }
 
-    const fileErrors = validatePaymentProofFile(uploadedFile);
-    if (fileErrors.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: fileErrors.join(', ')
-      });
-    }
+    // File validation is already done above, so we can skip this step
 
     // Verify booking exists and belongs to user
     const booking = await Booking.findOne({
@@ -98,17 +114,24 @@ export const submitPaymentProof = async (req, res) => {
     }
 
     // Handle file saving for express-fileupload format
-    if (req.files && req.files.paymentScreenshot) {
-      const uploadDir = path.join(process.cwd(), 'uploads', 'payments', 'screenshots');
+    const uploadDir = path.join(process.cwd(), 'src', 'uploads', 'payments', 'screenshots');
 
-      // Ensure directory exists
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
+    // Ensure directory exists
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
 
-      // Move file from temp location to permanent location
-      const finalPath = path.join(uploadDir, uploadedFile.filename);
+    // Move file from temp location to permanent location
+    const finalPath = path.join(uploadDir, uploadedFile.filename);
+    try {
       await req.files.paymentScreenshot.mv(finalPath);
+      console.log(`File saved successfully to: ${finalPath}`);
+    } catch (moveError) {
+      console.error("Error moving file:", moveError);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to save payment proof file"
+      });
     }
 
     // Create payment verification record

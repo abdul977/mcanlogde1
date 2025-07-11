@@ -12,15 +12,12 @@ import {
   getAuditStatistics
 } from '../controller/Payment.js';
 import { requireSignIn, isAdmin } from '../middlewares/Auth.js';
-import { uploadPaymentProof, handleUploadError } from '../utils/fileUpload.js';
 
 const router = express.Router();
 
-// User routes
+// User routes - Using express-fileupload (configured in index.js)
 router.post('/submit-proof',
   requireSignIn,
-  uploadPaymentProof.single('paymentScreenshot'),
-  handleUploadError,
   submitPaymentProof
 );
 
