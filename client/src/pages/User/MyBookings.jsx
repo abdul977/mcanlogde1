@@ -288,12 +288,12 @@ const MyBookings = () => {
   const BookingCard = ({ item, onView, onEdit, onDelete }) => (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
       {/* Header */}
-      <div className="p-4 bg-gradient-to-r from-mcan-primary/10 to-mcan-secondary/10">
-        <div className="flex items-center justify-between">
-          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(item.bookingType)}`}>
+      <div className="p-3 sm:p-4 bg-gradient-to-r from-mcan-primary/10 to-mcan-secondary/10">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-2 sm:space-y-0">
+          <span className={`self-start px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(item.bookingType)}`}>
             {item.bookingType && typeof item.bookingType === 'string' ? item.bookingType.replace('_', ' ').toUpperCase() : String(item.bookingType || '').toUpperCase()}
           </span>
-          <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(item.status)}`}>
+          <span className={`self-start px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(item.status)}`}>
             {item.status && typeof item.status === 'string' ? item.status.toUpperCase() : String(item.status || '').toUpperCase()}
           </span>
         </div>

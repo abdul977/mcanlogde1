@@ -4,6 +4,8 @@ import Notification from "../models/Notification.js";
 import User from "../models/User.js";
 import PaymentNotificationService from "../services/PaymentNotificationService.js";
 import PaymentReceiptService from "../services/PaymentReceiptService.js";
+import PaymentExportService from "../services/PaymentExportService.js";
+import PaymentAuditService from "../services/PaymentAuditService.js";
 import { getFileUrl, validatePaymentProofFile, getFileType } from "../utils/fileUpload.js";
 import path from 'path';
 import fs from 'fs';
@@ -153,6 +155,14 @@ export const submitPaymentProof = async (req, res) => {
       // Don't fail the payment submission if notifications fail
     }
 
+    // Log audit trail
+    try {
+      await PaymentAuditService.logPaymentSubmission(paymentVerification, req.user, req);
+    } catch (auditError) {
+      console.error("Error logging payment submission audit:", auditError);
+      // Don't fail the payment submission if audit logging fails
+    }
+
     res.status(201).json({
       success: true,
       message: "Payment proof submitted successfully",
@@ -247,6 +257,9 @@ export const verifyPayment = async (req, res) => {
       });
     }
 
+    // Store previous status for audit
+    const previousStatus = payment.verificationStatus;
+
     // Update payment verification
     payment.verificationStatus = action === 'approve' ? 'approved' : 'rejected';
     payment.verifiedBy = adminId;
@@ -315,6 +328,14 @@ export const verifyPayment = async (req, res) => {
     } catch (notificationError) {
       console.error("Error creating user notification:", notificationError);
       // Don't fail the verification if notifications fail
+    }
+
+    // Log audit trail
+    try {
+      await PaymentAuditService.logPaymentVerification(payment, req.user, action, adminNotes, previousStatus, req);
+    } catch (auditError) {
+      console.error("Error logging payment verification audit:", auditError);
+      // Don't fail the verification if audit logging fails
     }
 
     res.json({
@@ -478,6 +499,14 @@ export const downloadReceipt = async (req, res) => {
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader('Content-Disposition', `attachment; filename="receipt_${payment.receiptNumber}.pdf"`);
 
+    // Log audit trail
+    try {
+      await PaymentAuditService.logReceiptDownload(payment, req.user, req);
+    } catch (auditError) {
+      console.error("Error logging receipt download audit:", auditError);
+      // Don't fail the download if audit logging fails
+    }
+
     // Stream file
     const fileStream = require('fs').createReadStream(filepath);
     fileStream.pipe(res);
@@ -487,6 +516,195 @@ export const downloadReceipt = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to download receipt",
+      error: error.message
+    });
+  }
+};
+
+// Export payments to Excel
+export const exportPaymentsExcel = async (req, res) => {
+  try {
+    const {
+      startDate,
+      endDate,
+      status,
+      paymentMethod,
+      includeUserDetails = true,
+      includeBookingDetails = true,
+      includeFinancialSummary = true
+    } = req.query;
+
+    const filters = {
+      startDate,
+      endDate,
+      status,
+      paymentMethod
+    };
+
+    const options = {
+      includeUserDetails: includeUserDetails === 'true',
+      includeBookingDetails: includeBookingDetails === 'true',
+      includeFinancialSummary: includeFinancialSummary === 'true'
+    };
+
+    const exportResult = await PaymentExportService.exportToExcel(filters, options);
+
+    // Log audit trail
+    try {
+      await PaymentAuditService.logPaymentExport(req.user, {
+        format: 'excel',
+        filters,
+        recordCount: exportResult.recordCount,
+        filename: exportResult.filename
+      }, req);
+    } catch (auditError) {
+      console.error("Error logging export audit:", auditError);
+      // Don't fail the export if audit logging fails
+    }
+
+    // Set headers for file download
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename="${exportResult.filename}"`);
+
+    // Stream file
+    const fileStream = require('fs').createReadStream(exportResult.filepath);
+    fileStream.pipe(res);
+
+    // Clean up file after download (optional)
+    fileStream.on('end', () => {
+      setTimeout(() => {
+        try {
+          require('fs').unlinkSync(exportResult.filepath);
+        } catch (error) {
+          console.error('Error cleaning up export file:', error);
+        }
+      }, 5000); // Delete after 5 seconds
+    });
+
+  } catch (error) {
+    console.error("Error exporting payments to Excel:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to export payments",
+      error: error.message
+    });
+  }
+};
+
+// Export payments to CSV
+export const exportPaymentsCSV = async (req, res) => {
+  try {
+    const {
+      startDate,
+      endDate,
+      status,
+      paymentMethod
+    } = req.query;
+
+    const filters = {
+      startDate,
+      endDate,
+      status,
+      paymentMethod
+    };
+
+    const exportResult = await PaymentExportService.exportToCSV(filters);
+
+    // Log audit trail
+    try {
+      await PaymentAuditService.logPaymentExport(req.user, {
+        format: 'csv',
+        filters,
+        recordCount: exportResult.recordCount,
+        filename: exportResult.filename
+      }, req);
+    } catch (auditError) {
+      console.error("Error logging export audit:", auditError);
+      // Don't fail the export if audit logging fails
+    }
+
+    // Set headers for file download
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${exportResult.filename}"`);
+
+    // Stream file
+    const fileStream = require('fs').createReadStream(exportResult.filepath);
+    fileStream.pipe(res);
+
+    // Clean up file after download
+    fileStream.on('end', () => {
+      setTimeout(() => {
+        try {
+          require('fs').unlinkSync(exportResult.filepath);
+        } catch (error) {
+          console.error('Error cleaning up export file:', error);
+        }
+      }, 5000);
+    });
+
+  } catch (error) {
+    console.error("Error exporting payments to CSV:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to export payments",
+      error: error.message
+    });
+  }
+};
+
+// Get audit trail for a payment
+export const getPaymentAuditTrail = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const { page = 1, limit = 20, category, action } = req.query;
+
+    const options = {
+      page: parseInt(page),
+      limit: parseInt(limit),
+      category,
+      action
+    };
+
+    const auditTrail = await PaymentAuditService.getPaymentAuditTrail(paymentId, options);
+
+    res.json({
+      success: true,
+      auditTrail: auditTrail.logs,
+      pagination: auditTrail.pagination
+    });
+
+  } catch (error) {
+    console.error("Error fetching payment audit trail:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch audit trail",
+      error: error.message
+    });
+  }
+};
+
+// Get audit statistics (admin only)
+export const getAuditStatistics = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    const options = {
+      startDate,
+      endDate
+    };
+
+    const statistics = await PaymentAuditService.getAuditStatistics(options);
+
+    res.json({
+      success: true,
+      statistics
+    });
+
+  } catch (error) {
+    console.error("Error fetching audit statistics:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch audit statistics",
       error: error.message
     });
   }

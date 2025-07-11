@@ -30,45 +30,67 @@ const PaymentOverview = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("auth") ? JSON.parse(localStorage.getItem("auth")).token : null;
-      
-      // Fetch payment statistics
-      const statsResponse = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/payments/admin/statistics`,
-        {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
-      );
 
-      // Fetch recent pending payments
-      const paymentsResponse = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/payments/admin/verifications?status=pending&limit=10`,
-        {
-          headers: { 'Authorization': `Bearer ${token}` }
+      // Fetch payment statistics with individual error handling
+      try {
+        const statsResponse = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/payments/admin/statistics`,
+          {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }
+        );
+        if (statsResponse.data.success) {
+          setStatistics(statsResponse.data.statistics);
         }
-      );
-
-      // Fetch overdue payments
-      const overdueResponse = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/bookings/admin/overdue-payments`,
-        {
-          headers: { 'Authorization': `Bearer ${token}` }
-        }
-      );
-
-      if (statsResponse.data.success) {
-        setStatistics(statsResponse.data.statistics);
+      } catch (error) {
+        console.error("Error fetching payment statistics:", error);
+        // Set default statistics if API fails
+        setStatistics({
+          totalPayments: 0,
+          pendingPayments: 0,
+          approvedPayments: 0,
+          rejectedPayments: 0,
+          totalAmount: 0,
+          pendingAmount: 0
+        });
       }
 
-      if (paymentsResponse.data.success) {
-        setRecentPayments(paymentsResponse.data.payments);
+      // Fetch recent pending payments with individual error handling
+      try {
+        const paymentsResponse = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/payments/admin/verifications?status=pending&limit=10`,
+          {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }
+        );
+        if (paymentsResponse.data.success) {
+          setRecentPayments(paymentsResponse.data.payments || []);
+        }
+      } catch (error) {
+        console.error("Error fetching recent payments:", error);
+        setRecentPayments([]);
       }
 
-      if (overdueResponse.data.success) {
-        setOverduePayments(overdueResponse.data.overduePayments || []);
+      // Fetch overdue payments with individual error handling
+      try {
+        const overdueResponse = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/bookings/admin/overdue-payments`,
+          {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }
+        );
+        if (overdueResponse.data.success) {
+          setOverduePayments(overdueResponse.data.overduePayments || []);
+        }
+      } catch (error) {
+        console.error("Error fetching overdue payments:", error);
+        // Don't show error for overdue payments as this endpoint might not exist yet
+        setOverduePayments([]);
       }
+
     } catch (error) {
-      console.error("Error fetching overview data:", error);
-      toast.error("Failed to fetch payment overview");
+      console.error("Error in fetchOverviewData:", error);
+      toast.error("Some data could not be loaded. Please refresh the page.");
     } finally {
       setLoading(false);
     }

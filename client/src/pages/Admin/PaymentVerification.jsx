@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaCheckCircle, FaTimesCircle, FaEye, FaDownload, FaFilter, FaSearch, FaCreditCard, FaSort, FaCalendarAlt, FaUser, FaFilePdf, FaImage } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaEye, FaDownload, FaFilter, FaSearch, FaCreditCard, FaSort, FaCalendarAlt, FaUser, FaFilePdf, FaImage, FaChevronUp, FaChevronDown } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axios from "axios";
 import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
@@ -20,17 +20,44 @@ const PaymentVerification = () => {
   const [showImageModal, setShowImageModal] = useState(false);
   const [stats, setStats] = useState({});
 
+  // Advanced filtering states
+  const [paymentMethodFilter, setPaymentMethodFilter] = useState('');
+  const [amountRange, setAmountRange] = useState({ min: '', max: '' });
+  const [accommodationFilter, setAccommodationFilter] = useState('');
+  const [monthFilter, setMonthFilter] = useState('');
+  const [userFilter, setUserFilter] = useState('');
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [quickFilters, setQuickFilters] = useState({
+    today: false,
+    thisWeek: false,
+    thisMonth: false,
+    highAmount: false
+  });
+
   useEffect(() => {
     fetchPayments();
-  }, [filter, sortBy, sortOrder, dateFilter]);
+  }, [filter, sortBy, sortOrder, dateFilter, paymentMethodFilter, accommodationFilter, monthFilter]);
 
   const fetchPayments = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("auth") ? JSON.parse(localStorage.getItem("auth")).token : null;
-      
+      const token = auth?.token;
+
+      // Build query parameters
+      const params = new URLSearchParams({
+        status: filter,
+        sortBy,
+        sortOrder,
+        ...(dateFilter && { dateFilter }),
+        ...(paymentMethodFilter && { paymentMethod: paymentMethodFilter }),
+        ...(accommodationFilter && { accommodation: accommodationFilter }),
+        ...(monthFilter && { month: monthFilter }),
+        ...(amountRange.min && { minAmount: amountRange.min }),
+        ...(amountRange.max && { maxAmount: amountRange.max })
+      });
+
       const response = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/payments/admin/verifications?status=${filter}`,
+        `${import.meta.env.VITE_BASE_URL}/api/payments/admin/verifications?${params}`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
@@ -45,6 +72,73 @@ const PaymentVerification = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Advanced filtering functions
+  const applyQuickFilter = (filterType) => {
+    const today = new Date();
+    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    setQuickFilters(prev => ({ ...prev, [filterType]: !prev[filterType] }));
+
+    switch (filterType) {
+      case 'today':
+        setDateFilter(new Date().toISOString().split('T')[0]);
+        break;
+      case 'thisWeek':
+        setDateFilter(startOfWeek.toISOString().split('T')[0]);
+        break;
+      case 'thisMonth':
+        setDateFilter(startOfMonth.toISOString().split('T')[0]);
+        break;
+      case 'highAmount':
+        setAmountRange({ min: '100000', max: '' }); // 100k and above
+        break;
+      default:
+        break;
+    }
+  };
+
+  const clearAllFilters = () => {
+    setFilter('pending');
+    setSearchTerm('');
+    setPaymentMethodFilter('');
+    setAmountRange({ min: '', max: '' });
+    setAccommodationFilter('');
+    setMonthFilter('');
+    setUserFilter('');
+    setDateFilter('');
+    setQuickFilters({
+      today: false,
+      thisWeek: false,
+      thisMonth: false,
+      highAmount: false
+    });
+  };
+
+  const getFilteredPayments = () => {
+    let filtered = payments;
+
+    // Search term filter
+    if (searchTerm) {
+      filtered = filtered.filter(payment =>
+        payment.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.booking?.accommodation?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        payment.transactionReference?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    // User filter
+    if (userFilter) {
+      filtered = filtered.filter(payment =>
+        payment.user?.name?.toLowerCase().includes(userFilter.toLowerCase()) ||
+        payment.user?.email?.toLowerCase().includes(userFilter.toLowerCase())
+      );
+    }
+
+    return filtered;
   };
 
   const handleVerifyPayment = async (paymentId, action, notes = "") => {
@@ -73,11 +167,7 @@ const PaymentVerification = () => {
     }
   };
 
-  const filteredPayments = payments.filter(payment =>
-    payment.user?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    payment.booking?.accommodation?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    payment.transactionReference?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredPayments = getFilteredPayments();
 
   const getStatusBadge = (status) => {
     const badges = {
@@ -115,7 +205,8 @@ const PaymentVerification = () => {
 
         {/* Filters and Search */}
         <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
-          <div className="flex flex-col md:flex-row gap-4">
+          {/* Basic Filters */}
+          <div className="flex flex-col md:flex-row gap-4 mb-4">
             <div className="flex items-center gap-2">
               <FaFilter className="text-gray-500" />
               <select
@@ -130,7 +221,7 @@ const PaymentVerification = () => {
                 <option value="all">All Payments</option>
               </select>
             </div>
-            
+
             <div className="flex-1 relative">
               <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
               <input
@@ -141,7 +232,138 @@ const PaymentVerification = () => {
                 className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
+
+            <button
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              <FaFilter className="text-gray-500" />
+              Advanced
+              {showAdvancedFilters ? <FaChevronUp /> : <FaChevronDown />}
+            </button>
           </div>
+
+          {/* Quick Filters */}
+          <div className="flex flex-wrap gap-2 mb-4">
+            <span className="text-sm font-medium text-gray-700 mr-2">Quick filters:</span>
+            {Object.entries(quickFilters).map(([key, active]) => (
+              <button
+                key={key}
+                onClick={() => applyQuickFilter(key)}
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  active
+                    ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                    : 'bg-gray-100 text-gray-600 border border-gray-200 hover:bg-gray-200'
+                }`}
+              >
+                {key === 'today' && 'Today'}
+                {key === 'thisWeek' && 'This Week'}
+                {key === 'thisMonth' && 'This Month'}
+                {key === 'highAmount' && 'High Amount (₦100k+)'}
+              </button>
+            ))}
+            <button
+              onClick={clearAllFilters}
+              className="px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200 hover:bg-red-200 transition-colors"
+            >
+              Clear All
+            </button>
+          </div>
+
+          {/* Advanced Filters */}
+          {showAdvancedFilters && (
+            <div className="border-t pt-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
+                  <select
+                    value={paymentMethodFilter}
+                    onChange={(e) => setPaymentMethodFilter(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">All Methods</option>
+                    <option value="bank_transfer">Bank Transfer</option>
+                    <option value="mobile_money">Mobile Money</option>
+                    <option value="cash">Cash Payment</option>
+                    <option value="card">Card Payment</option>
+                    <option value="other">Other</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Month Number</label>
+                  <select
+                    value={monthFilter}
+                    onChange={(e) => setMonthFilter(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="">All Months</option>
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <option key={i + 1} value={i + 1}>Month {i + 1}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Min Amount (₦)</label>
+                  <input
+                    type="number"
+                    placeholder="0"
+                    value={amountRange.min}
+                    onChange={(e) => setAmountRange(prev => ({ ...prev, min: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Max Amount (₦)</label>
+                  <input
+                    type="number"
+                    placeholder="No limit"
+                    value={amountRange.max}
+                    onChange={(e) => setAmountRange(prev => ({ ...prev, max: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Date Filter</label>
+                  <input
+                    type="date"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="submittedAt">Submission Date</option>
+                    <option value="amount">Amount</option>
+                    <option value="monthNumber">Month Number</option>
+                    <option value="paymentDate">Payment Date</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  >
+                    <option value="desc">Newest First</option>
+                    <option value="asc">Oldest First</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Payment List */}

@@ -152,39 +152,40 @@ const PaymentUploadModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2 sm:p-4">
+      <div className="bg-white rounded-lg max-w-2xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
-            <FaUpload className="text-blue-600" />
-            Submit Payment Proof
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b">
+          <h2 className="text-lg sm:text-2xl font-bold text-gray-800 flex items-center gap-2">
+            <FaUpload className="text-blue-600 text-sm sm:text-base" />
+            <span className="hidden sm:inline">Submit Payment Proof</span>
+            <span className="sm:hidden">Payment Proof</span>
           </h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl"
+            className="text-gray-500 hover:text-gray-700 text-xl sm:text-2xl p-2 -m-2"
           >
             <FaTimes />
           </button>
         </div>
 
         {/* Content */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4 sm:space-y-6">
           {/* Payment Details */}
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <h3 className="font-semibold text-blue-800 mb-2">Payment Details</h3>
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-blue-700">Booking:</span>
-                <span className="ml-2 font-medium">{booking.accommodation?.title}</span>
+          <div className="bg-blue-50 p-3 sm:p-4 rounded-lg">
+            <h3 className="font-semibold text-blue-800 mb-2 text-sm sm:text-base">Payment Details</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 text-xs sm:text-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center">
+                <span className="text-blue-700 font-medium">Booking:</span>
+                <span className="sm:ml-2 font-medium truncate">{booking.accommodation?.title}</span>
               </div>
-              <div>
-                <span className="text-blue-700">Month:</span>
-                <span className="ml-2 font-medium">{monthNumber}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center">
+                <span className="text-blue-700 font-medium">Month:</span>
+                <span className="sm:ml-2 font-medium">{monthNumber}</span>
               </div>
-              <div>
-                <span className="text-blue-700">Amount:</span>
-                <span className="ml-2 font-medium text-green-600">₦{paymentAmount?.toLocaleString()}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:col-span-2">
+                <span className="text-blue-700 font-medium">Amount:</span>
+                <span className="sm:ml-2 font-medium text-green-600 text-lg">₦{paymentAmount?.toLocaleString()}</span>
               </div>
             </div>
           </div>
@@ -283,7 +284,7 @@ const PaymentUploadModal = ({
               name="paymentMethod"
               value={formData.paymentMethod}
               onChange={handleInputChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full p-3 sm:p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
               required
             >
               <option value="bank_transfer">Bank Transfer</option>
@@ -330,31 +331,31 @@ const PaymentUploadModal = ({
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Payment Proof (Image or PDF) *
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 sm:p-6 text-center relative">
               {selectedFile ? (
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   {previewUrl ? (
                     <img
                       src={previewUrl}
                       alt="Payment proof preview"
-                      className="max-w-full max-h-64 mx-auto rounded-lg shadow-md"
+                      className="max-w-full max-h-48 sm:max-h-64 mx-auto rounded-lg shadow-md"
                     />
                   ) : selectedFile.type === 'application/pdf' ? (
-                    <div className="flex items-center justify-center space-x-2">
-                      <FaFilePdf className="h-16 w-16 text-red-500" />
-                      <div className="text-left">
-                        <div className="font-medium text-gray-900">{selectedFile.name}</div>
-                        <div className="text-sm text-gray-500">
+                    <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
+                      <FaFilePdf className="h-12 w-12 sm:h-16 sm:w-16 text-red-500" />
+                      <div className="text-center sm:text-left">
+                        <div className="font-medium text-gray-900 text-sm sm:text-base truncate max-w-xs">{selectedFile.name}</div>
+                        <div className="text-xs sm:text-sm text-gray-500">
                           PDF • {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
                         </div>
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center justify-center space-x-2">
-                      <FaImage className="h-16 w-16 text-blue-500" />
-                      <div className="text-left">
-                        <div className="font-medium text-gray-900">{selectedFile.name}</div>
-                        <div className="text-sm text-gray-500">
+                    <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-2">
+                      <FaImage className="h-12 w-12 sm:h-16 sm:w-16 text-blue-500" />
+                      <div className="text-center sm:text-left">
+                        <div className="font-medium text-gray-900 text-sm sm:text-base truncate max-w-xs">{selectedFile.name}</div>
+                        <div className="text-xs sm:text-sm text-gray-500">
                           Image • {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
                         </div>
                       </div>
@@ -366,16 +367,17 @@ const PaymentUploadModal = ({
                       setSelectedFile(null);
                       setPreviewUrl(null);
                     }}
-                    className="text-red-600 hover:text-red-800 text-sm"
+                    className="text-red-600 hover:text-red-800 text-sm px-3 py-1 rounded border border-red-200 hover:bg-red-50"
                   >
                     Remove File
                   </button>
                 </div>
               ) : (
                 <div>
-                  <FaUpload className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                  <div className="text-sm text-gray-600 mb-2">
-                    Click to upload or drag and drop
+                  <FaUpload className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-gray-400 mb-2 sm:mb-4" />
+                  <div className="text-xs sm:text-sm text-gray-600 mb-2">
+                    <span className="hidden sm:inline">Click to upload or drag and drop</span>
+                    <span className="sm:hidden">Tap to upload file</span>
                   </div>
                   <div className="text-xs text-gray-500">
                     Images (PNG, JPG, JPEG) up to 5MB or PDF up to 10MB
@@ -407,28 +409,30 @@ const PaymentUploadModal = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-3 px-6 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="order-2 sm:order-1 flex-1 py-3 px-4 sm:px-6 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm sm:text-base"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || !selectedFile}
-              className="flex-1 py-3 px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="order-1 sm:order-2 flex-1 py-3 px-4 sm:px-6 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base font-medium"
             >
               {loading ? (
                 <>
                   <FaSpinner className="animate-spin" />
-                  Submitting...
+                  <span className="hidden sm:inline">Submitting...</span>
+                  <span className="sm:hidden">Submitting</span>
                 </>
               ) : (
                 <>
                   <FaCheckCircle />
-                  Submit Payment Proof
+                  <span className="hidden sm:inline">Submit Payment Proof</span>
+                  <span className="sm:hidden">Submit Proof</span>
                 </>
               )}
             </button>

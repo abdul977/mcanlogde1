@@ -21,8 +21,9 @@ import MobileLayout, {
 } from '../../components/Mobile/MobileLayout';
 import Navbar from './Navbar';
 import { useAuth } from '../../context/UserContext';
+import ErrorBoundary from '../../components/ErrorBoundary';
 
-const PaymentSettings = () => {
+const PaymentSettingsContent = () => {
   const [auth] = useAuth();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -84,7 +85,41 @@ const PaymentSettings = () => {
       );
 
       if (response.data.success) {
-        setConfig(response.data.configuration);
+        // Merge API response with default config to ensure all properties exist
+        setConfig(prev => ({
+          ...prev,
+          ...response.data.configuration,
+          mobilePayment: {
+            mtn: { number: '', accountName: '', ...response.data.configuration?.mobilePayment?.mtn },
+            airtel: { number: '', accountName: '', ...response.data.configuration?.mobilePayment?.airtel },
+            glo: { number: '', accountName: '', ...response.data.configuration?.mobilePayment?.glo },
+            nineMobile: { number: '', accountName: '', ...response.data.configuration?.mobilePayment?.nineMobile }
+          },
+          bankDetails: {
+            ...prev.bankDetails,
+            ...response.data.configuration?.bankDetails
+          },
+          onlinePayment: {
+            ...prev.onlinePayment,
+            ...response.data.configuration?.onlinePayment
+          },
+          paymentInstructions: {
+            ...prev.paymentInstructions,
+            ...response.data.configuration?.paymentInstructions
+          },
+          paymentSupport: {
+            ...prev.paymentSupport,
+            ...response.data.configuration?.paymentSupport
+          },
+          currency: {
+            ...prev.currency,
+            ...response.data.configuration?.currency
+          },
+          verificationSettings: {
+            ...prev.verificationSettings,
+            ...response.data.configuration?.verificationSettings
+          }
+        }));
       }
     } catch (error) {
       console.error('Error fetching payment configuration:', error);
@@ -243,34 +278,34 @@ const PaymentSettings = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <MobileInput
                 label="Account Name"
-                value={config.bankDetails.accountName}
+                value={config.bankDetails?.accountName || ''}
                 onChange={(e) => handleInputChange('bankDetails.accountName', e.target.value)}
                 placeholder="Account Name"
                 required
               />
               <MobileInput
                 label="Account Number"
-                value={config.bankDetails.accountNumber}
+                value={config.bankDetails?.accountNumber || ''}
                 onChange={(e) => handleInputChange('bankDetails.accountNumber', e.target.value)}
                 placeholder="Account Number"
                 required
               />
               <MobileInput
                 label="Bank Name"
-                value={config.bankDetails.bankName}
+                value={config.bankDetails?.bankName || ''}
                 onChange={(e) => handleInputChange('bankDetails.bankName', e.target.value)}
                 placeholder="Bank Name"
                 required
               />
               <MobileInput
                 label="Sort Code (Optional)"
-                value={config.bankDetails.sortCode}
+                value={config.bankDetails?.sortCode || ''}
                 onChange={(e) => handleInputChange('bankDetails.sortCode', e.target.value)}
                 placeholder="Sort Code"
               />
               <MobileInput
                 label="SWIFT Code (Optional)"
-                value={config.bankDetails.swiftCode}
+                value={config.bankDetails?.swiftCode || ''}
                 onChange={(e) => handleInputChange('bankDetails.swiftCode', e.target.value)}
                 placeholder="SWIFT Code"
               />
@@ -292,13 +327,13 @@ const PaymentSettings = () => {
                   </div>
                   <MobileInput
                     label="Phone Number"
-                    value={config.mobilePayment[provider.key].number}
+                    value={config.mobilePayment?.[provider.key]?.number || ''}
                     onChange={(e) => handleInputChange(`mobilePayment.${provider.key}.number`, e.target.value)}
                     placeholder={`${provider.label} Number`}
                   />
                   <MobileInput
                     label="Account Name"
-                    value={config.mobilePayment[provider.key].accountName}
+                    value={config.mobilePayment?.[provider.key]?.accountName || ''}
                     onChange={(e) => handleInputChange(`mobilePayment.${provider.key}.accountName`, e.target.value)}
                     placeholder="Account Name"
                   />
@@ -313,21 +348,21 @@ const PaymentSettings = () => {
             <div className="space-y-4">
               <MobileTextarea
                 label="General Instructions"
-                value={config.paymentInstructions.general}
+                value={config.paymentInstructions?.general || ''}
                 onChange={(e) => handleInputChange('paymentInstructions.general', e.target.value)}
                 placeholder="General payment instructions"
                 rows={3}
               />
               <MobileTextarea
                 label="Bank Transfer Instructions"
-                value={config.paymentInstructions.bankTransfer}
+                value={config.paymentInstructions?.bankTransfer || ''}
                 onChange={(e) => handleInputChange('paymentInstructions.bankTransfer', e.target.value)}
                 placeholder="Bank transfer specific instructions"
                 rows={2}
               />
               <MobileTextarea
                 label="Mobile Payment Instructions"
-                value={config.paymentInstructions.mobilePayment}
+                value={config.paymentInstructions?.mobilePayment || ''}
                 onChange={(e) => handleInputChange('paymentInstructions.mobilePayment', e.target.value)}
                 placeholder="Mobile payment specific instructions"
                 rows={2}
@@ -342,25 +377,25 @@ const PaymentSettings = () => {
               <MobileInput
                 label="Support Email"
                 type="email"
-                value={config.paymentSupport.email}
+                value={config.paymentSupport?.email || ''}
                 onChange={(e) => handleInputChange('paymentSupport.email', e.target.value)}
                 placeholder="support@mcan.org"
               />
               <MobileInput
                 label="Support Phone"
-                value={config.paymentSupport.phone}
+                value={config.paymentSupport?.phone || ''}
                 onChange={(e) => handleInputChange('paymentSupport.phone', e.target.value)}
                 placeholder="+234 xxx xxx xxxx"
               />
               <MobileInput
                 label="WhatsApp Number"
-                value={config.paymentSupport.whatsapp}
+                value={config.paymentSupport?.whatsapp || ''}
                 onChange={(e) => handleInputChange('paymentSupport.whatsapp', e.target.value)}
                 placeholder="+234 xxx xxx xxxx"
               />
               <MobileInput
                 label="Working Hours"
-                value={config.paymentSupport.workingHours}
+                value={config.paymentSupport?.workingHours || ''}
                 onChange={(e) => handleInputChange('paymentSupport.workingHours', e.target.value)}
                 placeholder="Monday - Friday: 9:00 AM - 5:00 PM"
               />
@@ -373,7 +408,7 @@ const PaymentSettings = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <MobileSelect
                 label="Primary Currency"
-                value={config.currency.primary}
+                value={config.currency?.primary || 'NGN'}
                 onChange={(e) => {
                   const selectedCurrency = currencyOptions.find(opt => opt.value === e.target.value);
                   handleInputChange('currency.primary', e.target.value);
@@ -383,7 +418,7 @@ const PaymentSettings = () => {
               />
               <MobileInput
                 label="Currency Symbol"
-                value={config.currency.symbol}
+                value={config.currency?.symbol || '₦'}
                 onChange={(e) => handleInputChange('currency.symbol', e.target.value)}
                 placeholder="₦"
               />
@@ -397,7 +432,7 @@ const PaymentSettings = () => {
               <MobileInput
                 label="Auto Approval Limit (₦)"
                 type="number"
-                value={config.verificationSettings.autoApprovalLimit}
+                value={config.verificationSettings?.autoApprovalLimit || 0}
                 onChange={(e) => handleInputChange('verificationSettings.autoApprovalLimit', parseInt(e.target.value) || 0)}
                 placeholder="0"
                 min="0"
@@ -405,7 +440,7 @@ const PaymentSettings = () => {
               <MobileInput
                 label="Max File Size (MB)"
                 type="number"
-                value={Math.round(config.verificationSettings.maxFileSize / (1024 * 1024))}
+                value={Math.round((config.verificationSettings?.maxFileSize || 5242880) / (1024 * 1024))}
                 onChange={(e) => handleInputChange('verificationSettings.maxFileSize', (parseInt(e.target.value) || 5) * 1024 * 1024)}
                 placeholder="5"
                 min="1"
@@ -416,7 +451,7 @@ const PaymentSettings = () => {
               <label className="flex items-center">
                 <input
                   type="checkbox"
-                  checked={config.verificationSettings.requireTransactionReference}
+                  checked={config.verificationSettings?.requireTransactionReference || false}
                   onChange={(e) => handleInputChange('verificationSettings.requireTransactionReference', e.target.checked)}
                   className="rounded border-gray-300 text-green-600 focus:ring-green-500"
                 />
@@ -447,6 +482,14 @@ const PaymentSettings = () => {
         </div>
       </div>
     </MobileLayout>
+  );
+};
+
+const PaymentSettings = () => {
+  return (
+    <ErrorBoundary fallbackMessage="There was an error loading the payment settings. Please try refreshing the page or contact support if the problem persists.">
+      <PaymentSettingsContent />
+    </ErrorBoundary>
   );
 };
 

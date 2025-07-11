@@ -5,7 +5,11 @@ import {
   verifyPayment,
   getUserPaymentHistory,
   getPaymentStatistics,
-  downloadReceipt
+  downloadReceipt,
+  exportPaymentsExcel,
+  exportPaymentsCSV,
+  getPaymentAuditTrail,
+  getAuditStatistics
 } from '../controller/Payment.js';
 import { requireSignIn, isAdmin } from '../middlewares/Auth.js';
 import { uploadPaymentProof, handleUploadError } from '../utils/fileUpload.js';
@@ -39,10 +43,34 @@ router.post('/admin/verify',
   verifyPayment
 );
 
-router.get('/admin/statistics', 
-  requireSignIn, 
-  isAdmin, 
+router.get('/admin/statistics',
+  requireSignIn,
+  isAdmin,
   getPaymentStatistics
+);
+
+router.get('/admin/export/excel',
+  requireSignIn,
+  isAdmin,
+  exportPaymentsExcel
+);
+
+router.get('/admin/export/csv',
+  requireSignIn,
+  isAdmin,
+  exportPaymentsCSV
+);
+
+router.get('/admin/audit/:paymentId',
+  requireSignIn,
+  isAdmin,
+  getPaymentAuditTrail
+);
+
+router.get('/admin/audit-statistics',
+  requireSignIn,
+  isAdmin,
+  getAuditStatistics
 );
 
 export default router;

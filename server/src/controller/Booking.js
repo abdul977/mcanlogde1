@@ -617,3 +617,106 @@ export const cancelBookingController = async (req, res) => {
     });
   }
 };
+
+// Get overdue payments (admin only)
+export const getOverduePayments = async (req, res) => {
+  try {
+    const now = new Date();
+
+    // Find all approved bookings with payment schedules
+    const bookings = await Booking.find({
+      status: 'approved',
+      'paymentSchedule.0': { $exists: true }
+    })
+    .populate('user', 'name email phone')
+    .populate('accommodation', 'title location price')
+    .sort({ requestDate: -1 });
+
+    const overduePayments = [];
+
+    // Process each booking to find overdue payments
+    bookings.forEach(booking => {
+      if (booking.paymentSchedule && booking.paymentSchedule.length > 0) {
+        booking.paymentSchedule.forEach(payment => {
+          if (payment.status === 'pending' || payment.status === 'overdue') {
+            const dueDate = new Date(payment.dueDate);
+            const daysPastDue = Math.ceil((now - dueDate) / (1000 * 60 * 60 * 24));
+
+            if (daysPastDue > 0) {
+              // Calculate escalation level based on days overdue
+              let escalationLevel = 'normal';
+              if (daysPastDue >= 30) escalationLevel = 'critical';
+              else if (daysPastDue >= 21) escalationLevel = 'final';
+              else if (daysPastDue >= 14) escalationLevel = 'firm';
+              else if (daysPastDue >= 7) escalationLevel = 'gentle';
+
+              overduePayments.push({
+                bookingId: booking._id,
+                bookingType: booking.bookingType,
+                user: {
+                  _id: booking.user._id,
+                  name: booking.user.name,
+                  email: booking.user.email,
+                  phone: booking.user.phone
+                },
+                accommodation: booking.accommodation ? {
+                  _id: booking.accommodation._id,
+                  title: booking.accommodation.title,
+                  location: booking.accommodation.location,
+                  price: booking.accommodation.price
+                } : null,
+                payment: {
+                  monthNumber: payment.monthNumber,
+                  dueDate: payment.dueDate,
+                  amount: payment.amount,
+                  status: payment.status,
+                  overdueSince: payment.overdueSince
+                },
+                daysPastDue,
+                escalationLevel,
+                totalAmount: booking.totalAmount,
+                checkInDate: booking.checkInDate,
+                checkOutDate: booking.checkOutDate,
+                requestDate: booking.requestDate
+              });
+            }
+          }
+        });
+      }
+    });
+
+    // Sort by days past due (most overdue first)
+    overduePayments.sort((a, b) => b.daysPastDue - a.daysPastDue);
+
+    // Calculate summary statistics
+    const summary = {
+      totalOverdue: overduePayments.length,
+      totalAmount: overduePayments.reduce((sum, payment) => sum + payment.payment.amount, 0),
+      escalationBreakdown: {
+        gentle: overduePayments.filter(p => p.escalationLevel === 'gentle').length,
+        firm: overduePayments.filter(p => p.escalationLevel === 'firm').length,
+        final: overduePayments.filter(p => p.escalationLevel === 'final').length,
+        critical: overduePayments.filter(p => p.escalationLevel === 'critical').length
+      },
+      averageDaysOverdue: overduePayments.length > 0
+        ? Math.round(overduePayments.reduce((sum, p) => sum + p.daysPastDue, 0) / overduePayments.length)
+        : 0
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "Overdue payments retrieved successfully",
+      overduePayments,
+      summary,
+      total: overduePayments.length
+    });
+
+  } catch (error) {
+    console.error("Error fetching overdue payments:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching overdue payments",
+      error: error.message
+    });
+  }
+};

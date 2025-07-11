@@ -214,18 +214,52 @@ paymentConfigurationSchema.pre('save', function(next) {
 // Static method to get current configuration
 paymentConfigurationSchema.statics.getCurrentConfig = async function() {
   let config = await this.findOne({ isActive: true });
-  
+
   // Create default configuration if none exists
   if (!config) {
     config = await this.create({
+      organizationName: 'Muslim Corps Members Association of Nigeria (MCAN)',
       bankDetails: {
         accountName: "Muslim Corps Members Association of Nigeria",
         accountNumber: "",
-        bankName: ""
+        bankName: "",
+        sortCode: "",
+        swiftCode: ""
+      },
+      mobilePayment: {
+        mtn: { number: '', accountName: '' },
+        airtel: { number: '', accountName: '' },
+        glo: { number: '', accountName: '' },
+        nineMobile: { number: '', accountName: '' }
+      },
+      onlinePayment: {
+        paystack: { publicKey: '', isActive: false },
+        flutterwave: { publicKey: '', isActive: false }
+      },
+      paymentInstructions: {
+        general: 'Please make payment to the account details provided below and upload your payment proof for verification.',
+        bankTransfer: 'Transfer to the bank account details below and upload your payment receipt.',
+        mobilePayment: 'Send money to any of the mobile money numbers below and upload your transaction screenshot.'
+      },
+      paymentSupport: {
+        email: '',
+        phone: '',
+        whatsapp: '',
+        workingHours: 'Monday - Friday: 9:00 AM - 5:00 PM'
+      },
+      currency: {
+        primary: 'NGN',
+        symbol: '₦'
+      },
+      verificationSettings: {
+        autoApprovalLimit: 0,
+        requireTransactionReference: false,
+        allowedFileTypes: ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf'],
+        maxFileSize: 5242880
       }
     });
   }
-  
+
   return config;
 };
 

@@ -6,7 +6,8 @@ import {
   updateBookingStatusController,
   getBookingController,
   cancelBookingController,
-  syncAccommodationAvailability
+  syncAccommodationAvailability,
+  getOverduePayments
 } from "../controller/Booking.js";
 import { requireSignIn, isAdmin } from "../middlewares/Auth.js";
 
@@ -31,6 +32,9 @@ router.get("/admin/all", requireSignIn, isAdmin, getAllBookingsController);
 
 // Update booking status (admin only)
 router.put("/admin/:id/status", requireSignIn, isAdmin, updateBookingStatusController);
+
+// Get overdue payments (admin only)
+router.get("/admin/overdue-payments", requireSignIn, isAdmin, getOverduePayments);
 
 // Sync accommodation availability (admin only)
 router.post("/admin/sync-availability", requireSignIn, isAdmin, async (req, res) => {
