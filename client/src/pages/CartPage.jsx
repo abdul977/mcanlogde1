@@ -4,12 +4,14 @@ import { useAuth } from "../context/UserContext";
 import { useCart } from "../context/Cart";
 import { useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import OrderConfirmationModal from "../components/OrderConfirmationModal";
 
 const CartPage = () => {
   const [auth] = useAuth();
   const [cart, setCart] = useCart();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
+  const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
 
   console.log("All Information about cart:", cart);
 
@@ -144,13 +146,49 @@ const CartPage = () => {
     }).format(price);
   };
 
+  const handleOrderConfirm = async (orderData) => {
+    try {
+      // Generate WhatsApp message
+      const orderSummary = products.map(item =>
+        `• ${item.name} (Qty: ${item.quantity || 1}) - ${formatPrice(item.price * (item.quantity || 1))}`
+      ).join('\n');
+
+      const message = `🛍️ *New Order Request*\n\n` +
+        `*Order Details:*\n${orderSummary}\n\n` +
+        `*Total Amount:* ${formatPrice(orderData.totalAmount)}\n` +
+        `*Contact Preference:* ${orderData.contactPreference}\n` +
+        `*Urgency:* ${orderData.urgency}\n` +
+        `*Delivery:* ${orderData.deliveryPreference}\n\n` +
+        `${orderData.customerNotes ? `*Special Instructions:* ${orderData.customerNotes}\n\n` : ''}` +
+        `Please confirm this order and provide payment details.`;
+
+      // WhatsApp admin number (you should replace this with actual admin number)
+      const adminWhatsApp = "2348123456789"; // Replace with actual admin WhatsApp number
+      const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`;
+
+      // Remove products from cart
+      const updatedCart = cart.filter(item => item.type !== 'product');
+      setCart(updatedCart);
+      localStorage.setItem("cart", JSON.stringify(updatedCart));
+
+      // Open WhatsApp
+      window.open(whatsappUrl, '_blank');
+
+      toast.success("Order details sent! Please complete the order via WhatsApp.");
+    } catch (error) {
+      console.error("Error processing order:", error);
+      toast.error("Failed to process order");
+      throw error;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <FaShoppingCart className="text-blue-600" />
+            <FaShoppingCart className="text-green-600" />
             Shopping Cart
           </h1>
           <p className="text-gray-600 mt-2">
@@ -166,7 +204,7 @@ const CartPage = () => {
             <div className="flex justify-center gap-4">
               <Link
                 to="/accommodations"
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2"
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2"
               >
                 <FaHome />
                 Browse Accommodations
@@ -192,7 +230,7 @@ const CartPage = () => {
                       onClick={() => setActiveTab('all')}
                       className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
                         activeTab === 'all'
-                          ? 'border-blue-600 text-blue-600'
+                          ? 'border-green-600 text-green-600'
                           : 'border-transparent text-gray-500 hover:text-gray-700'
                       }`}
                     >
@@ -203,7 +241,7 @@ const CartPage = () => {
                         onClick={() => setActiveTab('accommodations')}
                         className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
                           activeTab === 'accommodations'
-                            ? 'border-blue-600 text-blue-600'
+                            ? 'border-green-600 text-green-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700'
                         }`}
                       >
@@ -215,7 +253,7 @@ const CartPage = () => {
                         onClick={() => setActiveTab('products')}
                         className={`px-6 py-4 text-sm font-medium border-b-2 transition-colors ${
                           activeTab === 'products'
-                            ? 'border-blue-600 text-blue-600'
+                            ? 'border-green-600 text-green-600'
                             : 'border-transparent text-gray-500 hover:text-gray-700'
                         }`}
                       >
@@ -371,7 +409,7 @@ const CartPage = () => {
                     <>
                       {accommodations.length > 0 && (
                         <button
-                          className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors"
+                          className="w-full bg-green-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors"
                           onClick={handleCheckIn}
                         >
                           Book Accommodations
@@ -381,15 +419,15 @@ const CartPage = () => {
                       {products.length > 0 && (
                         <button
                           className="w-full bg-green-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors"
-                          onClick={() => navigate('/checkout')}
+                          onClick={() => setShowOrderConfirmation(true)}
                         >
-                          Checkout Products
+                          Order Products
                         </button>
                       )}
                     </>
                   ) : (
                     <button
-                      className="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors"
+                      className="w-full bg-green-600 text-white py-3 rounded-lg text-lg font-semibold hover:bg-green-700 transition-colors"
                       onClick={() => navigate("/login")}
                     >
                       Login to Continue
@@ -418,6 +456,14 @@ const CartPage = () => {
             </div>
           </div>
         )}
+
+        {/* Order Confirmation Modal */}
+        <OrderConfirmationModal
+          isOpen={showOrderConfirmation}
+          onClose={() => setShowOrderConfirmation(false)}
+          cartItems={products}
+          onOrderConfirm={handleOrderConfirm}
+        />
       </div>
     </div>
   );

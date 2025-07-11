@@ -14,6 +14,7 @@ import {
 import axios from "axios";
 import { useCart } from "../context/Cart";
 import { useAuth } from "../context/UserContext";
+import OrderConfirmationModal from "../components/OrderConfirmationModal";
 
 const Shop = () => {
   const [auth] = useAuth();
@@ -34,6 +35,8 @@ const Shop = () => {
   const [totalProducts, setTotalProducts] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
   const [wishlist, setWishlist] = useState([]);
+  const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const sortOptions = [
     { value: "createdAt-desc", label: "Newest First" },
@@ -158,6 +161,52 @@ const Shop = () => {
     toast.success("Product added to cart");
   };
 
+  const handleBuyNow = (product) => {
+    const cartItem = {
+      ...product,
+      quantity: 1,
+      type: 'product'
+    };
+    setSelectedProduct(cartItem);
+    setShowOrderConfirmation(true);
+  };
+
+  const handleOrderConfirm = async (orderData) => {
+    try {
+      // Generate WhatsApp message
+      const orderSummary = `• ${selectedProduct.name} (Qty: 1) - ${formatPrice(selectedProduct.price)}`;
+
+      const message = `🛍️ *New Order Request*\n\n` +
+        `*Order Details:*\n${orderSummary}\n\n` +
+        `*Total Amount:* ${formatPrice(orderData.totalAmount)}\n` +
+        `*Contact Preference:* ${orderData.contactPreference}\n` +
+        `*Urgency:* ${orderData.urgency}\n` +
+        `*Delivery:* ${orderData.deliveryPreference}\n\n` +
+        `${orderData.customerNotes ? `*Special Instructions:* ${orderData.customerNotes}\n\n` : ''}` +
+        `Please confirm this order and provide payment details.`;
+
+      // WhatsApp admin number (you should replace this with actual admin number)
+      const adminWhatsApp = "2348123456789"; // Replace with actual admin WhatsApp number
+      const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`;
+
+      // Open WhatsApp
+      window.open(whatsappUrl, '_blank');
+
+      toast.success("Order details sent! Please complete the order via WhatsApp.");
+    } catch (error) {
+      console.error("Error processing order:", error);
+      toast.error("Failed to process order");
+      throw error;
+    }
+  };
+
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat('en-NG', {
+      style: 'currency',
+      currency: 'NGN'
+    }).format(price);
+  };
+
   const handleWishlistToggle = (productId) => {
     if (!auth?.token) {
       toast.error("Please login to add to wishlist");
@@ -198,7 +247,7 @@ const Shop = () => {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <FaShoppingBag className="text-blue-600" />
+                <FaShoppingBag className="text-green-600" />
                 MCAN Store
               </h1>
               <p className="text-gray-600 mt-1">
@@ -314,7 +363,7 @@ const Shop = () => {
           <div className="flex-1">
             {loading ? (
               <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-12">
@@ -326,7 +375,7 @@ const Shop = () => {
                 {(searchTerm || selectedCategory || minPrice || maxPrice) && (
                   <button
                     onClick={clearFilters}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
                   >
                     Clear Filters
                   </button>
@@ -417,18 +466,31 @@ const Shop = () => {
                           )}
                         </div>
 
-                        <button
-                          onClick={() => handleAddToCart(product)}
-                          disabled={!product.isAvailable}
-                          className={`w-full py-2 px-4 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
-                            product.isAvailable
-                              ? 'bg-blue-600 text-white hover:bg-blue-700'
-                              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                          }`}
-                        >
-                          <FaShoppingCart />
-                          {product.isAvailable ? 'Add to Cart' : 'Out of Stock'}
-                        </button>
+                        {product.isAvailable ? (
+                          <div className="flex gap-2">
+                            <button
+                              onClick={() => handleAddToCart(product)}
+                              className="flex-1 py-2 px-3 border border-green-600 text-green-600 rounded-lg font-medium transition-colors hover:bg-green-50 flex items-center justify-center gap-1"
+                            >
+                              <FaShoppingCart className="text-sm" />
+                              Add to Cart
+                            </button>
+                            <button
+                              onClick={() => handleBuyNow(product)}
+                              className="flex-1 py-2 px-3 bg-green-600 text-white rounded-lg font-medium transition-colors hover:bg-green-700 flex items-center justify-center gap-1"
+                            >
+                              Buy Now
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            disabled
+                            className="w-full py-2 px-4 rounded-lg font-medium bg-gray-300 text-gray-500 cursor-not-allowed flex items-center justify-center gap-2"
+                          >
+                            <FaShoppingCart />
+                            Out of Stock
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -462,6 +524,14 @@ const Shop = () => {
             )}
           </div>
         </div>
+
+        {/* Order Confirmation Modal */}
+        <OrderConfirmationModal
+          isOpen={showOrderConfirmation}
+          onClose={() => setShowOrderConfirmation(false)}
+          cartItems={selectedProduct ? [selectedProduct] : []}
+          onOrderConfirm={handleOrderConfirm}
+        />
       </div>
     </div>
   );

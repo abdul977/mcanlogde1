@@ -401,7 +401,7 @@ const ProductDetail = () => {
                 disabled={!product.isAvailable}
                 className={`flex-1 py-3 px-6 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
                   product.isAvailable
-                    ? 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? 'bg-green-600 text-white hover:bg-green-700'
                     : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 }`}
               >
