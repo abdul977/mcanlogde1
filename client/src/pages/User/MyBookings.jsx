@@ -153,7 +153,7 @@ const MyBookings = () => {
       header: 'Type',
       render: (value) => (
         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(value)}`}>
-          {value.replace('_', ' ').toUpperCase()}
+          {value && typeof value === 'string' ? value.replace('_', ' ').toUpperCase() : String(value || '').toUpperCase()}
         </span>
       )
     },
@@ -182,7 +182,7 @@ const MyBookings = () => {
       header: 'Status',
       render: (value) => (
         <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(value)}`}>
-          {value.toUpperCase()}
+          {value && typeof value === 'string' ? value.toUpperCase() : String(value || '').toUpperCase()}
         </span>
       )
     }
@@ -195,10 +195,10 @@ const MyBookings = () => {
       <div className="p-4 bg-gradient-to-r from-mcan-primary/10 to-mcan-secondary/10">
         <div className="flex items-center justify-between">
           <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getTypeBadge(item.bookingType)}`}>
-            {item.bookingType.replace('_', ' ').toUpperCase()}
+            {item.bookingType && typeof item.bookingType === 'string' ? item.bookingType.replace('_', ' ').toUpperCase() : String(item.bookingType || '').toUpperCase()}
           </span>
           <span className={`px-2 py-1 text-xs font-semibold rounded-full ${getStatusBadge(item.status)}`}>
-            {item.status.toUpperCase()}
+            {item.status && typeof item.status === 'string' ? item.status.toUpperCase() : String(item.status || '').toUpperCase()}
           </span>
         </div>
       </div>

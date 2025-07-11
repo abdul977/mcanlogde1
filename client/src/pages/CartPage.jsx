@@ -162,8 +162,8 @@ const CartPage = () => {
         `${orderData.customerNotes ? `*Special Instructions:* ${orderData.customerNotes}\n\n` : ''}` +
         `Please confirm this order and provide payment details.`;
 
-      // WhatsApp admin number (you should replace this with actual admin number)
-      const adminWhatsApp = "2348123456789"; // Replace with actual admin WhatsApp number
+      // WhatsApp admin number - UPDATE THIS WITH ACTUAL ADMIN NUMBER
+      const adminWhatsApp = "2348123456789"; // TODO: Replace with actual MCAN admin WhatsApp number
       const whatsappUrl = `https://wa.me/${adminWhatsApp}?text=${encodeURIComponent(message)}`;
 
       // Remove products from cart
