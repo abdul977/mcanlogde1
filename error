@@ -1,0 +1,773 @@
+chunk-YZVM2MHU.js?v=a650d660:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
+StagewiseToolbar.jsx:18 Stagewise toolbar initialized successfully
+Hotels.jsx:48 Starting to fetch posts from: http://localhost:3000
+react-router-dom.js?v=a650d660:4393 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
+warnOnce @ react-router-dom.js?v=a650d660:4393
+react-router-dom.js?v=a650d660:4393 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
+warnOnce @ react-router-dom.js?v=a650d660:4393
+UserContext.jsx:25 Auth data loaded from localStorage: Object
+@stagewise_toolbar.js?v=a650d660:10719 Stagewise Toolbar is already loaded - aborting init.
+initToolbar @ @stagewise_toolbar.js?v=a650d660:10719
+StagewiseToolbar.jsx:18 Stagewise toolbar initialized successfully
+Hotels.jsx:48 Starting to fetch posts from: http://localhost:3000
+UserContext.jsx:25 Auth data loaded from localStorage: Object
+SocketContext.jsx:25 Connecting to socket server: http://localhost:3000
+about:srcdoc:1 An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.
+6cebc743-1515-4e20-b437-511f1f4244c7:3282 useDraggable: Container for initialSnapArea has zero width or height. Cannot calculate relative center from snap area. Falling back to initialRelativeCenter or undefined.
+(anonymous) @ 6cebc743-1515-4e20-b437-511f1f4244c7:3282
+e84b499a-2fa4-4908-b395-9038c9d8fa9f:3221 plugins Array(0)
+e84b499a-2fa4-4908-b395-9038c9d8fa9f:208 WebSocket closed intentionally, not attempting to reconnect
+:5747/ping/stagewise:1 
+            
+            
+           Failed to load resource: the server responded with a status of 404 (Not Found)
+SocketContext.jsx:37 ✅ Socket connected to server: http://localhost:3000
+SocketContext.jsx:38 Socket ID: XDauv5vKIUntgz_qAAAL
+Hotels.jsx:50 Response: Object
+chunk-YZVM2MHU.js?v=a650d660:521 Warning: Received `true` for a non-boolean attribute `jsx`.
+
+If you want to write it to the DOM, pass a string instead: jsx="true" or jsx={value.toString()}.
+    at style
+    at div
+    at Accommodations (http://localhost:5173/src/components/Hotels.jsx?t=1752185547421:28:34)
+    at div
+    at div
+    at HomePage
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+printWarning @ chunk-YZVM2MHU.js?v=a650d660:521
+e84b499a-2fa4-4908-b395-9038c9d8fa9f:3040 ⬆️⬆️⬆️ Those two errors are expected! (Everything is fine, they are part of stagewise's discovery mechanism!) ✅
+discoverVSCodeWindows @ e84b499a-2fa4-4908-b395-9038c9d8fa9f:3040
+Hotels.jsx:50 Response: Object
+Admin.jsx:48 Admin auth response: Object
+Admin.jsx:48 Admin auth response: Object
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
+    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
+    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
+    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
+    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
+    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
+    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
+    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
+    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
+    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
+    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
+    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <span> component:
+
+    at span
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
+
+    at div
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
+
+    at div
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <span> component:
+
+    at span
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
+
+    at div
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
+
+    at div
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <span> component:
+
+    at span
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
+
+    at div
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
+
+    at div
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <span> component:
+
+    at span
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
+
+    at div
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
+
+    at div
+    at td
+    at tr
+    at tbody
+    at table
+    at div
+    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
+    at div
+    at div
+    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
+    at div
+    at div
+    at div
+    at div
+    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
+    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
+    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
+    at main
+    at div
+    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
+    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
+    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
+    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
+    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
+    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
+logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
+chunk-YZVM2MHU.js?v=a650d660:19413 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
+    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
+    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
+    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
+    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
+    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
+    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19753:22)
+    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
+    at workLoopSync (chunk-YZVM2MHU.js?v=a650d660:19137:13)
+    at renderRootSync (chunk-YZVM2MHU.js?v=a650d660:19116:15)
+    at recoverFromConcurrentError (chunk-YZVM2MHU.js?v=a650d660:18736:28)
+SocketContext.jsx:43 ❌ Socket disconnected from server: io client disconnect

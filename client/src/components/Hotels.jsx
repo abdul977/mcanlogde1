@@ -222,7 +222,7 @@ const Accommodations = () => {
         )}
       </div>
 
-      <style jsx>{`
+      <style>{`
         .custom-dot-list-style {
           bottom: -15px !important;
         }

@@ -4,6 +4,29 @@ import { useMobileResponsive, useResponsiveView } from '../../hooks/useMobileRes
 import { MobileButton } from './MobileLayout';
 
 /**
+ * Helper function to safely render cell values
+ * Handles objects, arrays, and primitive values
+ */
+const renderCellValue = (value) => {
+  if (value === null || value === undefined) {
+    return '-';
+  }
+
+  if (typeof value === 'object') {
+    if (Array.isArray(value)) {
+      return value.length > 0 ? `${value.length} items` : 'None';
+    }
+    return '[Object]';
+  }
+
+  if (typeof value === 'boolean') {
+    return value ? 'Yes' : 'No';
+  }
+
+  return String(value);
+};
+
+/**
  * Universal Responsive Data Display Component
  * Automatically switches between table, grid, and card views based on screen size
  */
@@ -261,7 +284,19 @@ const TableView = ({ data, columns, onView, onEdit, onDelete, TableComponent }) 
             <tr key={item.id || item._id || index} className="hover:bg-gray-50">
               {columns.map((column, colIndex) => (
                 <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {column.render ? column.render(item[column.key], item) : item[column.key]}
+                  {(() => {
+                    try {
+                      if (column.render) {
+                        const result = column.render(item[column.key], item);
+                        return result;
+                      } else {
+                        return renderCellValue(item[column.key]);
+                      }
+                    } catch (error) {
+                      console.error('Error rendering column:', column.key, error, item);
+                      return '[Error]';
+                    }
+                  })()}
                 </td>
               ))}
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -286,7 +321,19 @@ const DefaultCard = ({ item, columns, onView, onEdit, onDelete }) => {
           <div key={index} className="flex justify-between">
             <span className="text-sm font-medium text-gray-600">{column.header || column.key}:</span>
             <span className="text-sm text-gray-900">
-              {column.render ? column.render(item[column.key], item) : item[column.key]}
+              {(() => {
+                try {
+                  if (column.render) {
+                    const result = column.render(item[column.key], item);
+                    return result;
+                  } else {
+                    return renderCellValue(item[column.key]);
+                  }
+                } catch (error) {
+                  console.error('Error rendering column in card:', column.key, error, item);
+                  return '[Error]';
+                }
+              })()}
             </span>
           </div>
         ))}
@@ -309,7 +356,19 @@ const DefaultGridCard = ({ item, columns, onView, onEdit, onDelete }) => {
           <div key={index}>
             <div className="text-xs font-medium text-gray-500 uppercase">{column.header || column.key}</div>
             <div className="text-sm text-gray-900 mt-1">
-              {column.render ? column.render(item[column.key], item) : item[column.key]}
+              {(() => {
+                try {
+                  if (column.render) {
+                    const result = column.render(item[column.key], item);
+                    return result;
+                  } else {
+                    return renderCellValue(item[column.key]);
+                  }
+                } catch (error) {
+                  console.error('Error rendering column in grid:', column.key, error, item);
+                  return '[Error]';
+                }
+              })()}
             </div>
           </div>
         ))}

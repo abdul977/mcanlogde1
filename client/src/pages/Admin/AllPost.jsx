@@ -175,12 +175,12 @@ const AllPost = () => {
     {
       key: 'title',
       header: 'Title',
-      render: (item, value) => <span className="font-medium">{value}</span>
+      render: (value, item) => <span className="font-medium">{value}</span>
     },
     {
       key: 'location',
       header: 'Location',
-      render: (item, value) => (
+      render: (value, item) => (
         <div className="flex items-center">
           <FaMapMarkerAlt className="mr-1 text-mcan-primary" />
           {value}
@@ -190,7 +190,7 @@ const AllPost = () => {
     {
       key: 'guest',
       header: 'Guests',
-      render: (item, value) => (
+      render: (value, item) => (
         <div className="flex items-center">
           <FaUsers className="mr-1 text-mcan-secondary" />
           {value}
@@ -200,7 +200,7 @@ const AllPost = () => {
     {
       key: 'price',
       header: 'Price',
-      render: (item, value) => `₦${value?.toLocaleString()}/month`
+      render: (value, item) => `₦${value?.toLocaleString()}/month`
     },
     {
       key: 'adminStatus',
