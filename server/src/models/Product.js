@@ -27,16 +27,9 @@ const productSchema = new Schema({
   },
   comparePrice: {
     type: Number,
-    min: [0, "Compare price cannot be negative"],
-    validate: {
-      validator: function(value) {
-        // Allow null, undefined, 0, or empty values
-        if (!value || value === 0) return true;
-        // Ensure both values are numbers and compare price is greater than selling price
-        return Number(value) > Number(this.price);
-      },
-      message: "Compare price must be greater than selling price"
-    }
+    min: [0, "Compare price cannot be negative"]
+    // Note: Compare price validation is handled in the controller
+    // to properly handle updates where both price and comparePrice might change
   },
   currency: {
     type: String,

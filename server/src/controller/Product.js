@@ -383,6 +383,19 @@ export const createProductController = async (req, res) => {
       });
     }
 
+    // Validate comparePrice if provided
+    if (comparePrice && Number(comparePrice) > 0) {
+      const priceNum = Number(price);
+      const comparePriceNum = Number(comparePrice);
+
+      if (comparePriceNum <= priceNum) {
+        return res.status(400).send({
+          success: false,
+          message: "Compare price must be greater than selling price"
+        });
+      }
+    }
+
     // Handle SKU - generate unique one if not provided or if conflict exists
     let finalSku;
     if (!sku || sku.trim() === '') {
@@ -623,11 +636,12 @@ export const updateProductController = async (req, res) => {
     });
 
     // Additional validation for comparePrice
-    if (updateData.comparePrice !== undefined && updateData.price !== undefined) {
-      const price = Number(updateData.price);
+    if (updateData.comparePrice !== undefined && updateData.comparePrice > 0) {
+      // Get the price to compare against (either new price or existing price)
+      const priceToCompare = updateData.price !== undefined ? Number(updateData.price) : Number(product.price);
       const comparePrice = Number(updateData.comparePrice);
 
-      if (comparePrice > 0 && comparePrice <= price) {
+      if (comparePrice <= priceToCompare) {
         return res.status(400).send({
           success: false,
           message: "Compare price must be greater than selling price"
