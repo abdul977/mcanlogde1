@@ -67,23 +67,28 @@ const BookingConfirmation = ({
 
   const validateForm = () => {
     if (bookingType === "accommodation") {
-      if (!formData.checkInDate || !formData.checkOutDate) {
-        toast.error("Please select check-in and check-out dates");
+      if (!formData.checkInDate) {
+        toast.error("Please select check-in date");
         return false;
       }
-      
+
+      if (!formData.bookingDuration || formData.bookingDuration < 1) {
+        toast.error("Please select booking duration");
+        return false;
+      }
+
       const checkIn = new Date(formData.checkInDate);
-      const checkOut = new Date(formData.checkOutDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
-      
+
       if (checkIn < today) {
         toast.error("Check-in date cannot be in the past");
         return false;
       }
-      
-      if (checkOut <= checkIn) {
-        toast.error("Check-out date must be after check-in date");
+
+      // Validate booking duration is within limits (max 12 months)
+      if (formData.bookingDuration > 12) {
+        toast.error("Maximum booking duration is 12 months");
         return false;
       }
       
@@ -314,7 +319,7 @@ const BookingConfirmation = ({
           {bookingType === "accommodation" && formData.bookingDuration > 1 && formData.checkInDate && (
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h4 className="font-semibold text-blue-800 mb-3 flex items-center">
-                <FaCalendar className="mr-2" />
+                <FaCalendarAlt className="mr-2" />
                 Payment Schedule Preview
               </h4>
               <div className="space-y-2 text-sm">

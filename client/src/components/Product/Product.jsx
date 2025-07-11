@@ -142,11 +142,22 @@ const Product = () => {
       if (res.data?.success && res.data?.posts) {
         // Filter posts by category and exclude current post
         const related = res.data.posts.filter(post => {
+          try {
+          // Add comprehensive null checks to prevent errors
+          if (!post || !post._id || !post.category) {
+            return false;
+          }
+
+          // Additional check for category._id if category is an object
+          if (typeof post.category === 'object' && !post.category._id) {
+            return false;
+          }
+
           // Convert category IDs to strings for comparison
           const postCatId = (post.category._id || post.category).toString();
           const currentCatId = categoryId.toString();
           const postId = post._id.toString();
-          const currentPostId = postDetails._id.toString();
+          const currentPostId = postDetails?._id?.toString();
 
           console.log('Comparing:', {
             postCatId,
@@ -154,10 +165,10 @@ const Product = () => {
             isMatch: postCatId === currentCatId
           });
           
-          const match = postCatId === currentCatId && 
-                       postId !== currentPostId &&
+          const match = postCatId === currentCatId &&
+                       (currentPostId ? postId !== currentPostId : true) &&
                        post.isAvailable === true &&
-                       post.genderRestriction === postDetails.genderRestriction;
+                       post.genderRestriction === postDetails?.genderRestriction;
 
           if (match) {
             console.log('Found match:', {
@@ -166,13 +177,17 @@ const Product = () => {
               category: postCatId
             });
           }
-          
+
           return match;
+        } catch (error) {
+          console.error('Error processing post in filter:', error, post);
+          return false;
+        }
         }).slice(0, 4); // Limit to 4 related posts
 
         console.log('Found related posts:', {
           categoryId,
-          currentPostId: postDetails._id,
+          currentPostId: postDetails?._id,
           relatedCount: related.length
         });
         
