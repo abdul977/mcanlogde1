@@ -238,7 +238,7 @@ const PaymentHistory = ({ bookingId, isOpen, onClose }) => {
               </div>
               <div className="p-4">
                 <img
-                  src={selectedPayment.paymentScreenshot?.url}
+                  src={selectedPayment.paymentProof?.url || selectedPayment.paymentScreenshot?.url}
                   alt="Payment screenshot"
                   className="max-w-full h-auto mx-auto"
                 />

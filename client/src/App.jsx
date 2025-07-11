@@ -96,7 +96,6 @@ function App() {
         <StagewiseToolbar />
 
         {/* Main Navigation */}
-        <ToastContainer position="bottom-left" />
         <Navbar />
 
       {/* Prayer Times Banner - Shows local prayer times */}
