@@ -1,5 +1,5 @@
 import React from "react";
-import { FaTimes, FaCalendar, FaHome, FaBook, FaMapMarkerAlt, FaUsers, FaUser, FaClock, FaInfoCircle, FaCheckCircle, FaTimesCircle, FaExclamationTriangle } from "react-icons/fa";
+import { FaTimes, FaCalendar, FaHome, FaBook, FaMapMarkerAlt, FaUsers, FaUser, FaClock, FaInfoCircle, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaMoneyBillWave } from "react-icons/fa";
 
 const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
   if (!isOpen || !booking) return null;
@@ -217,6 +217,84 @@ const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
               </div>
             </div>
           )}
+
+          {/* Pricing Information */}
+          <div className="mb-8">
+            <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+              <FaMoneyBillWave className="mr-2 text-green-600" />
+              Pricing Information
+            </h4>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {booking.totalAmount && booking.totalAmount > 0 ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 font-medium">Total Amount:</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      ₦{booking.totalAmount.toLocaleString()}
+                    </span>
+                  </div>
+                ) : booking.accommodation?.price ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 font-medium">Monthly Rate:</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      ₦{booking.accommodation.price.toLocaleString()}/month
+                    </span>
+                  </div>
+                ) : booking.program?.fees?.amount && booking.program.fees.amount > 0 ? (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 font-medium">Program Fee:</span>
+                    <span className="text-2xl font-bold text-green-600">
+                      ₦{booking.program.fees.amount.toLocaleString()}
+                      {booking.program.fees.paymentSchedule && booking.program.fees.paymentSchedule !== 'one-time' && (
+                        <span className="text-sm text-gray-600 ml-1">
+                          /{booking.program.fees.paymentSchedule}
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-700 font-medium">Cost:</span>
+                    <span className="text-2xl font-bold text-green-600">Free</span>
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-700 font-medium">Payment Status:</span>
+                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    booking.paymentStatus === 'paid' ? 'bg-green-100 text-green-800' :
+                    booking.paymentStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                    booking.paymentStatus === 'refunded' ? 'bg-blue-100 text-blue-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {booking.paymentStatus === 'not_required' ? 'Not Required' :
+                     booking.paymentStatus.charAt(0).toUpperCase() + booking.paymentStatus.slice(1)}
+                  </span>
+                </div>
+              </div>
+
+              {booking.bookingType === 'accommodation' && booking.checkInDate && booking.checkOutDate && (
+                <div className="mt-4 pt-4 border-t border-green-200">
+                  <div className="text-sm text-gray-600">
+                    <div className="flex justify-between">
+                      <span>Duration:</span>
+                      <span className="font-medium">
+                        {Math.ceil((new Date(booking.checkOutDate) - new Date(booking.checkInDate)) / (1000 * 60 * 60 * 24))} days
+                      </span>
+                    </div>
+                    {booking.accommodation?.price && (
+                      <div className="flex justify-between mt-1">
+                        <span>Daily Rate:</span>
+                        <span className="font-medium">
+                          ₦{Math.round(booking.accommodation.price / 30).toLocaleString()}/day
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
 
           {/* Booking Information */}
           <div className="mb-8">

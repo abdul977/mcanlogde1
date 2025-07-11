@@ -178,6 +178,29 @@ const MyBookings = () => {
       )
     },
     {
+      key: 'totalAmount',
+      header: 'Price',
+      render: (value, booking) => (
+        <div className="text-sm">
+          {value && value > 0 ? (
+            <span className="font-semibold text-green-600">
+              ₦{value.toLocaleString()}
+            </span>
+          ) : booking.accommodation?.price ? (
+            <span className="font-semibold text-green-600">
+              ₦{booking.accommodation.price.toLocaleString()}/month
+            </span>
+          ) : booking.program?.fees?.amount && booking.program.fees.amount > 0 ? (
+            <span className="font-semibold text-green-600">
+              ₦{booking.program.fees.amount.toLocaleString()}
+            </span>
+          ) : (
+            <span className="text-gray-500 text-xs">Free</span>
+          )}
+        </div>
+      )
+    },
+    {
       key: 'status',
       header: 'Status',
       render: (value) => (
@@ -229,6 +252,24 @@ const MyBookings = () => {
           <div className="flex items-center">
             <FaCalendar className="mr-2 text-gray-500" />
             <span>Booked: {formatDate(item.requestDate)}</span>
+          </div>
+          <div className="flex items-center">
+            <span className="mr-2 text-gray-500">💰</span>
+            {item.totalAmount && item.totalAmount > 0 ? (
+              <span className="font-semibold text-green-600">
+                ₦{item.totalAmount.toLocaleString()}
+              </span>
+            ) : item.accommodation?.price ? (
+              <span className="font-semibold text-green-600">
+                ₦{item.accommodation.price.toLocaleString()}/month
+              </span>
+            ) : item.program?.fees?.amount && item.program.fees.amount > 0 ? (
+              <span className="font-semibold text-green-600">
+                ₦{item.program.fees.amount.toLocaleString()}
+              </span>
+            ) : (
+              <span className="text-gray-500">Free</span>
+            )}
           </div>
         </div>
 
