@@ -6,7 +6,8 @@ import PaymentNotificationService from "../services/PaymentNotificationService.j
 import PaymentReceiptService from "../services/PaymentReceiptService.js";
 import PaymentExportService from "../services/PaymentExportService.js";
 import PaymentAuditService from "../services/PaymentAuditService.js";
-import { getFileUrl, validatePaymentProofFile, getFileType } from "../utils/fileUpload.js";
+import { getFileType } from "../utils/fileUpload.js";
+import supabaseStorage from "../services/supabaseStorage.js";
 import path from 'path';
 import fs from 'fs';
 
@@ -113,26 +114,23 @@ export const submitPaymentProof = async (req, res) => {
       });
     }
 
-    // Handle file saving for express-fileupload format
-    const uploadDir = path.join(process.cwd(), 'src', 'uploads', 'payments', 'screenshots');
+    // Upload file to Supabase Storage
+    const uploadResult = await supabaseStorage.uploadFromTempFile(
+      req.files.paymentScreenshot,
+      'mcan-resources',
+      'payments'
+    );
 
-    // Ensure directory exists
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    // Move file from temp location to permanent location
-    const finalPath = path.join(uploadDir, uploadedFile.filename);
-    try {
-      await req.files.paymentScreenshot.mv(finalPath);
-      console.log(`File saved successfully to: ${finalPath}`);
-    } catch (moveError) {
-      console.error("Error moving file:", moveError);
+    if (!uploadResult.success) {
+      console.error("Payment proof upload failed:", uploadResult.error);
       return res.status(500).json({
         success: false,
-        message: "Failed to save payment proof file"
+        message: "Failed to upload payment proof file",
+        error: uploadResult.error
       });
     }
+
+    console.log(`File uploaded successfully to Supabase: ${uploadResult.data.secure_url}`);
 
     // Create payment verification record
     const paymentVerification = new PaymentVerification({
@@ -141,8 +139,8 @@ export const submitPaymentProof = async (req, res) => {
       monthNumber: parseInt(monthNumber),
       amount: parseFloat(amount),
       paymentProof: {
-        url: getFileUrl(uploadedFile.filename),
-        filename: uploadedFile.filename,
+        url: uploadResult.data.secure_url,
+        filename: uploadResult.data.path.split('/').pop(),
         originalName: uploadedFile.originalname,
         size: uploadedFile.size,
         mimetype: uploadedFile.mimetype,
@@ -150,8 +148,8 @@ export const submitPaymentProof = async (req, res) => {
       },
       // Keep legacy field for backward compatibility
       paymentScreenshot: {
-        url: getFileUrl(uploadedFile.filename),
-        filename: uploadedFile.filename,
+        url: uploadResult.data.secure_url,
+        filename: uploadResult.data.path.split('/').pop(),
         size: uploadedFile.size,
         mimetype: uploadedFile.mimetype
       },
@@ -311,7 +309,7 @@ export const verifyPayment = async (req, res) => {
         // Check if all payments are completed
         const allPaid = booking.paymentSchedule.every(item => item.status === 'paid');
         if (allPaid) {
-          booking.paymentStatus = 'completed';
+          booking.paymentStatus = 'paid';
         } else {
           booking.paymentStatus = 'partial';
         }

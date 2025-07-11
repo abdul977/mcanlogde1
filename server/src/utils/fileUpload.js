@@ -76,7 +76,7 @@ export const uploadPaymentScreenshot = uploadPaymentProof;
 
 // Utility function to get file URL
 export const getFileUrl = (filename, type = 'payment') => {
-  const baseUrl = process.env.BASE_URL || 'http://localhost:3001';
+  const baseUrl = process.env.BACKEND_URL || process.env.BASE_URL || 'http://localhost:3001';
   return `${baseUrl}/uploads/${type}s/screenshots/${filename}`;
 };
 

@@ -139,7 +139,7 @@ const bookingSchema = new Schema({
   // Payment information (for future use)
   paymentStatus: {
     type: String,
-    enum: ["pending", "paid", "refunded", "not_required"],
+    enum: ["pending", "paid", "partial", "refunded", "not_required"],
     default: "not_required"
   },
   totalAmount: {
