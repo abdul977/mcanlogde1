@@ -6,7 +6,7 @@ import {
   getUserPaymentHistory,
   getPaymentStatistics 
 } from '../controller/Payment.js';
-import { requireSignIn, isAdmin } from '../middleware/authMiddleware.js';
+import { requireSignIn, isAdmin } from '../middlewares/Auth.js';
 import { uploadPaymentScreenshot, handleUploadError } from '../utils/fileUpload.js';
 
 const router = express.Router();
