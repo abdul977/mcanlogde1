@@ -161,7 +161,10 @@ const MyBookings = () => {
 
   const handlePaymentSuccess = () => {
     toast.success("Payment uploaded successfully!");
-    fetchBookings(); // Refresh bookings
+    // Refresh bookings to show updated payment status
+    setTimeout(() => {
+      fetchBookings();
+    }, 1000); // Small delay to ensure backend processing is complete
     handleClosePaymentModal();
   };
 

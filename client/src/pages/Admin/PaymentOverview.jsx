@@ -1,20 +1,30 @@
 import React, { useState, useEffect } from "react";
-import { FaMoneyBillWave, FaChartBar, FaExclamationTriangle, FaCheckCircle, FaClock } from "react-icons/fa";
+import { FaMoneyBillWave, FaChartBar, FaExclamationTriangle, FaCheckCircle, FaClock, FaCalendarAlt, FaDownload, FaFilter, FaChartLine, FaArrowDown } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axios from "axios";
 import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
+import SimpleChart from "../../components/SimpleChart";
 import Navbar from "./Navbar";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../context/UserContext";
 
 const PaymentOverview = () => {
+  const [auth] = useAuth();
   const [statistics, setStatistics] = useState(null);
   const [recentPayments, setRecentPayments] = useState([]);
   const [overduePayments, setOverduePayments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [dateRange, setDateRange] = useState('30');
+  const [chartData, setChartData] = useState({
+    daily: [],
+    monthly: [],
+    byMethod: [],
+    byStatus: []
+  });
 
   useEffect(() => {
     fetchOverviewData();
-  }, []);
+  }, [dateRange]);
 
   const fetchOverviewData = async () => {
     try {
@@ -87,6 +97,29 @@ const PaymentOverview = () => {
     </div>
   );
 
+  const EnhancedStatCard = ({ title, value, icon: Icon, color, bgColor, change, subtitle }) => (
+    <div className="bg-white rounded-lg shadow-sm border p-6">
+      <div className="flex items-center justify-between">
+        <div className={`p-3 rounded-lg ${bgColor}`}>
+          <Icon className={`h-6 w-6 ${color}`} />
+        </div>
+        <div className="text-right">
+          {change !== undefined && (
+            <div className={`flex items-center text-sm ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {change >= 0 ? <FaChartLine className="mr-1" /> : <FaArrowDown className="mr-1" />}
+              {Math.abs(change).toFixed(1)}%
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="mt-4">
+        <p className="text-sm font-medium text-gray-600">{title}</p>
+        <p className="text-2xl font-bold text-gray-900">{value}</p>
+        {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+      </div>
+    </div>
+  );
+
   if (loading) {
     return (
       <MobileLayout
@@ -149,6 +182,105 @@ const PaymentOverview = () => {
             icon={FaExclamationTriangle}
             color="text-red-600"
             subtitle="Require resubmission"
+          />
+        </div>
+
+        {/* Date Range Filter */}
+        <div className="mb-6">
+          <div className="bg-white rounded-lg shadow-sm border p-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-900">Analytics Period</h3>
+              <div className="flex items-center gap-4">
+                <select
+                  value={dateRange}
+                  onChange={(e) => setDateRange(e.target.value)}
+                  className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="7">Last 7 days</option>
+                  <option value="30">Last 30 days</option>
+                  <option value="90">Last 3 months</option>
+                  <option value="365">Last year</option>
+                </select>
+                <button
+                  onClick={() => window.print()}
+                  className="inline-flex items-center px-3 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                >
+                  <FaDownload className="mr-2" />
+                  Export
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Enhanced Statistics Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <EnhancedStatCard
+            title="Total Revenue"
+            value={`₦${(statistics?.totalRevenue || 0).toLocaleString()}`}
+            icon={FaMoneyBillWave}
+            color="text-green-600"
+            bgColor="bg-green-50"
+            change={statistics?.revenueChange || 0}
+            subtitle="This period"
+          />
+          <EnhancedStatCard
+            title="Average Payment"
+            value={`₦${(statistics?.averagePayment || 0).toLocaleString()}`}
+            icon={FaChartBar}
+            color="text-blue-600"
+            bgColor="bg-blue-50"
+            change={statistics?.avgPaymentChange || 0}
+            subtitle="Per transaction"
+          />
+          <EnhancedStatCard
+            title="Conversion Rate"
+            value={`${(statistics?.conversionRate || 0).toFixed(1)}%`}
+            icon={FaChartLine}
+            color="text-purple-600"
+            bgColor="bg-purple-50"
+            change={statistics?.conversionChange || 0}
+            subtitle="Approval rate"
+          />
+          <EnhancedStatCard
+            title="Processing Time"
+            value={`${(statistics?.avgProcessingTime || 0).toFixed(1)}h`}
+            icon={FaClock}
+            color="text-orange-600"
+            bgColor="bg-orange-50"
+            change={statistics?.processingTimeChange || 0}
+            subtitle="Average"
+          />
+        </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <SimpleChart
+            data={chartData.daily || []}
+            type="line"
+            title="Daily Payment Trends"
+            height={250}
+          />
+          <SimpleChart
+            data={chartData.byStatus || []}
+            type="pie"
+            title="Payment Status Distribution"
+            height={250}
+          />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+          <SimpleChart
+            data={chartData.byMethod || []}
+            type="bar"
+            title="Payment Methods"
+            height={250}
+          />
+          <SimpleChart
+            data={chartData.monthly || []}
+            type="bar"
+            title="Monthly Revenue"
+            height={250}
           />
         </div>
 

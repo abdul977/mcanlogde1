@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaChartBar, FaMoneyBillWave, FaTrendingUp, FaTrendingDown, FaCalendar } from "react-icons/fa";
+import { FaChartBar, FaMoneyBillWave, FaTrendingUp, FaArrowDown, FaCalendar } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axios from "axios";
 import AdminLayout from "../../components/Layout/AdminLayout";
@@ -49,7 +49,7 @@ const PaymentAnalytics = () => {
             <div className={`flex items-center mt-2 text-sm ${
               change >= 0 ? 'text-green-600' : 'text-red-600'
             }`}>
-              {change >= 0 ? <FaTrendingUp className="w-3 h-3 mr-1" /> : <FaTrendingDown className="w-3 h-3 mr-1" />}
+              {change >= 0 ? <FaTrendingUp className="w-3 h-3 mr-1" /> : <FaArrowDown className="w-3 h-3 mr-1" />}
               {Math.abs(change)}% from last period
             </div>
           )}
@@ -231,7 +231,7 @@ const PaymentAnalytics = () => {
           <MetricCard
             title="Overdue Payments"
             value={analytics?.overduePayments?.total || 0}
-            icon={FaTrendingDown}
+            icon={FaArrowDown}
             color="text-red-600"
             subtitle={`₦${analytics?.overduePayments?.totalAmount?.toLocaleString() || 0}`}
           />

@@ -214,18 +214,18 @@ paymentConfigurationSchema.pre('save', function(next) {
 // Static method to get current configuration
 paymentConfigurationSchema.statics.getCurrentConfig = async function() {
   let config = await this.findOne({ isActive: true });
-
+  
   // Create default configuration if none exists
   if (!config) {
     config = await this.create({
       bankDetails: {
         accountName: "Muslim Corps Members Association of Nigeria",
-        accountNumber: "0000000000", // Placeholder account number
-        bankName: "Please configure bank details" // Placeholder bank name
+        accountNumber: "",
+        bankName: ""
       }
     });
   }
-
+  
   return config;
 };
 

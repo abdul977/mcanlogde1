@@ -1,10 +1,11 @@
 import express from 'express';
-import { 
-  submitPaymentProof, 
-  getPaymentVerifications, 
-  verifyPayment, 
+import {
+  submitPaymentProof,
+  getPaymentVerifications,
+  verifyPayment,
   getUserPaymentHistory,
-  getPaymentStatistics 
+  getPaymentStatistics,
+  downloadReceipt
 } from '../controller/Payment.js';
 import { requireSignIn, isAdmin } from '../middlewares/Auth.js';
 import { uploadPaymentProof, handleUploadError } from '../utils/fileUpload.js';
@@ -19,10 +20,11 @@ router.post('/submit-proof',
   submitPaymentProof
 );
 
-router.get('/history', 
-  requireSignIn, 
+router.get('/history',
+  requireSignIn,
   getUserPaymentHistory
 );
+router.get('/receipt/:paymentId', requireSignIn, downloadReceipt);
 
 // Admin routes
 router.get('/admin/verifications', 

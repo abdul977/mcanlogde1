@@ -9,6 +9,7 @@ import { createServer } from "http";
 import { connectToDb } from "./src/config/db.js";
 import { connectRedis } from "./src/config/redis.js";
 import { initializeSocket } from "./src/config/socket.js";
+import PaymentReminderJob from "./src/jobs/paymentReminderJob.js";
 import authRoutes from "./src/routes/User.js";
 import postRoutes from "./src/routes/Post.js";
 import categoryRoutes from "./src/routes/Category.js";
@@ -117,4 +118,7 @@ const HOST = '0.0.0.0';
 server.listen(PORT, HOST, () => {
   console.log(`Server is running on http://${HOST}:${PORT}`);
   console.log(`Socket.IO server initialized`);
+
+  // Initialize payment reminder jobs
+  PaymentReminderJob.init();
 });

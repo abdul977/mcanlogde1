@@ -1,5 +1,5 @@
 import React from "react";
-import { FaTimes, FaCalendar, FaHome, FaBook, FaMapMarkerAlt, FaUsers, FaUser, FaClock, FaInfoCircle, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaMoneyBillWave } from "react-icons/fa";
+import { FaTimes, FaCalendar, FaHome, FaBook, FaMapMarkerAlt, FaUsers, FaUser, FaClock, FaInfoCircle, FaCheckCircle, FaTimesCircle, FaExclamationTriangle, FaMoneyBillWave, FaCreditCard, FaHistory } from "react-icons/fa";
 
 const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
   if (!isOpen || !booking) return null;
@@ -46,6 +46,21 @@ const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const getPaymentStatusBadge = (status) => {
+    const badges = {
+      pending: { color: "bg-yellow-100 text-yellow-800", icon: FaClock, text: "Pending" },
+      paid: { color: "bg-green-100 text-green-800", icon: FaCheckCircle, text: "Paid" },
+      overdue: { color: "bg-red-100 text-red-800", icon: FaExclamationTriangle, text: "Overdue" },
+      waived: { color: "bg-blue-100 text-blue-800", icon: FaCheckCircle, text: "Waived" }
+    };
+    return badges[status] || badges.pending;
+  };
+
+  const isOverdue = (dueDate, status) => {
+    if (status === 'paid' || status === 'waived') return false;
+    return new Date(dueDate) < new Date();
   };
 
   const formatDateOnly = (dateString) => {
@@ -431,6 +446,94 @@ const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
               </div>
             </div>
           </div>
+
+          {/* Payment Schedule Section */}
+          {booking.bookingType === 'accommodation' && booking.paymentSchedule && booking.paymentSchedule.length > 0 && (
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <FaCreditCard className="mr-2 text-mcan-primary" />
+                Payment Schedule
+              </h4>
+
+              {/* Payment Summary */}
+              <div className="bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-4 mb-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600">₦{booking.totalAmount?.toLocaleString()}</div>
+                    <div className="text-sm text-gray-600">Total Amount</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {booking.paymentSchedule.filter(p => p.status === 'paid').length}
+                    </div>
+                    <div className="text-sm text-gray-600">Payments Made</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-yellow-600">
+                      {booking.paymentSchedule.filter(p => p.status === 'pending').length}
+                    </div>
+                    <div className="text-sm text-gray-600">Pending Payments</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Schedule Table */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Paid Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {booking.paymentSchedule.map((payment, index) => {
+                      const status = isOverdue(payment.dueDate, payment.status) ? 'overdue' : payment.status;
+                      const badge = getPaymentStatusBadge(status);
+                      const IconComponent = badge.icon;
+
+                      return (
+                        <tr key={index} className={`hover:bg-gray-50 ${status === 'overdue' ? 'bg-red-50' : ''}`}>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className="flex items-center">
+                              <FaCalendar className="mr-2 text-gray-400" />
+                              <span className="text-sm font-medium text-gray-900">Month {payment.monthNumber}</span>
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {new Date(payment.dueDate).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                            ₦{payment.amount?.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap">
+                            <div className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${badge.color}`}>
+                              <IconComponent className="w-3 h-3 mr-1" />
+                              {badge.text}
+                            </div>
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                            {payment.paidDate ? new Date(payment.paidDate).toLocaleDateString() : '-'}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Payment History Link */}
+              <div className="mt-4 text-center">
+                <button className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-600 bg-blue-100 hover:bg-blue-200 transition-colors">
+                  <FaHistory className="mr-2" />
+                  View Payment History
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* Notes Section */}
           {(booking.userNotes || booking.adminNotes) && (

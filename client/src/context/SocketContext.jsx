@@ -21,7 +21,7 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (auth?.token && auth?.user) {
       // Initialize socket connection
-      const socketUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3000';
+      const socketUrl = import.meta.env.VITE_BASE_URL || 'http://localhost:3001';
       console.log('Connecting to socket server:', socketUrl);
 
       const newSocket = io(socketUrl, {

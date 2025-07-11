@@ -2,12 +2,19 @@ import PaymentVerification from "../models/PaymentVerification.js";
 import Booking from "../models/Booking.js";
 import Notification from "../models/Notification.js";
 import User from "../models/User.js";
+import PaymentNotificationService from "../services/PaymentNotificationService.js";
+import PaymentReceiptService from "../services/PaymentReceiptService.js";
 import { getFileUrl, validatePaymentProofFile, getFileType } from "../utils/fileUpload.js";
 import path from 'path';
+import fs from 'fs';
 
 // Submit payment proof
 export const submitPaymentProof = async (req, res) => {
   try {
+    console.log('=== Payment Proof Submission Started ===');
+    console.log('Request body:', req.body);
+    console.log('Request files:', req.files ? Object.keys(req.files) : 'No files');
+    console.log('Request file (multer):', req.file ? 'Present' : 'Not present');
     const {
       bookingId,
       monthNumber,
@@ -28,15 +35,32 @@ export const submitPaymentProof = async (req, res) => {
       });
     }
 
-    // Validate uploaded file
-    if (!req.file) {
+    // Handle both multer (req.file) and express-fileupload (req.files) formats
+    let uploadedFile = null;
+
+    if (req.file) {
+      // Multer format
+      uploadedFile = req.file;
+    } else if (req.files && req.files.paymentScreenshot) {
+      // Express-fileupload format
+      const file = req.files.paymentScreenshot;
+      uploadedFile = {
+        filename: `payment_${bookingId}_${monthNumber}_${Date.now()}${path.extname(file.name)}`,
+        originalname: file.name,
+        size: file.size,
+        mimetype: file.mimetype,
+        path: file.tempFilePath
+      };
+    }
+
+    if (!uploadedFile) {
       return res.status(400).json({
         success: false,
         message: "Payment screenshot is required"
       });
     }
 
-    const fileErrors = validatePaymentProofFile(req.file);
+    const fileErrors = validatePaymentProofFile(uploadedFile);
     if (fileErrors.length > 0) {
       return res.status(400).json({
         success: false,
@@ -71,6 +95,20 @@ export const submitPaymentProof = async (req, res) => {
       });
     }
 
+    // Handle file saving for express-fileupload format
+    if (req.files && req.files.paymentScreenshot) {
+      const uploadDir = path.join(process.cwd(), 'uploads', 'payments', 'screenshots');
+
+      // Ensure directory exists
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+
+      // Move file from temp location to permanent location
+      const finalPath = path.join(uploadDir, uploadedFile.filename);
+      await req.files.paymentScreenshot.mv(finalPath);
+    }
+
     // Create payment verification record
     const paymentVerification = new PaymentVerification({
       booking: bookingId,
@@ -78,19 +116,19 @@ export const submitPaymentProof = async (req, res) => {
       monthNumber: parseInt(monthNumber),
       amount: parseFloat(amount),
       paymentProof: {
-        url: getFileUrl(req.file.filename),
-        filename: req.file.filename,
-        originalName: req.file.originalname,
-        size: req.file.size,
-        mimetype: req.file.mimetype,
-        fileType: getFileType(req.file.mimetype)
+        url: getFileUrl(uploadedFile.filename),
+        filename: uploadedFile.filename,
+        originalName: uploadedFile.originalname,
+        size: uploadedFile.size,
+        mimetype: uploadedFile.mimetype,
+        fileType: getFileType(uploadedFile.mimetype)
       },
       // Keep legacy field for backward compatibility
       paymentScreenshot: {
-        url: getFileUrl(req.file.filename),
-        filename: req.file.filename,
-        size: req.file.size,
-        mimetype: req.file.mimetype
+        url: getFileUrl(uploadedFile.filename),
+        filename: uploadedFile.filename,
+        size: uploadedFile.size,
+        mimetype: uploadedFile.mimetype
       },
       paymentMethod,
       transactionReference: transactionReference || undefined,
@@ -107,28 +145,9 @@ export const submitPaymentProof = async (req, res) => {
       { path: 'booking', select: 'accommodation checkInDate', populate: { path: 'accommodation', select: 'title' } }
     ]);
 
-    // Create notification for admins
+    // Create notification for admins using notification service
     try {
-      const admins = await User.find({ role: 'admin' });
-      const notificationPromises = admins.map(admin => {
-        return Notification.create({
-          user: admin._id,
-          title: 'New Payment Proof Submitted',
-          message: `${paymentVerification.user.name} submitted payment proof for ${paymentVerification.booking.accommodation.title} - Month ${paymentVerification.monthNumber}`,
-          type: 'payment_verification',
-          priority: 'high',
-          relatedPayment: paymentVerification._id,
-          relatedBooking: paymentVerification.booking._id,
-          actionData: {
-            type: 'navigate',
-            url: '/admin/payment-verification',
-            params: { paymentId: paymentVerification._id }
-          }
-        });
-      });
-
-      await Promise.all(notificationPromises);
-      console.log(`Created payment notification for ${admins.length} admins`);
+      await PaymentNotificationService.notifyPaymentSubmission(paymentVerification);
     } catch (notificationError) {
       console.error("Error creating admin notifications:", notificationError);
       // Don't fail the payment submission if notifications fail
@@ -141,7 +160,9 @@ export const submitPaymentProof = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Error submitting payment proof:", error);
+    console.error("=== Payment Proof Submission Error ===");
+    console.error("Error details:", error);
+    console.error("Error stack:", error.stack);
     res.status(500).json({
       success: false,
       message: "Failed to submit payment proof",
@@ -248,34 +269,49 @@ export const verifyPayment = async (req, res) => {
       if (paymentScheduleItem) {
         paymentScheduleItem.status = 'paid';
         paymentScheduleItem.paidDate = payment.paymentDate;
-        paymentScheduleItem.paymentProof = payment._id;
+        paymentScheduleItem.paidAmount = payment.amount;
+        paymentScheduleItem.verificationId = payment._id;
+
+        // Check if all payments are completed
+        const allPaid = booking.paymentSchedule.every(item => item.status === 'paid');
+        if (allPaid) {
+          booking.paymentStatus = 'completed';
+        } else {
+          booking.paymentStatus = 'partial';
+        }
+
         await booking.save();
+        console.log(`Updated payment schedule for booking ${booking._id}, month ${payment.monthNumber}`);
+      }
+    } else if (action === 'reject' && payment.booking) {
+      // If rejected, ensure payment schedule reflects pending status
+      const booking = payment.booking;
+      const paymentScheduleItem = booking.paymentSchedule.find(
+        item => item.monthNumber === payment.monthNumber
+      );
+      if (paymentScheduleItem && paymentScheduleItem.status !== 'paid') {
+        paymentScheduleItem.status = 'pending';
+        await booking.save();
+      }
+    }
+
+    // Generate receipt for approved payments
+    if (action === 'approve') {
+      try {
+        const receipt = await PaymentReceiptService.generateReceipt(payment);
+        payment.receiptUrl = `/uploads/receipts/${receipt.filename}`;
+        payment.receiptNumber = receipt.receiptNumber;
+        await payment.save();
+        console.log(`Generated receipt ${receipt.receiptNumber} for payment ${payment._id}`);
+      } catch (receiptError) {
+        console.error("Error generating payment receipt:", receiptError);
+        // Don't fail the verification if receipt generation fails
       }
     }
 
     // Create notification for user about payment verification result
     try {
-      const notificationTitle = action === 'approve' ? 'Payment Approved' : 'Payment Rejected';
-      const notificationMessage = action === 'approve'
-        ? `Your payment for ${payment.booking.accommodation?.title} - Month ${payment.monthNumber} has been approved.`
-        : `Your payment for ${payment.booking.accommodation?.title} - Month ${payment.monthNumber} has been rejected. ${adminNotes ? 'Reason: ' + adminNotes : ''}`;
-
-      await Notification.create({
-        user: payment.user,
-        title: notificationTitle,
-        message: notificationMessage,
-        type: action === 'approve' ? 'payment_approved' : 'payment_rejected',
-        priority: action === 'approve' ? 'normal' : 'high',
-        relatedPayment: payment._id,
-        relatedBooking: payment.booking._id,
-        actionData: {
-          type: 'navigate',
-          url: '/user/payments',
-          params: { bookingId: payment.booking._id }
-        }
-      });
-
-      console.log(`Created ${action} notification for user ${payment.user}`);
+      await PaymentNotificationService.notifyPaymentDecision(payment, action, adminNotes);
     } catch (notificationError) {
       console.error("Error creating user notification:", notificationError);
       // Don't fail the verification if notifications fail
@@ -368,6 +404,89 @@ export const getPaymentStatistics = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to fetch payment statistics",
+      error: error.message
+    });
+  }
+};
+
+// Download payment receipt
+export const downloadReceipt = async (req, res) => {
+  try {
+    const { paymentId } = req.params;
+    const userId = req.user._id || req.user.id;
+
+    // Find payment verification
+    const payment = await PaymentVerification.findById(paymentId)
+      .populate('user', 'name email')
+      .populate('booking', 'accommodation', { populate: { path: 'accommodation', select: 'title' } });
+
+    if (!payment) {
+      return res.status(404).json({
+        success: false,
+        message: "Payment not found"
+      });
+    }
+
+    // Check if user owns this payment or is admin
+    const isOwner = payment.user._id.toString() === userId.toString();
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied"
+      });
+    }
+
+    // Check if payment is approved
+    if (payment.verificationStatus !== 'approved') {
+      return res.status(400).json({
+        success: false,
+        message: "Receipt is only available for approved payments"
+      });
+    }
+
+    // Generate receipt if it doesn't exist
+    if (!payment.receiptUrl) {
+      try {
+        const receipt = await PaymentReceiptService.generateReceipt(payment);
+        payment.receiptUrl = `/uploads/receipts/${receipt.filename}`;
+        payment.receiptNumber = receipt.receiptNumber;
+        await payment.save();
+      } catch (receiptError) {
+        console.error("Error generating receipt:", receiptError);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to generate receipt"
+        });
+      }
+    }
+
+    // Get file path
+    const filename = payment.receiptUrl.split('/').pop();
+    const filepath = path.join(process.cwd(), 'uploads', 'receipts', filename);
+
+    // Check if file exists
+    if (!require('fs').existsSync(filepath)) {
+      return res.status(404).json({
+        success: false,
+        message: "Receipt file not found"
+      });
+    }
+
+    // Set headers for PDF download
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="receipt_${payment.receiptNumber}.pdf"`);
+
+    // Stream file
+    const fileStream = require('fs').createReadStream(filepath);
+    fileStream.pipe(res);
+
+  } catch (error) {
+    console.error("Error downloading receipt:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to download receipt",
       error: error.message
     });
   }
