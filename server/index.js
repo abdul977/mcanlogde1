@@ -91,6 +91,27 @@ app.get('/', (req, res) =>{
   res.send("Welcome")
 })
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    message: 'MCAN Lodge Backend is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    port: process.env.PORT || 3000
+  });
+})
+
+// API status endpoint
+app.get('/api/status', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'API is working correctly',
+    timestamp: new Date().toISOString(),
+    version: '1.0.0'
+  });
+})
+
 // Routes
 app.use("/auth/api", authRoutes);
 app.use("/api/post", postRoutes);
