@@ -25,6 +25,7 @@ import productCategoryRoutes from "./src/routes/ProductCategory.js";
 import orderRoutes from "./src/routes/Order.js";
 import bookingRoutes from "./src/routes/Booking.js";
 import messageRoutes from "./src/routes/Message.js";
+import paymentRoutes from "./src/routes/paymentRoutes.js";
 
 // Load environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -81,6 +82,9 @@ app.use(fileUpload({
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Serve static files for uploads
+app.use('/uploads', express.static('src/uploads'));
+
 app.get('/', (req, res) =>{
   res.send("Welcome")
 })
@@ -100,6 +104,7 @@ app.use("/api/donations", donationRoutes);
 app.use("/api/lectures", lectureRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/messages", messageRoutes);
+app.use("/api/payments", paymentRoutes);
 // E-commerce routes
 app.use("/api/products", productRoutes);
 app.use("/api/product-categories", productCategoryRoutes);

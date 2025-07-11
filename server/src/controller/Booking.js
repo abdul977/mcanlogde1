@@ -4,7 +4,28 @@ import QuranClass from "../models/QuranClass.js";
 import Lecture from "../models/Lecture.js";
 import Event from "../models/Event.js";
 import Message from "../models/Message.js";
+import PaymentReminder from "../models/PaymentReminder.js";
 import mongoose from "mongoose";
+
+// Utility function to generate payment schedule for yearly bookings
+const generatePaymentSchedule = (startDate, duration, monthlyAmount) => {
+  const schedule = [];
+  const start = new Date(startDate);
+
+  for (let i = 0; i < duration; i++) {
+    const dueDate = new Date(start);
+    dueDate.setMonth(dueDate.getMonth() + i);
+
+    schedule.push({
+      monthNumber: i + 1,
+      dueDate: dueDate,
+      amount: monthlyAmount,
+      status: "pending"
+    });
+  }
+
+  return schedule;
+};
 
 // Utility function to sync accommodation availability based on approved bookings
 export const syncAccommodationAvailability = async () => {
@@ -54,6 +75,8 @@ export const createBookingController = async (req, res) => {
       programModel,
       checkInDate,
       checkOutDate,
+      bookingDuration,
+      totalAmount,
       numberOfGuests,
       userNotes,
       contactInfo,
@@ -172,6 +195,27 @@ export const createBookingController = async (req, res) => {
       bookingData.checkInDate = checkInDate;
       bookingData.checkOutDate = checkOutDate;
       bookingData.numberOfGuests = numberOfGuests;
+
+      // Handle yearly booking duration and payment schedule
+      if (bookingDuration && bookingDuration.months > 1) {
+        bookingData.bookingDuration = bookingDuration;
+        bookingData.totalAmount = totalAmount;
+
+        // Get accommodation for monthly price
+        const accommodation = await Post.findById(accommodationId);
+        const monthlyAmount = accommodation.price;
+
+        // Generate payment schedule
+        bookingData.paymentSchedule = generatePaymentSchedule(
+          checkInDate,
+          bookingDuration.months,
+          monthlyAmount
+        );
+      } else {
+        // Single month booking
+        const accommodation = await Post.findById(accommodationId);
+        bookingData.totalAmount = accommodation.price;
+      }
     } else {
       bookingData.program = programId;
       bookingData.programModel = programModel;
@@ -205,6 +249,26 @@ export const createBookingController = async (req, res) => {
     });
 
     await Promise.all(notificationPromises);
+
+    // Create payment reminders for yearly bookings
+    if (bookingType === 'accommodation' && bookingDuration && bookingDuration.months > 1) {
+      try {
+        const reminderPromises = newBooking.paymentSchedule.map(payment => {
+          return PaymentReminder.createUpcomingReminder(
+            newBooking,
+            payment.monthNumber,
+            payment.dueDate,
+            payment.amount
+          );
+        });
+
+        await Promise.all(reminderPromises);
+        console.log(`Created ${reminderPromises.length} payment reminders for booking ${newBooking._id}`);
+      } catch (reminderError) {
+        console.error("Error creating payment reminders:", reminderError);
+        // Don't fail the booking creation if reminders fail
+      }
+    }
 
     res.status(201).json({
       success: true,

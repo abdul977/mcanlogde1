@@ -276,25 +276,115 @@ const BookingDetailsModal = ({ booking, isOpen, onClose }) => {
               {booking.bookingType === 'accommodation' && booking.checkInDate && booking.checkOutDate && (
                 <div className="mt-4 pt-4 border-t border-green-200">
                   <div className="text-sm text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Duration:</span>
-                      <span className="font-medium">
-                        {Math.ceil((new Date(booking.checkOutDate) - new Date(booking.checkInDate)) / (1000 * 60 * 60 * 24))} days
-                      </span>
-                    </div>
-                    {booking.accommodation?.price && (
-                      <div className="flex justify-between mt-1">
-                        <span>Daily Rate:</span>
-                        <span className="font-medium">
-                          ₦{Math.round(booking.accommodation.price / 30).toLocaleString()}/day
-                        </span>
-                      </div>
+                    {booking.bookingDuration?.months > 1 ? (
+                      <>
+                        <div className="flex justify-between">
+                          <span>Booking Duration:</span>
+                          <span className="font-medium">
+                            {booking.bookingDuration.months} months
+                          </span>
+                        </div>
+                        <div className="flex justify-between mt-1">
+                          <span>Monthly Rate:</span>
+                          <span className="font-medium">
+                            ₦{booking.accommodation?.price?.toLocaleString()}/month
+                          </span>
+                        </div>
+                        <div className="flex justify-between mt-1">
+                          <span>Start Date:</span>
+                          <span className="font-medium">
+                            {new Date(booking.checkInDate).toLocaleDateString()}
+                          </span>
+                        </div>
+                        <div className="flex justify-between mt-1">
+                          <span>End Date:</span>
+                          <span className="font-medium">
+                            {new Date(booking.checkOutDate).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="flex justify-between">
+                          <span>Duration:</span>
+                          <span className="font-medium">
+                            {Math.ceil((new Date(booking.checkOutDate) - new Date(booking.checkInDate)) / (1000 * 60 * 60 * 24))} days
+                          </span>
+                        </div>
+                        {booking.accommodation?.price && (
+                          <div className="flex justify-between mt-1">
+                            <span>Daily Rate:</span>
+                            <span className="font-medium">
+                              ₦{Math.round(booking.accommodation.price / 30).toLocaleString()}/day
+                            </span>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
               )}
             </div>
           </div>
+
+          {/* Payment Schedule for Yearly Bookings */}
+          {booking.bookingType === 'accommodation' && booking.paymentSchedule && booking.paymentSchedule.length > 1 && (
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                <FaCalendar className="mr-2 text-blue-600" />
+                Payment Schedule
+              </h4>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div className="space-y-3">
+                  {booking.paymentSchedule.map((payment, index) => (
+                    <div key={index} className="flex items-center justify-between py-2 px-3 bg-white rounded border">
+                      <div className="flex items-center space-x-3">
+                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                          payment.status === 'paid' ? 'bg-green-100 text-green-800' :
+                          payment.status === 'overdue' ? 'bg-red-100 text-red-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {payment.monthNumber}
+                        </span>
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            Month {payment.monthNumber}
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            Due: {new Date(payment.dueDate).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold text-gray-900">
+                          ₦{payment.amount?.toLocaleString()}
+                        </div>
+                        <div className={`text-xs font-medium ${
+                          payment.status === 'paid' ? 'text-green-600' :
+                          payment.status === 'overdue' ? 'text-red-600' :
+                          'text-yellow-600'
+                        }`}>
+                          {payment.status === 'paid' ? '✓ Paid' :
+                           payment.status === 'overdue' ? '⚠ Overdue' :
+                           '⏳ Pending'}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-4 pt-3 border-t border-blue-200">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-blue-700">
+                      Payments: {booking.paymentSchedule.filter(p => p.status === 'paid').length} of {booking.paymentSchedule.length} completed
+                    </span>
+                    <span className="font-semibold text-blue-800">
+                      Total: ₦{booking.totalAmount?.toLocaleString()}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Booking Information */}
           <div className="mb-8">
