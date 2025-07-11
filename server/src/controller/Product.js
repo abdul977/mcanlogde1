@@ -585,6 +585,25 @@ export const updateProductController = async (req, res) => {
       }
     });
 
+    // Ensure inventory object has proper structure
+    if (updateData.inventory) {
+      const inventory = updateData.inventory;
+      // Ensure trackQuantity is a boolean
+      if (inventory.trackQuantity !== undefined) {
+        inventory.trackQuantity = Boolean(inventory.trackQuantity);
+      }
+      // Ensure numeric fields are properly converted
+      ['quantity', 'lowStockThreshold', 'reservedQuantity'].forEach(field => {
+        if (inventory[field] !== undefined) {
+          inventory[field] = Number(inventory[field]) || 0;
+        }
+      });
+      // Ensure allowBackorder is a boolean
+      if (inventory.allowBackorder !== undefined) {
+        inventory.allowBackorder = Boolean(inventory.allowBackorder);
+      }
+    }
+
     // Handle tags
     if (updateData.tags && typeof updateData.tags === 'string') {
       updateData.tags = updateData.tags.split(',').map(tag => tag.trim().toLowerCase());
@@ -592,15 +611,41 @@ export const updateProductController = async (req, res) => {
 
     // Convert numeric fields
     ['price', 'comparePrice'].forEach(field => {
-      if (updateData[field]) {
-        updateData[field] = Number(updateData[field]);
+      if (updateData[field] !== undefined && updateData[field] !== '') {
+        const numValue = Number(updateData[field]);
+        updateData[field] = isNaN(numValue) ? undefined : numValue;
+      } else if (updateData[field] === '' || updateData[field] === null) {
+        // Convert empty strings and null to undefined for optional fields like comparePrice
+        if (field === 'comparePrice') {
+          updateData[field] = undefined;
+        }
       }
     });
+
+    // Additional validation for comparePrice
+    if (updateData.comparePrice !== undefined && updateData.price !== undefined) {
+      const price = Number(updateData.price);
+      const comparePrice = Number(updateData.comparePrice);
+
+      if (comparePrice > 0 && comparePrice <= price) {
+        return res.status(400).send({
+          success: false,
+          message: "Compare price must be greater than selling price"
+        });
+      }
+    }
 
     // Convert boolean fields
     if (updateData.isFeatured !== undefined) {
       updateData.isFeatured = updateData.isFeatured === 'true' || updateData.isFeatured === true;
     }
+
+    // Debug logging
+    console.log('Update data before validation:', {
+      price: updateData.price,
+      comparePrice: updateData.comparePrice,
+      inventory: updateData.inventory
+    });
 
     const updatedProduct = await Product.findByIdAndUpdate(
       id,

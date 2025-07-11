@@ -30,7 +30,10 @@ const productSchema = new Schema({
     min: [0, "Compare price cannot be negative"],
     validate: {
       validator: function(value) {
-        return !value || value > this.price;
+        // Allow null, undefined, 0, or empty values
+        if (!value || value === 0) return true;
+        // Ensure both values are numbers and compare price is greater than selling price
+        return Number(value) > Number(this.price);
       },
       message: "Compare price must be greater than selling price"
     }
@@ -109,7 +112,7 @@ const productSchema = new Schema({
     quantity: {
       type: Number,
       required: function() {
-        return this.inventory.trackQuantity;
+        return this.inventory && this.inventory.trackQuantity;
       },
       min: [0, "Quantity cannot be negative"],
       default: 0
