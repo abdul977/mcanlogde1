@@ -83,6 +83,7 @@ const PaymentDashboard = () => {
   const handleUploadSuccess = () => {
     setShowUploadModal(false);
     setUploadData(null);
+    toast.success("Payment proof uploaded successfully!");
     fetchData(); // Refresh data
   };
 
@@ -91,13 +92,37 @@ const PaymentDashboard = () => {
       pending: { color: "bg-yellow-100 text-yellow-800", icon: FaClock, text: "Pending" },
       paid: { color: "bg-green-100 text-green-800", icon: FaCheckCircle, text: "Paid" },
       overdue: { color: "bg-red-100 text-red-800", icon: FaExclamationTriangle, text: "Overdue" },
-      waived: { color: "bg-blue-100 text-blue-800", icon: FaCheckCircle, text: "Waived" }
+      waived: { color: "bg-blue-100 text-blue-800", icon: FaCheckCircle, text: "Waived" },
+      processing: { color: "bg-blue-100 text-blue-800", icon: FaClock, text: "Processing" }
     };
     return badges[status] || badges.pending;
   };
 
   const isOverdue = (dueDate, status) => {
     return status === 'pending' && new Date() > new Date(dueDate);
+  };
+
+  const hasPaymentVerification = (bookingId, monthNumber) => {
+    return paymentHistory.some(payment =>
+      payment.booking?._id === bookingId &&
+      payment.monthNumber === monthNumber &&
+      payment.verificationStatus === 'pending'
+    );
+  };
+
+  const getPaymentStatus = (payment, bookingId) => {
+    // Check if there's a pending payment verification
+    if (hasPaymentVerification(bookingId, payment.monthNumber)) {
+      return 'processing';
+    }
+
+    // Check if overdue
+    if (isOverdue(payment.dueDate, payment.status)) {
+      return 'overdue';
+    }
+
+    // Return the actual payment schedule status
+    return payment.status;
   };
 
   const formatDate = (dateString) => {
@@ -274,9 +299,8 @@ const PaymentDashboard = () => {
                   <h4 className="font-medium text-gray-900 mb-4">Payment Schedule</h4>
                   <div className="space-y-3">
                     {booking.paymentSchedule?.map((payment, index) => {
-                      const badge = getStatusBadge(
-                        isOverdue(payment.dueDate, payment.status) ? 'overdue' : payment.status
-                      );
+                      const paymentStatus = getPaymentStatus(payment, booking._id);
+                      const badge = getStatusBadge(paymentStatus);
                       const IconComponent = badge.icon;
                       
                       return (
@@ -306,7 +330,7 @@ const PaymentDashboard = () => {
                               </div>
                             </div>
                             
-                            {(payment.status === 'pending' || isOverdue(payment.dueDate, payment.status)) && (
+                            {(paymentStatus === 'pending' || paymentStatus === 'overdue') && (
                               <button
                                 onClick={() => handleUploadPayment(booking, payment.monthNumber, payment.amount)}
                                 className="bg-green-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-green-700 transition-colors flex items-center gap-1"
