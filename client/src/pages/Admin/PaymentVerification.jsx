@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from "react";
-import { FaCheckCircle, FaTimesCircle, FaEye, FaDownload, FaFilter, FaSearch } from "react-icons/fa";
+import { FaCheckCircle, FaTimesCircle, FaEye, FaDownload, FaFilter, FaSearch, FaCreditCard, FaSort, FaCalendarAlt, FaUser, FaFilePdf, FaImage } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axios from "axios";
-import AdminLayout from "../../components/Layout/AdminLayout";
+import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
+import { PaymentPendingAlert, PaymentNotificationBadge } from "../../components/PaymentAlert";
+import Navbar from "./Navbar";
+import { useAuth } from "../../context/UserContext";
 
 const PaymentVerification = () => {
+  const [auth] = useAuth();
   const [payments, setPayments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortBy, setSortBy] = useState("submittedAt");
+  const [sortOrder, setSortOrder] = useState("desc");
+  const [dateFilter, setDateFilter] = useState("");
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [stats, setStats] = useState({});
 
   useEffect(() => {
     fetchPayments();
-  }, [filter]);
+  }, [filter, sortBy, sortOrder, dateFilter]);
 
   const fetchPayments = async () => {
     try {
@@ -90,13 +98,20 @@ const PaymentVerification = () => {
   };
 
   return (
-    <AdminLayout>
-      <div className="p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Payment Verification</h1>
-          <p className="text-gray-600">Review and verify payment proofs submitted by users</p>
-        </div>
+    <MobileLayout
+      title="Payment Verification"
+      subtitle="Review and verify payment proofs"
+      icon={FaCreditCard}
+      navbar={Navbar}
+    >
+      <div className="p-4 lg:p-8">
+        {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="Payment Verification"
+          subtitle="Review and verify payment proofs submitted by users"
+          icon={FaCreditCard}
+          showOnMobile={false}
+        />
 
         {/* Filters and Search */}
         <div className="bg-white rounded-lg shadow-sm border p-4 mb-6">
@@ -283,7 +298,7 @@ const PaymentVerification = () => {
           </div>
         )}
       </div>
-    </AdminLayout>
+    </MobileLayout>
   );
 };
 

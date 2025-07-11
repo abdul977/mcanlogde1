@@ -282,4 +282,77 @@ export const MobileInput = ({
   );
 };
 
+/**
+ * Mobile-Optimized Textarea Component
+ */
+export const MobileTextarea = ({
+  label,
+  error,
+  className = '',
+  containerClassName = '',
+  rows = 3,
+  ...props
+}) => {
+  const { isMobile } = useMobileResponsive();
+
+  return (
+    <div className={`${containerClassName}`}>
+      {label && (
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label}
+        </label>
+      )}
+      <textarea
+        rows={rows}
+        className={`w-full px-3 ${
+          isMobile ? 'py-3 text-base min-h-[48px]' : 'py-2 text-sm'
+        } border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary resize-vertical ${
+          error ? 'border-red-500' : ''
+        } ${className}`}
+        {...props}
+      />
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+    </div>
+  );
+};
+
+/**
+ * Mobile-Optimized Select Component
+ */
+export const MobileSelect = ({
+  label,
+  error,
+  options = [],
+  className = '',
+  containerClassName = '',
+  ...props
+}) => {
+  const { isMobile } = useMobileResponsive();
+
+  return (
+    <div className={`${containerClassName}`}>
+      {label && (
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          {label}
+        </label>
+      )}
+      <select
+        className={`w-full px-3 ${
+          isMobile ? 'py-3 text-base min-h-[48px]' : 'py-2 text-sm'
+        } border border-gray-300 rounded-md bg-white focus:outline-none focus:ring-2 focus:ring-mcan-primary focus:border-mcan-primary ${
+          error ? 'border-red-500' : ''
+        } ${className}`}
+        {...props}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+    </div>
+  );
+};
+
 export default MobileLayout;

@@ -156,10 +156,10 @@ const bookingSchema = new Schema({
   }
 });
 
-// Pre-save middleware to update timestamps
+// Pre-save middleware to update timestamps and payment status
 bookingSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
-  
+
   // Set status dates
   if (this.isModified('status')) {
     const now = new Date();
@@ -175,7 +175,26 @@ bookingSchema.pre('save', function(next) {
         break;
     }
   }
-  
+
+  // Set payment status based on booking type and payment schedule
+  if (this.isNew || this.isModified('paymentSchedule') || this.isModified('totalAmount')) {
+    if (this.bookingType === 'accommodation') {
+      // For accommodation bookings, check if there's a payment schedule or total amount
+      if ((this.paymentSchedule && this.paymentSchedule.length > 0) || (this.totalAmount && this.totalAmount > 0)) {
+        this.paymentStatus = 'pending';
+      } else {
+        this.paymentStatus = 'not_required';
+      }
+    } else {
+      // For program bookings, check if there's a total amount
+      if (this.totalAmount && this.totalAmount > 0) {
+        this.paymentStatus = 'pending';
+      } else {
+        this.paymentStatus = 'not_required';
+      }
+    }
+  }
+
   next();
 });
 

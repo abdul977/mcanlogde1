@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendar, FaUser, FaHome, FaBook, FaEye, FaCheck, FaTimes, FaSync, FaFilter, FaBars, FaMapMarkerAlt, FaClock } from "react-icons/fa";
+import { FaCalendar, FaUser, FaHome, FaBook, FaEye, FaCheck, FaTimes, FaSync, FaFilter, FaBars, FaMapMarkerAlt, FaClock, FaExclamationTriangle, FaCreditCard, FaBell } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
@@ -15,6 +15,7 @@ const AllBookings = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
   const [selectedType, setSelectedType] = useState("all");
   const [stats, setStats] = useState({});
+  const [pendingPayments, setPendingPayments] = useState([]);
   const [auth] = useAuth();
 
   const statusOptions = [
@@ -62,6 +63,18 @@ const AllBookings = () => {
           toast.success("Bookings refreshed successfully!");
         }
       }
+
+      // Fetch pending payment verifications
+      const paymentsResponse = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/payments/admin/verifications?status=pending&limit=10`,
+        {
+          headers: { Authorization: `Bearer ${auth?.token}` }
+        }
+      );
+
+      if (paymentsResponse.data.success) {
+        setPendingPayments(paymentsResponse.data.payments);
+      }
     } catch (error) {
       console.error("Error fetching bookings:", error);
       toast.error("Failed to fetch bookings");
@@ -74,6 +87,17 @@ const AllBookings = () => {
   useEffect(() => {
     fetchBookings();
   }, [selectedStatus, selectedType]);
+
+  // Check if booking has pending payment verifications
+  const getPaymentAlerts = (booking) => {
+    if (booking.bookingType !== 'accommodation') return null;
+
+    const bookingPayments = pendingPayments.filter(payment =>
+      payment.booking._id === booking._id
+    );
+
+    return bookingPayments.length > 0 ? bookingPayments.length : null;
+  };
 
   // Update booking status
   const updateBookingStatus = async (bookingId, status, adminNotes = "") => {

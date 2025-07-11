@@ -1,5 +1,5 @@
 import React from "react";
-import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt, FaPen, FaBlog, FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaClipboardList, FaComments, FaShoppingBag, FaShoppingCart } from "react-icons/fa";
+import { FaUser, FaPlus, FaList, FaFolder, FaCalendarPlus, FaCalendarAlt, FaPen, FaBlog, FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaClipboardList, FaComments, FaShoppingBag, FaShoppingCart, FaCreditCard, FaCog } from "react-icons/fa";
 import { Link } from "react-router-dom";
 
 const navbarMenu = [
@@ -45,12 +45,17 @@ const navbarMenu = [
   { id: 21, name: "All Bookings", link: "/admin/bookings", icon: <FaClipboardList /> },
   { id: 22, name: "Messages", link: "/admin/messages", icon: <FaComments /> },
 
+  // Payment Management
+  { id: 23, name: "Payment Settings", link: "/admin/payment-settings", icon: <FaCog /> },
+  { id: 24, name: "Payment Verification", link: "/admin/payment-verification", icon: <FaCreditCard /> },
+  { id: 25, name: "Payment Overview", link: "/admin/payment-overview", icon: <FaClipboardList /> },
+
   // E-commerce / Shop
-  { id: 23, name: "Create Product", link: "/admin/create-product", icon: <FaShoppingBag /> },
-  { id: 24, name: "All Products", link: "/admin/products", icon: <FaShoppingBag /> },
-  { id: 25, name: "Create Product Category", link: "/admin/create-product-category", icon: <FaFolder /> },
-  { id: 26, name: "Product Categories", link: "/admin/product-categories", icon: <FaFolder /> },
-  { id: 27, name: "All Orders", link: "/admin/orders", icon: <FaShoppingCart /> },
+  { id: 26, name: "Create Product", link: "/admin/create-product", icon: <FaShoppingBag /> },
+  { id: 27, name: "All Products", link: "/admin/products", icon: <FaShoppingBag /> },
+  { id: 28, name: "Create Product Category", link: "/admin/create-product-category", icon: <FaFolder /> },
+  { id: 29, name: "Product Categories", link: "/admin/product-categories", icon: <FaFolder /> },
+  { id: 30, name: "All Orders", link: "/admin/orders", icon: <FaShoppingCart /> },
 ];
 
 const Navbar = ({ onItemClick }) => {

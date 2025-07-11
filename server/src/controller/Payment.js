@@ -1,6 +1,8 @@
 import PaymentVerification from "../models/PaymentVerification.js";
 import Booking from "../models/Booking.js";
-import { getFileUrl, validateImageFile } from "../utils/fileUpload.js";
+import Notification from "../models/Notification.js";
+import User from "../models/User.js";
+import { getFileUrl, validatePaymentProofFile, getFileType } from "../utils/fileUpload.js";
 import path from 'path';
 
 // Submit payment proof
@@ -34,7 +36,7 @@ export const submitPaymentProof = async (req, res) => {
       });
     }
 
-    const fileErrors = validateImageFile(req.file);
+    const fileErrors = validatePaymentProofFile(req.file);
     if (fileErrors.length > 0) {
       return res.status(400).json({
         success: false,
@@ -75,6 +77,15 @@ export const submitPaymentProof = async (req, res) => {
       user: userId,
       monthNumber: parseInt(monthNumber),
       amount: parseFloat(amount),
+      paymentProof: {
+        url: getFileUrl(req.file.filename),
+        filename: req.file.filename,
+        originalName: req.file.originalname,
+        size: req.file.size,
+        mimetype: req.file.mimetype,
+        fileType: getFileType(req.file.mimetype)
+      },
+      // Keep legacy field for backward compatibility
       paymentScreenshot: {
         url: getFileUrl(req.file.filename),
         filename: req.file.filename,
@@ -95,6 +106,33 @@ export const submitPaymentProof = async (req, res) => {
       { path: 'user', select: 'name email' },
       { path: 'booking', select: 'accommodation checkInDate', populate: { path: 'accommodation', select: 'title' } }
     ]);
+
+    // Create notification for admins
+    try {
+      const admins = await User.find({ role: 'admin' });
+      const notificationPromises = admins.map(admin => {
+        return Notification.create({
+          user: admin._id,
+          title: 'New Payment Proof Submitted',
+          message: `${paymentVerification.user.name} submitted payment proof for ${paymentVerification.booking.accommodation.title} - Month ${paymentVerification.monthNumber}`,
+          type: 'payment_verification',
+          priority: 'high',
+          relatedPayment: paymentVerification._id,
+          relatedBooking: paymentVerification.booking._id,
+          actionData: {
+            type: 'navigate',
+            url: '/admin/payment-verification',
+            params: { paymentId: paymentVerification._id }
+          }
+        });
+      });
+
+      await Promise.all(notificationPromises);
+      console.log(`Created payment notification for ${admins.length} admins`);
+    } catch (notificationError) {
+      console.error("Error creating admin notifications:", notificationError);
+      // Don't fail the payment submission if notifications fail
+    }
 
     res.status(201).json({
       success: true,
@@ -213,6 +251,34 @@ export const verifyPayment = async (req, res) => {
         paymentScheduleItem.paymentProof = payment._id;
         await booking.save();
       }
+    }
+
+    // Create notification for user about payment verification result
+    try {
+      const notificationTitle = action === 'approve' ? 'Payment Approved' : 'Payment Rejected';
+      const notificationMessage = action === 'approve'
+        ? `Your payment for ${payment.booking.accommodation?.title} - Month ${payment.monthNumber} has been approved.`
+        : `Your payment for ${payment.booking.accommodation?.title} - Month ${payment.monthNumber} has been rejected. ${adminNotes ? 'Reason: ' + adminNotes : ''}`;
+
+      await Notification.create({
+        user: payment.user,
+        title: notificationTitle,
+        message: notificationMessage,
+        type: action === 'approve' ? 'payment_approved' : 'payment_rejected',
+        priority: action === 'approve' ? 'normal' : 'high',
+        relatedPayment: payment._id,
+        relatedBooking: payment.booking._id,
+        actionData: {
+          type: 'navigate',
+          url: '/user/payments',
+          params: { bookingId: payment.booking._id }
+        }
+      });
+
+      console.log(`Created ${action} notification for user ${payment.user}`);
+    } catch (notificationError) {
+      console.error("Error creating user notification:", notificationError);
+      // Don't fail the verification if notifications fail
     }
 
     res.json({

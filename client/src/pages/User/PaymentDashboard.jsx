@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendar, FaUpload, FaCheckCircle, FaExclamationTriangle, FaClock, FaMoneyBillWave } from "react-icons/fa";
+import { FaCalendar, FaUpload, FaCheckCircle, FaExclamationTriangle, FaClock, FaMoneyBillWave, FaUniversity, FaMobile, FaCopy, FaInfoCircle } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axios from "axios";
 import MobileLayout from "../../components/Mobile/MobileLayout";
@@ -8,6 +8,7 @@ import PaymentUploadModal from "../../components/PaymentUploadModal";
 const PaymentDashboard = () => {
   const [bookings, setBookings] = useState([]);
   const [paymentHistory, setPaymentHistory] = useState([]);
+  const [paymentDetails, setPaymentDetails] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -21,10 +22,10 @@ const PaymentDashboard = () => {
     try {
       setLoading(true);
       const token = localStorage.getItem("auth") ? JSON.parse(localStorage.getItem("auth")).token : null;
-      
+
       // Fetch bookings with payment schedules
       const bookingsResponse = await axios.get(
-        `${import.meta.env.VITE_BASE_URL}/api/bookings/user`,
+        `${import.meta.env.VITE_BASE_URL}/api/bookings/my-bookings`,
         {
           headers: { 'Authorization': `Bearer ${token}` }
         }
@@ -38,6 +39,11 @@ const PaymentDashboard = () => {
         }
       );
 
+      // Fetch payment details (account information)
+      const paymentDetailsResponse = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/payment-config/details`
+      );
+
       if (bookingsResponse.data.success) {
         // Filter bookings with payment schedules
         const bookingsWithPayments = bookingsResponse.data.bookings.filter(
@@ -49,12 +55,24 @@ const PaymentDashboard = () => {
       if (paymentsResponse.data.success) {
         setPaymentHistory(paymentsResponse.data.payments);
       }
+
+      if (paymentDetailsResponse.data.success) {
+        setPaymentDetails(paymentDetailsResponse.data.paymentDetails);
+      }
     } catch (error) {
       console.error("Error fetching payment data:", error);
       toast.error("Failed to fetch payment information");
     } finally {
       setLoading(false);
     }
+  };
+
+  const copyToClipboard = (text, label) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`${label} copied to clipboard!`);
+    }).catch(() => {
+      toast.error("Failed to copy to clipboard");
+    });
   };
 
   const handleUploadPayment = (booking, monthNumber, amount) => {
@@ -113,6 +131,121 @@ const PaymentDashboard = () => {
           </h1>
           <p className="text-gray-600">Manage your accommodation payments</p>
         </div>
+
+        {/* Payment Account Details */}
+        {paymentDetails && (
+          <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200 p-6 mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <FaInfoCircle className="text-green-600" />
+              <h2 className="text-xl font-semibold text-gray-900">Payment Account Details</h2>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Bank Details */}
+              {paymentDetails.bankDetails && paymentDetails.bankDetails.accountNumber && (
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FaUniversity className="text-blue-600" />
+                    <h3 className="font-semibold text-gray-900">Bank Transfer</h3>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Account Name:</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{paymentDetails.bankDetails.accountName}</span>
+                        <button
+                          onClick={() => copyToClipboard(paymentDetails.bankDetails.accountName, "Account name")}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <FaCopy className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Account Number:</span>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium font-mono">{paymentDetails.bankDetails.accountNumber}</span>
+                        <button
+                          onClick={() => copyToClipboard(paymentDetails.bankDetails.accountNumber, "Account number")}
+                          className="text-green-600 hover:text-green-700"
+                        >
+                          <FaCopy className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Bank Name:</span>
+                      <span className="font-medium">{paymentDetails.bankDetails.bankName}</span>
+                    </div>
+                    {paymentDetails.bankDetails.sortCode && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Sort Code:</span>
+                        <span className="font-medium">{paymentDetails.bankDetails.sortCode}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Mobile Payment Options */}
+              {paymentDetails.mobilePayments && paymentDetails.mobilePayments.length > 0 && (
+                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FaMobile className="text-green-600" />
+                    <h3 className="font-semibold text-gray-900">Mobile Money</h3>
+                  </div>
+                  <div className="space-y-3">
+                    {paymentDetails.mobilePayments.map((mobile, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-gray-600">{mobile.provider}:</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium font-mono">{mobile.number}</span>
+                          <button
+                            onClick={() => copyToClipboard(mobile.number, `${mobile.provider} number`)}
+                            className="text-green-600 hover:text-green-700"
+                          >
+                            <FaCopy className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Payment Instructions */}
+            {paymentDetails.paymentInstructions && (
+              <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-sm text-blue-800">
+                  <strong>Instructions:</strong> {paymentDetails.paymentInstructions.general}
+                </p>
+              </div>
+            )}
+
+            {/* Support Contact */}
+            {paymentDetails.paymentSupport && (
+              <div className="mt-4 text-sm text-gray-600">
+                <p>
+                  <strong>Need help?</strong> Contact us at{" "}
+                  {paymentDetails.paymentSupport.email && (
+                    <a href={`mailto:${paymentDetails.paymentSupport.email}`} className="text-green-600 hover:underline">
+                      {paymentDetails.paymentSupport.email}
+                    </a>
+                  )}
+                  {paymentDetails.paymentSupport.phone && (
+                    <span> or call {paymentDetails.paymentSupport.phone}</span>
+                  )}
+                </p>
+                {paymentDetails.paymentSupport.workingHours && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Working hours: {paymentDetails.paymentSupport.workingHours}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {bookings.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm border p-8 text-center">

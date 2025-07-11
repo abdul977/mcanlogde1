@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendar, FaHome, FaBook, FaEye, FaTimes, FaSync, FaFilter, FaMapMarkerAlt, FaUsers, FaBars, FaUser, FaClock } from "react-icons/fa";
+import { FaCalendar, FaHome, FaBook, FaEye, FaTimes, FaSync, FaFilter, FaMapMarkerAlt, FaUsers, FaBars, FaUser, FaClock, FaCreditCard, FaUpload, FaCheckCircle, FaExclamationTriangle, FaTimesCircle } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
 import BookingDetailsModal from "../../components/BookingDetailsModal";
+import PaymentUploadModal from "../../components/PaymentUploadModal";
 import MobileLayout, { MobilePageHeader, MobileButton } from "../../components/Mobile/MobileLayout";
 import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
 import { FormField, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
@@ -17,6 +18,8 @@ const MyBookings = () => {
   const [selectedType, setSelectedType] = useState("all");
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentData, setPaymentData] = useState(null);
   const [auth] = useAuth();
 
   const statusOptions = [
@@ -146,6 +149,37 @@ const MyBookings = () => {
     setSelectedBooking(null);
   };
 
+  const handlePayment = (booking, monthNumber, amount) => {
+    setPaymentData({ booking, monthNumber, amount });
+    setShowPaymentModal(true);
+  };
+
+  const handleClosePaymentModal = () => {
+    setShowPaymentModal(false);
+    setPaymentData(null);
+  };
+
+  const handlePaymentSuccess = () => {
+    toast.success("Payment uploaded successfully!");
+    fetchBookings(); // Refresh bookings
+    handleClosePaymentModal();
+  };
+
+  const getPaymentStatusBadge = (status) => {
+    const badges = {
+      pending: { color: "bg-yellow-100 text-yellow-800", icon: FaClock, text: "Pending" },
+      paid: { color: "bg-green-100 text-green-800", icon: FaCheckCircle, text: "Paid" },
+      overdue: { color: "bg-red-100 text-red-800", icon: FaExclamationTriangle, text: "Overdue" },
+      waived: { color: "bg-blue-100 text-blue-800", icon: FaCheckCircle, text: "Waived" }
+    };
+    return badges[status] || badges.pending;
+  };
+
+  const isOverdue = (dueDate, status) => {
+    if (status === 'paid' || status === 'waived') return false;
+    return new Date(dueDate) < new Date();
+  };
+
   // Define columns for table view
   const columns = [
     {
@@ -208,6 +242,42 @@ const MyBookings = () => {
           {value && typeof value === 'string' ? value.toUpperCase() : String(value || '').toUpperCase()}
         </span>
       )
+    },
+    {
+      key: 'paymentStatus',
+      header: 'Payment',
+      render: (value, booking) => {
+        if (booking.bookingType !== 'accommodation' || !booking.paymentSchedule || booking.paymentSchedule.length === 0) {
+          return <span className="text-xs text-gray-500">N/A</span>;
+        }
+
+        const pendingPayments = booking.paymentSchedule.filter(p => p.status === 'pending').length;
+        const paidPayments = booking.paymentSchedule.filter(p => p.status === 'paid').length;
+        const overduePayments = booking.paymentSchedule.filter(p => isOverdue(p.dueDate, p.status)).length;
+
+        if (overduePayments > 0) {
+          return (
+            <div className="flex items-center gap-1">
+              <FaExclamationTriangle className="text-red-500 w-3 h-3" />
+              <span className="text-xs text-red-600">{overduePayments} overdue</span>
+            </div>
+          );
+        } else if (pendingPayments > 0) {
+          return (
+            <div className="flex items-center gap-1">
+              <FaClock className="text-yellow-500 w-3 h-3" />
+              <span className="text-xs text-yellow-600">{pendingPayments} pending</span>
+            </div>
+          );
+        } else {
+          return (
+            <div className="flex items-center gap-1">
+              <FaCheckCircle className="text-green-500 w-3 h-3" />
+              <span className="text-xs text-green-600">All paid</span>
+            </div>
+          );
+        }
+      }
     }
   ];
 
@@ -272,6 +342,61 @@ const MyBookings = () => {
             )}
           </div>
         </div>
+
+        {/* Payment Information for Accommodation Bookings */}
+        {item.bookingType === 'accommodation' && item.paymentSchedule && item.paymentSchedule.length > 0 && (
+          <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1">
+                <FaCreditCard className="text-blue-600 w-4 h-4" />
+                <span className="text-sm font-medium text-blue-800">Payment Schedule</span>
+              </div>
+              <span className="text-xs text-blue-600">
+                {item.paymentSchedule.length} month{item.paymentSchedule.length > 1 ? 's' : ''}
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              {item.paymentSchedule.slice(0, 2).map((payment, index) => {
+                const badge = getPaymentStatusBadge(isOverdue(payment.dueDate, payment.status) ? 'overdue' : payment.status);
+                const IconComponent = badge.icon;
+
+                return (
+                  <div key={index} className="flex items-center justify-between text-xs">
+                    <span className="text-gray-600">
+                      Month {payment.monthNumber}: {new Date(payment.dueDate).toLocaleDateString()}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">₦{payment.amount?.toLocaleString()}</span>
+                      <div className={`inline-flex items-center px-1.5 py-0.5 rounded-full ${badge.color}`}>
+                        <IconComponent className="w-2.5 h-2.5 mr-1" />
+                        <span className="text-xs">{badge.text}</span>
+                      </div>
+                      {(payment.status === 'pending' || isOverdue(payment.dueDate, payment.status)) && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePayment(item, payment.monthNumber, payment.amount);
+                          }}
+                          className="bg-green-600 text-white px-2 py-1 rounded text-xs hover:bg-green-700 transition-colors flex items-center gap-1"
+                        >
+                          <FaUpload className="w-2.5 h-2.5" />
+                          Pay
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {item.paymentSchedule.length > 2 && (
+                <div className="text-xs text-blue-600 text-center pt-1">
+                  +{item.paymentSchedule.length - 2} more payments
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {item.specialRequests && (
           <div className="mt-3 p-2 bg-gray-50 rounded">
@@ -403,6 +528,18 @@ const MyBookings = () => {
           isOpen={showDetailsModal}
           onClose={handleCloseDetailsModal}
         />
+
+        {/* Payment Upload Modal */}
+        {showPaymentModal && paymentData && (
+          <PaymentUploadModal
+            isOpen={showPaymentModal}
+            onClose={handleClosePaymentModal}
+            booking={paymentData.booking}
+            monthNumber={paymentData.monthNumber}
+            paymentAmount={paymentData.amount}
+            onUploadSuccess={handlePaymentSuccess}
+          />
+        )}
       </div>
     </MobileLayout>
   );

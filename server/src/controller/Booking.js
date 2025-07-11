@@ -196,25 +196,37 @@ export const createBookingController = async (req, res) => {
       bookingData.checkOutDate = checkOutDate;
       bookingData.numberOfGuests = numberOfGuests;
 
-      // Handle yearly booking duration and payment schedule
+      // Get accommodation for pricing
+      const accommodation = await Post.findById(accommodationId);
+      const monthlyAmount = accommodation.price;
+
+      // Handle booking duration and payment schedule
       if (bookingDuration && bookingDuration.months > 1) {
+        // Multi-month booking
         bookingData.bookingDuration = bookingDuration;
         bookingData.totalAmount = totalAmount;
 
-        // Get accommodation for monthly price
-        const accommodation = await Post.findById(accommodationId);
-        const monthlyAmount = accommodation.price;
-
-        // Generate payment schedule
+        // Generate payment schedule for multiple months
         bookingData.paymentSchedule = generatePaymentSchedule(
           checkInDate,
           bookingDuration.months,
           monthlyAmount
         );
       } else {
-        // Single month booking
-        const accommodation = await Post.findById(accommodationId);
-        bookingData.totalAmount = accommodation.price;
+        // Single month booking - still create payment schedule
+        bookingData.totalAmount = monthlyAmount;
+        bookingData.bookingDuration = {
+          months: 1,
+          startDate: checkInDate,
+          endDate: checkOutDate
+        };
+
+        // Generate payment schedule for single month
+        bookingData.paymentSchedule = generatePaymentSchedule(
+          checkInDate,
+          1,
+          monthlyAmount
+        );
       }
     } else {
       bookingData.program = programId;
@@ -250,8 +262,8 @@ export const createBookingController = async (req, res) => {
 
     await Promise.all(notificationPromises);
 
-    // Create payment reminders for yearly bookings
-    if (bookingType === 'accommodation' && bookingDuration && bookingDuration.months > 1) {
+    // Create payment reminders for accommodation bookings
+    if (bookingType === 'accommodation' && newBooking.paymentSchedule && newBooking.paymentSchedule.length > 0) {
       try {
         const reminderPromises = newBooking.paymentSchedule.map(payment => {
           return PaymentReminder.createUpcomingReminder(

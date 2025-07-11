@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaUser, FaPlus, FaList, FaFolder, FaMap, FaClipboardList, FaComments, FaPrayingHands, FaSignOutAlt } from "react-icons/fa";
+import { FaUser, FaPlus, FaList, FaFolder, FaMap, FaClipboardList, FaComments, FaPrayingHands, FaSignOutAlt, FaCreditCard } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../context/UserContext";
 import { getCurrentPrayer } from "../../utils/prayerTimes";
@@ -7,8 +7,9 @@ import { getCurrentPrayer } from "../../utils/prayerTimes";
 const navbarMenu = [
   { id: 1, name: "User Details", link: "/user", icon: <FaUser /> },
   { id: 2, name: "Accommodation", link: "/user/bookings", icon: <FaClipboardList /> },
-  { id: 3, name: "Messages", link: "/user/messages", icon: <FaComments /> },
-  // { id: 4, name: "Contribute", link: "/user/create-post", icon: <FaList /> },
+  { id: 3, name: "Payments", link: "/user/payments", icon: <FaCreditCard /> },
+  { id: 4, name: "Messages", link: "/user/messages", icon: <FaComments /> },
+  // { id: 5, name: "Contribute", link: "/user/create-post", icon: <FaList /> },
 ];
 
 const Navbar = ({ onItemClick }) => {

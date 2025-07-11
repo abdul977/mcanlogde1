@@ -26,6 +26,7 @@ import orderRoutes from "./src/routes/Order.js";
 import bookingRoutes from "./src/routes/Booking.js";
 import messageRoutes from "./src/routes/Message.js";
 import paymentRoutes from "./src/routes/paymentRoutes.js";
+import paymentConfigRoutes from "./src/routes/paymentConfigRoutes.js";
 
 // Load environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -105,6 +106,7 @@ app.use("/api/lectures", lectureRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/payments", paymentRoutes);
+app.use("/api/payment-config", paymentConfigRoutes);
 // E-commerce routes
 app.use("/api/products", productRoutes);
 app.use("/api/product-categories", productCategoryRoutes);

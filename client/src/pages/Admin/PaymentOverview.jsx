@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { FaMoneyBillWave, FaChartBar, FaExclamationTriangle, FaCheckCircle, FaClock } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axios from "axios";
-import AdminLayout from "../../components/Layout/AdminLayout";
+import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
+import Navbar from "./Navbar";
 import { Link } from "react-router-dom";
 
 const PaymentOverview = () => {
@@ -88,24 +89,36 @@ const PaymentOverview = () => {
 
   if (loading) {
     return (
-      <AdminLayout>
-        <div className="p-6">
+      <MobileLayout
+        title="Payment Overview"
+        subtitle="Loading payment data"
+        icon={FaMoneyBillWave}
+        navbar={Navbar}
+      >
+        <div className="p-4 lg:p-8">
           <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
           </div>
         </div>
-      </AdminLayout>
+      </MobileLayout>
     );
   }
 
   return (
-    <AdminLayout>
-      <div className="p-6">
-        {/* Header */}
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Payment Overview</h1>
-          <p className="text-gray-600">Monitor payment verifications and collection status</p>
-        </div>
+    <MobileLayout
+      title="Payment Overview"
+      subtitle="Monitor payment verifications and collection status"
+      icon={FaMoneyBillWave}
+      navbar={Navbar}
+    >
+      <div className="p-4 lg:p-8">
+        {/* Page Header for Desktop */}
+        <MobilePageHeader
+          title="Payment Overview"
+          subtitle="Monitor payment verifications and collection status"
+          icon={FaMoneyBillWave}
+          showOnMobile={false}
+        />
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -284,7 +297,7 @@ const PaymentOverview = () => {
           </div>
         </div>
       </div>
-    </AdminLayout>
+    </MobileLayout>
   );
 };
 

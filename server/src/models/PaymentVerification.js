@@ -30,15 +30,53 @@ const paymentVerificationSchema = new Schema({
     default: "NGN",
     enum: ["NGN", "USD"]
   },
-  // Payment proof
-  paymentScreenshot: {
+  // Payment proof (supports both images and PDFs)
+  paymentProof: {
     url: {
       type: String,
-      required: [true, "Payment screenshot is required"]
+      required: [true, "Payment proof is required"]
     },
     filename: {
       type: String,
       required: true
+    },
+    originalName: {
+      type: String,
+      required: true
+    },
+    size: {
+      type: Number,
+      required: true
+    },
+    mimetype: {
+      type: String,
+      required: true,
+      enum: [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "application/pdf"
+      ]
+    },
+    fileType: {
+      type: String,
+      enum: ["image", "pdf"],
+      required: true
+    },
+    uploadedAt: {
+      type: Date,
+      default: Date.now
+    }
+  },
+
+  // Legacy field for backward compatibility
+  paymentScreenshot: {
+    url: {
+      type: String
+    },
+    filename: {
+      type: String
     },
     size: {
       type: Number
@@ -122,9 +160,29 @@ paymentVerificationSchema.virtual('statusDisplay').get(function() {
   return statusMap[this.verificationStatus] || this.verificationStatus;
 });
 
-// Virtual for payment proof URL
+// Virtual for payment proof URL (prioritizes new paymentProof field)
 paymentVerificationSchema.virtual('proofUrl').get(function() {
-  return this.paymentScreenshot?.url;
+  return this.paymentProof?.url || this.paymentScreenshot?.url;
+});
+
+// Virtual for file type detection
+paymentVerificationSchema.virtual('fileType').get(function() {
+  if (this.paymentProof?.fileType) {
+    return this.paymentProof.fileType;
+  }
+
+  // Fallback for legacy data
+  const mimetype = this.paymentProof?.mimetype || this.paymentScreenshot?.mimetype;
+  if (mimetype) {
+    return mimetype.startsWith('image/') ? 'image' : 'pdf';
+  }
+
+  return 'unknown';
+});
+
+// Virtual for display filename
+paymentVerificationSchema.virtual('displayFilename').get(function() {
+  return this.paymentProof?.originalName || this.paymentScreenshot?.filename || 'Unknown file';
 });
 
 // Pre-save middleware
@@ -160,6 +218,31 @@ paymentVerificationSchema.statics.findByUser = function(userId) {
   return this.find({ user: userId })
     .populate('booking', 'accommodation checkInDate')
     .sort({ submittedAt: -1 });
+};
+
+// Instance method to get file info
+paymentVerificationSchema.methods.getFileInfo = function() {
+  const proof = this.paymentProof || this.paymentScreenshot;
+  if (!proof) return null;
+
+  return {
+    url: proof.url,
+    filename: proof.originalName || proof.filename,
+    size: proof.size,
+    mimetype: proof.mimetype,
+    fileType: this.fileType,
+    uploadedAt: proof.uploadedAt || this.submittedAt
+  };
+};
+
+// Instance method to check if file is PDF
+paymentVerificationSchema.methods.isPDF = function() {
+  return this.fileType === 'pdf';
+};
+
+// Instance method to check if file is image
+paymentVerificationSchema.methods.isImage = function() {
+  return this.fileType === 'image';
 };
 
 const PaymentVerification = model("PaymentVerification", paymentVerificationSchema, "payment_verifications");

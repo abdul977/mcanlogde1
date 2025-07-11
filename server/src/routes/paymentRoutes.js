@@ -7,14 +7,14 @@ import {
   getPaymentStatistics 
 } from '../controller/Payment.js';
 import { requireSignIn, isAdmin } from '../middlewares/Auth.js';
-import { uploadPaymentScreenshot, handleUploadError } from '../utils/fileUpload.js';
+import { uploadPaymentProof, handleUploadError } from '../utils/fileUpload.js';
 
 const router = express.Router();
 
 // User routes
-router.post('/submit-proof', 
-  requireSignIn, 
-  uploadPaymentScreenshot.single('paymentScreenshot'),
+router.post('/submit-proof',
+  requireSignIn,
+  uploadPaymentProof.single('paymentScreenshot'),
   handleUploadError,
   submitPaymentProof
 );

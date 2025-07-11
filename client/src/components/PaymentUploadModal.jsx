@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { FaTimes, FaUpload, FaSpinner, FaCheckCircle, FaExclamationTriangle } from "react-icons/fa";
+import React, { useState, useEffect } from "react";
+import { FaTimes, FaUpload, FaSpinner, FaCheckCircle, FaExclamationTriangle, FaFilePdf, FaImage, FaUniversity, FaMobile, FaCopy } from "react-icons/fa";
 import { toast } from "react-toastify";
 import axios from "axios";
 
@@ -20,6 +20,26 @@ const PaymentUploadModal = ({
   const [selectedFile, setSelectedFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [paymentDetails, setPaymentDetails] = useState(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      fetchPaymentDetails();
+    }
+  }, [isOpen]);
+
+  const fetchPaymentDetails = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/payment-config/details`
+      );
+      if (response.data.success) {
+        setPaymentDetails(response.data.paymentDetails);
+      }
+    } catch (error) {
+      console.error("Error fetching payment details:", error);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -32,34 +52,50 @@ const PaymentUploadModal = ({
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        toast.error("Please select an image file");
+      // Validate file type (images and PDFs)
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        toast.error("Please select an image file (JPEG, PNG, GIF) or PDF");
         return;
       }
-      
-      // Validate file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size must be less than 5MB");
+
+      // Validate file size (max 10MB for PDFs, 5MB for images)
+      const maxSize = file.type === 'application/pdf' ? 10 * 1024 * 1024 : 5 * 1024 * 1024;
+      const maxSizeText = file.type === 'application/pdf' ? '10MB' : '5MB';
+      if (file.size > maxSize) {
+        toast.error(`File size must be less than ${maxSizeText}`);
         return;
       }
-      
+
       setSelectedFile(file);
-      
-      // Create preview URL
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setPreviewUrl(e.target.result);
-      };
-      reader.readAsDataURL(file);
+
+      // Create preview URL for images only
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setPreviewUrl(e.target.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        // For PDFs, clear preview
+        setPreviewUrl(null);
+      }
     }
+  };
+
+  const copyToClipboard = (text, label) => {
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success(`${label} copied to clipboard!`);
+    }).catch(() => {
+      toast.error("Failed to copy to clipboard");
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     
     if (!selectedFile) {
-      toast.error("Please select a payment screenshot");
+      toast.error("Please select a payment proof (image or PDF)");
       return;
     }
     
@@ -153,6 +189,91 @@ const PaymentUploadModal = ({
             </div>
           </div>
 
+          {/* Account Details */}
+          {paymentDetails && (
+            <div className="bg-green-50 p-4 rounded-lg border border-green-200">
+              <h3 className="font-semibold text-green-800 mb-3">Payment Account Details</h3>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Bank Details */}
+                {paymentDetails.bankDetails && paymentDetails.bankDetails.accountNumber && (
+                  <div className="bg-white p-3 rounded border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <FaUniversity className="text-blue-600" />
+                      <h4 className="font-medium text-gray-900">Bank Transfer</h4>
+                    </div>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Account Name:</span>
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium text-xs">{paymentDetails.bankDetails.accountName}</span>
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(paymentDetails.bankDetails.accountName, "Account name")}
+                            className="text-green-600 hover:text-green-700"
+                          >
+                            <FaCopy className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Account Number:</span>
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium font-mono">{paymentDetails.bankDetails.accountNumber}</span>
+                          <button
+                            type="button"
+                            onClick={() => copyToClipboard(paymentDetails.bankDetails.accountNumber, "Account number")}
+                            className="text-green-600 hover:text-green-700"
+                          >
+                            <FaCopy className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-gray-600">Bank:</span>
+                        <span className="font-medium text-sm">{paymentDetails.bankDetails.bankName}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Mobile Payment */}
+                {paymentDetails.mobilePayments && paymentDetails.mobilePayments.length > 0 && (
+                  <div className="bg-white p-3 rounded border">
+                    <div className="flex items-center gap-2 mb-2">
+                      <FaMobile className="text-green-600" />
+                      <h4 className="font-medium text-gray-900">Mobile Money</h4>
+                    </div>
+                    <div className="space-y-1 text-sm">
+                      {paymentDetails.mobilePayments.slice(0, 2).map((mobile, index) => (
+                        <div key={index} className="flex justify-between items-center">
+                          <span className="text-gray-600">{mobile.provider}:</span>
+                          <div className="flex items-center gap-1">
+                            <span className="font-medium font-mono text-sm">{mobile.number}</span>
+                            <button
+                              type="button"
+                              onClick={() => copyToClipboard(mobile.number, `${mobile.provider} number`)}
+                              className="text-green-600 hover:text-green-700"
+                            >
+                              <FaCopy className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Instructions */}
+              {paymentDetails.paymentInstructions && (
+                <div className="mt-3 p-2 bg-blue-50 rounded text-sm text-blue-800">
+                  <strong>Instructions:</strong> {paymentDetails.paymentInstructions.general}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Payment Method */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -207,16 +328,38 @@ const PaymentUploadModal = ({
           {/* File Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Payment Screenshot *
+              Payment Proof (Image or PDF) *
             </label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
-              {previewUrl ? (
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center relative">
+              {selectedFile ? (
                 <div className="space-y-4">
-                  <img
-                    src={previewUrl}
-                    alt="Payment screenshot preview"
-                    className="max-w-full max-h-64 mx-auto rounded-lg shadow-md"
-                  />
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt="Payment proof preview"
+                      className="max-w-full max-h-64 mx-auto rounded-lg shadow-md"
+                    />
+                  ) : selectedFile.type === 'application/pdf' ? (
+                    <div className="flex items-center justify-center space-x-2">
+                      <FaFilePdf className="h-16 w-16 text-red-500" />
+                      <div className="text-left">
+                        <div className="font-medium text-gray-900">{selectedFile.name}</div>
+                        <div className="text-sm text-gray-500">
+                          PDF • {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-2">
+                      <FaImage className="h-16 w-16 text-blue-500" />
+                      <div className="text-left">
+                        <div className="font-medium text-gray-900">{selectedFile.name}</div>
+                        <div className="text-sm text-gray-500">
+                          Image • {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
@@ -225,7 +368,7 @@ const PaymentUploadModal = ({
                     }}
                     className="text-red-600 hover:text-red-800 text-sm"
                   >
-                    Remove Image
+                    Remove File
                   </button>
                 </div>
               ) : (
@@ -235,13 +378,13 @@ const PaymentUploadModal = ({
                     Click to upload or drag and drop
                   </div>
                   <div className="text-xs text-gray-500">
-                    PNG, JPG, JPEG up to 5MB
+                    Images (PNG, JPG, JPEG) up to 5MB or PDF up to 10MB
                   </div>
                 </div>
               )}
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,.pdf"
                 onChange={handleFileSelect}
                 className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
               />

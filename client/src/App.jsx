@@ -74,6 +74,10 @@ import SelectedCategory from "./pages/SelectedCategory";
 import ContributePost from "./pages/User/ContributePost";
 import MyBookings from "./pages/User/MyBookings";
 import UserMessages from "./pages/User/UserMessages";
+import PaymentDashboard from "./pages/User/PaymentDashboard";
+import PaymentSettings from "./pages/Admin/PaymentSettings";
+import PaymentVerification from "./pages/Admin/PaymentVerification";
+import PaymentOverview from "./pages/Admin/PaymentOverview";
 import AdminMessages from "./pages/Admin/AdminMessages";
 import { SocketProvider } from "./context/SocketContext";
 import PrayerTimesBanner from "./components/PrayerTimesBanner";
@@ -134,6 +138,7 @@ function App() {
           <Route path="/user" element={<UserRoutes />}>
             <Route path="" element={<UserDashboard />} />
             <Route path="bookings" element={<MyBookings />} />
+            <Route path="payments" element={<PaymentDashboard />} />
             <Route path="messages" element={<UserMessages />} />
           </Route>
 
@@ -178,6 +183,9 @@ function App() {
             <Route path="edit-product-category/:id" element={<EditProductCategory />} />
             <Route path="product-categories" element={<AllProductCategories />} />
             <Route path="orders" element={<AllOrders />} />
+            <Route path="payment-settings" element={<PaymentSettings />} />
+            <Route path="payment-verification" element={<PaymentVerification />} />
+            <Route path="payment-overview" element={<PaymentOverview />} />
           </Route>
         </Routes>
       </main>
