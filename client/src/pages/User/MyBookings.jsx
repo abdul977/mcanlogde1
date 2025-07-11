@@ -357,12 +357,11 @@ const MyBookings = () => {
         />
 
         {/* Booking Details Modal */}
-        {showDetailsModal && selectedBooking && (
-          <BookingDetailsModal
-            booking={selectedBooking}
-            onClose={handleCloseDetailsModal}
-          />
-        )}
+        <BookingDetailsModal
+          booking={selectedBooking}
+          isOpen={showDetailsModal}
+          onClose={handleCloseDetailsModal}
+        />
       </div>
     </MobileLayout>
   );

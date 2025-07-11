@@ -261,7 +261,7 @@ const TableView = ({ data, columns, onView, onEdit, onDelete, TableComponent }) 
             <tr key={item.id || item._id || index} className="hover:bg-gray-50">
               {columns.map((column, colIndex) => (
                 <td key={colIndex} className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {column.render ? column.render(item, item[column.key]) : item[column.key]}
+                  {column.render ? column.render(item[column.key], item) : item[column.key]}
                 </td>
               ))}
               <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -286,7 +286,7 @@ const DefaultCard = ({ item, columns, onView, onEdit, onDelete }) => {
           <div key={index} className="flex justify-between">
             <span className="text-sm font-medium text-gray-600">{column.header || column.key}:</span>
             <span className="text-sm text-gray-900">
-              {column.render ? column.render(item, item[column.key]) : item[column.key]}
+              {column.render ? column.render(item[column.key], item) : item[column.key]}
             </span>
           </div>
         ))}
@@ -309,7 +309,7 @@ const DefaultGridCard = ({ item, columns, onView, onEdit, onDelete }) => {
           <div key={index}>
             <div className="text-xs font-medium text-gray-500 uppercase">{column.header || column.key}</div>
             <div className="text-sm text-gray-900 mt-1">
-              {column.render ? column.render(item, item[column.key]) : item[column.key]}
+              {column.render ? column.render(item[column.key], item) : item[column.key]}
             </div>
           </div>
         ))}
