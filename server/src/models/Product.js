@@ -243,18 +243,14 @@ const productSchema = new Schema({
       min: [0, "Rating count cannot be negative"]
     }
   },
-  // Timestamps
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  },
+  // Timestamps (handled by schema options)
   publishedAt: {
     type: Date
   }
+}, {
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
 // Indexes for better query performance
@@ -301,8 +297,6 @@ productSchema.virtual('isLowStock').get(function() {
 
 // Pre-save middleware
 productSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  
   // Generate slug from name if not provided
   if (this.name && !this.slug) {
     this.slug = slug(this.name, { lower: true, strict: true });
