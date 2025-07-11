@@ -1,5 +1,5 @@
 import React from 'react';
-import { FaExclamationTriangle, FaRefresh } from 'react-icons/fa';
+import { FaExclamationTriangle, FaRedo } from 'react-icons/fa';
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -51,7 +51,7 @@ class ErrorBoundary extends React.Component {
                 onClick={this.handleRetry}
                 className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
               >
-                <FaRefresh className="text-sm" />
+                <FaRedo className="text-sm" />
                 Try Again
               </button>
               
