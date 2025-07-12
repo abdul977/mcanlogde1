@@ -166,6 +166,20 @@ export const SocketProvider = ({ children }) => {
       }
     },
 
+    // Listen for payment-specific notifications
+    onPaymentNotification: (callback) => {
+      if (socket) {
+        const handleNotification = (data) => {
+          // Filter for payment-related notifications
+          if (data.type && (data.type.includes('payment') || data.refreshRequired)) {
+            callback(data);
+          }
+        };
+        socket.on('notification', handleNotification);
+        return () => socket.off('notification', handleNotification);
+      }
+    },
+
     // Listen for refresh requests
     onRefreshRequested: (callback) => {
       if (socket) {

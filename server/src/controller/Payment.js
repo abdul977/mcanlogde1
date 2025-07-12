@@ -8,6 +8,7 @@ import PaymentExportService from "../services/PaymentExportService.js";
 import PaymentAuditService from "../services/PaymentAuditService.js";
 import { getFileType } from "../utils/fileUpload.js";
 import supabaseStorage from "../services/supabaseStorage.js";
+import { socketUtils } from "../config/socket.js";
 import path from 'path';
 import fs from 'fs';
 
@@ -349,6 +350,28 @@ export const verifyPayment = async (req, res) => {
     } catch (notificationError) {
       console.error("Error creating user notification:", notificationError);
       // Don't fail the verification if notifications fail
+    }
+
+    // Emit real-time notification to user via websocket
+    try {
+      const isApproved = action === 'approve';
+      const notificationData = {
+        type: isApproved ? 'payment_approved' : 'payment_rejected',
+        title: isApproved ? 'Payment Approved' : 'Payment Rejected',
+        message: isApproved
+          ? `Your payment for ${payment.booking.accommodation.title} - Month ${payment.monthNumber} has been approved.`
+          : `Your payment for ${payment.booking.accommodation.title} - Month ${payment.monthNumber} has been rejected.`,
+        paymentId: payment._id,
+        bookingId: payment.booking._id,
+        monthNumber: payment.monthNumber,
+        refreshRequired: true // Signal that payment data should be refreshed
+      };
+
+      await socketUtils.emitNotification(payment.user, notificationData);
+      console.log(`Emitted real-time payment ${action} notification to user ${payment.user}`);
+    } catch (socketError) {
+      console.error("Error emitting real-time notification:", socketError);
+      // Don't fail the verification if socket emission fails
     }
 
     // Log audit trail

@@ -3,6 +3,7 @@ import { FaCalendar, FaHome, FaBook, FaEye, FaTimes, FaSync, FaFilter, FaMapMark
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../../context/UserContext";
+import { useSocket } from "../../context/SocketContext";
 import Navbar from "./Navbar";
 import BookingDetailsModal from "../../components/BookingDetailsModal";
 import PaymentUploadModal from "../../components/PaymentUploadModal";
@@ -21,6 +22,7 @@ const MyBookings = () => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentData, setPaymentData] = useState(null);
   const [auth] = useAuth();
+  const { onPaymentNotification, isConnected } = useSocket();
 
   const statusOptions = [
     { value: "all", label: "All Status" },
@@ -78,6 +80,30 @@ const MyBookings = () => {
   useEffect(() => {
     fetchBookings();
   }, [selectedStatus, selectedType]);
+
+  // Listen for real-time payment status updates
+  useEffect(() => {
+    if (!isConnected) return;
+
+    const unsubscribe = onPaymentNotification((notification) => {
+      console.log('Received payment notification in MyBookings:', notification);
+
+      // Show toast notification to user
+      if (notification.type === 'payment_approved') {
+        toast.success(notification.message);
+      } else if (notification.type === 'payment_rejected') {
+        toast.error(notification.message);
+      }
+
+      // Refresh booking data if required
+      if (notification.refreshRequired) {
+        console.log('Refreshing booking data due to payment status change...');
+        fetchBookings();
+      }
+    });
+
+    return unsubscribe;
+  }, [isConnected, onPaymentNotification]);
 
   // Cancel booking
   const cancelBooking = async (bookingId) => {

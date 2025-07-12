@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import axios from "axios";
 import MobileLayout from "../../components/Mobile/MobileLayout";
 import PaymentUploadModal from "../../components/PaymentUploadModal";
+import { useSocket } from "../../context/SocketContext";
 
 const PaymentDashboard = () => {
   const [bookings, setBookings] = useState([]);
@@ -13,10 +14,35 @@ const PaymentDashboard = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [uploadData, setUploadData] = useState(null);
+  const { onPaymentNotification, isConnected } = useSocket();
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Listen for real-time payment status updates
+  useEffect(() => {
+    if (!isConnected) return;
+
+    const unsubscribe = onPaymentNotification((notification) => {
+      console.log('Received payment notification:', notification);
+
+      // Show toast notification to user
+      if (notification.type === 'payment_approved') {
+        toast.success(notification.message);
+      } else if (notification.type === 'payment_rejected') {
+        toast.error(notification.message);
+      }
+
+      // Refresh payment data if required
+      if (notification.refreshRequired) {
+        console.log('Refreshing payment data due to status change...');
+        fetchData();
+      }
+    });
+
+    return unsubscribe;
+  }, [isConnected, onPaymentNotification]);
 
   const fetchData = async () => {
     try {
