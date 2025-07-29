@@ -25,7 +25,7 @@ export const blogService = {
       });
     }
 
-    const url = `${ENDPOINTS.BLOG_POSTS}${params.toString() ? `?${params.toString()}` : ''}`;
+    const url = `${ENDPOINTS.BLOG_LIST}${params.toString() ? `?${params.toString()}` : ''}`;
     const response = await apiHelpers.get<{ blogs: BlogPost[]; pagination: any }>(url);
 
     return {

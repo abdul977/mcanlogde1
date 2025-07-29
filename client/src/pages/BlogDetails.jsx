@@ -6,7 +6,7 @@ import { toast } from "react-toastify";
 import Spinner from "../components/Spinner";
 import MobileLayout, { MobilePageHeader, MobileButton } from "../components/Mobile/MobileLayout";
 import { FormSection, FormField } from "../components/Mobile/ResponsiveForm";
-import { useAuth } from "../context/auth";
+import { useAuth } from "../context/UserContext";
 
 const BlogDetails = () => {
   const { slug } = useParams();

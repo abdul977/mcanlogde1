@@ -199,7 +199,8 @@ export const ENDPOINTS = {
   EVENT_DETAILS: '/api/events',
   
   // Blog
-  BLOG_POSTS: '/api/blog/get-all-blogs',
+  BLOG_POSTS: '/api/blog',
+  BLOG_LIST: '/api/blog/get-all-blogs',
   FEATURED_BLOGS: '/api/blog/featured-blogs',
   BLOG_POST_DETAILS: '/api/blog/get-blog',
   

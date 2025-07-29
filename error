@@ -1,773 +1,191 @@
-chunk-YZVM2MHU.js?v=a650d660:21551 Download the React DevTools for a better development experience: https://reactjs.org/link/react-devtools
-StagewiseToolbar.jsx:18 Stagewise toolbar initialized successfully
-Hotels.jsx:48 Starting to fetch posts from: http://localhost:3000
-react-router-dom.js?v=a650d660:4393 ⚠️ React Router Future Flag Warning: React Router will begin wrapping state updates in `React.startTransition` in v7. You can use the `v7_startTransition` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_starttransition.
-warnOnce @ react-router-dom.js?v=a650d660:4393
-react-router-dom.js?v=a650d660:4393 ⚠️ React Router Future Flag Warning: Relative route resolution within Splat routes is changing in v7. You can use the `v7_relativeSplatPath` future flag to opt-in early. For more information, see https://reactrouter.com/v6/upgrading/future#v7_relativesplatpath.
-warnOnce @ react-router-dom.js?v=a650d660:4393
-UserContext.jsx:25 Auth data loaded from localStorage: Object
-@stagewise_toolbar.js?v=a650d660:10719 Stagewise Toolbar is already loaded - aborting init.
-initToolbar @ @stagewise_toolbar.js?v=a650d660:10719
-StagewiseToolbar.jsx:18 Stagewise toolbar initialized successfully
-Hotels.jsx:48 Starting to fetch posts from: http://localhost:3000
-UserContext.jsx:25 Auth data loaded from localStorage: Object
-SocketContext.jsx:25 Connecting to socket server: http://localhost:3000
-about:srcdoc:1 An iframe which has both allow-scripts and allow-same-origin for its sandbox attribute can escape its sandboxing.
-6cebc743-1515-4e20-b437-511f1f4244c7:3282 useDraggable: Container for initialSnapArea has zero width or height. Cannot calculate relative center from snap area. Falling back to initialRelativeCenter or undefined.
-(anonymous) @ 6cebc743-1515-4e20-b437-511f1f4244c7:3282
-e84b499a-2fa4-4908-b395-9038c9d8fa9f:3221 plugins Array(0)
-e84b499a-2fa4-4908-b395-9038c9d8fa9f:208 WebSocket closed intentionally, not attempting to reconnect
-:5747/ping/stagewise:1 
-            
-            
-           Failed to load resource: the server responded with a status of 404 (Not Found)
-SocketContext.jsx:37 ✅ Socket connected to server: http://localhost:3000
-SocketContext.jsx:38 Socket ID: XDauv5vKIUntgz_qAAAL
-Hotels.jsx:50 Response: Object
-chunk-YZVM2MHU.js?v=a650d660:521 Warning: Received `true` for a non-boolean attribute `jsx`.
-
-If you want to write it to the DOM, pass a string instead: jsx="true" or jsx={value.toString()}.
-    at style
-    at div
-    at Accommodations (http://localhost:5173/src/components/Hotels.jsx?t=1752185547421:28:34)
-    at div
-    at div
-    at HomePage
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-printWarning @ chunk-YZVM2MHU.js?v=a650d660:521
-e84b499a-2fa4-4908-b395-9038c9d8fa9f:3040 ⬆️⬆️⬆️ Those two errors are expected! (Everything is fine, they are part of stagewise's discovery mechanism!) ✅
-discoverVSCodeWindows @ e84b499a-2fa4-4908-b395-9038c9d8fa9f:3040
-Hotels.jsx:50 Response: Object
-Admin.jsx:48 Admin auth response: Object
-Admin.jsx:48 Admin auth response: Object
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
-    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
-    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
-    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
-    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
-    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
-    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
-    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19765:15)
-    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:9934 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, landlordContact, adminStatus, isVisible, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at createChild (chunk-YZVM2MHU.js?v=a650d660:10110:15)
-    at reconcileChildrenArray (chunk-YZVM2MHU.js?v=a650d660:10282:33)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10559:24)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at HTMLUnknownElement.callCallback2 (chunk-YZVM2MHU.js?v=a650d660:3674:22)
-    at Object.invokeGuardedCallbackDev (chunk-YZVM2MHU.js?v=a650d660:3699:24)
-    at invokeGuardedCallback (chunk-YZVM2MHU.js?v=a650d660:3733:39)
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <span> component:
-
-    at span
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
-
-    at div
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
-
-    at div
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <span> component:
-
-    at span
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
-
-    at div
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
-
-    at div
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <span> component:
-
-    at span
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
-
-    at div
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
-
-    at div
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <span> component:
-
-    at span
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
-
-    at div
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:14032 The above error occurred in the <div> component:
-
-    at div
-    at td
-    at tr
-    at tbody
-    at table
-    at div
-    at TableView (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:388:22)
-    at div
-    at div
-    at ResponsiveDataDisplay (http://localhost:5173/src/components/Mobile/ResponsiveDataDisplay.jsx?t=1752216956273:23:3)
-    at div
-    at div
-    at div
-    at div
-    at MobileLayout (http://localhost:5173/src/components/Mobile/MobileLayout.jsx?t=1752185547421:22:3)
-    at AllPost (http://localhost:5173/src/pages/Admin/AllPost.jsx?t=1752216956273:30:18)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4494:26)
-    at PrivateRoute (http://localhost:5173/src/components/Routes/Admin.jsx:25:27)
-    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4088:5)
-    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4558:5)
-    at main
-    at div
-    at SocketProvider (http://localhost:5173/src/context/SocketContext.jsx:31:34)
-    at App (http://localhost:5173/src/App.jsx?t=1752222225807:100:20)
-    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:4501:15)
-    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=a650d660:5247:5)
-    at MobileProvider (http://localhost:5173/src/hooks/useMobileResponsive.jsx?t=1752185294473:294:34)
-    at SearchProvider (http://localhost:5173/src/context/Serach.jsx:20:27)
-    at CartProvider (http://localhost:5173/src/context/Cart.jsx:20:25)
-    at AuthProvider (http://localhost:5173/src/context/UserContext.jsx:21:25)
-
-Consider adding an error boundary to your tree to customize error handling behavior.
-Visit https://reactjs.org/link/error-boundaries to learn more about error boundaries.
-logCapturedError @ chunk-YZVM2MHU.js?v=a650d660:14032
-chunk-YZVM2MHU.js?v=a650d660:19413 Uncaught Error: Objects are not valid as a React child (found: object with keys {nearbyFacilities, _id, title, accommodationType, location, description, category, images, slug, isAvailable, guest, price, mosqueProximity, prayerFacilities, genderRestriction, nearArea, facilities, rules, createdAt, updatedAt, __v, adminNotes, adminStatus, isVisible}). If you meant to render a collection of children, use an array instead.
-    at throwOnInvalidObjectType (chunk-YZVM2MHU.js?v=a650d660:9934:17)
-    at reconcileChildFibers2 (chunk-YZVM2MHU.js?v=a650d660:10564:15)
-    at reconcileChildren (chunk-YZVM2MHU.js?v=a650d660:14290:37)
-    at updateHostComponent (chunk-YZVM2MHU.js?v=a650d660:14807:11)
-    at beginWork (chunk-YZVM2MHU.js?v=a650d660:15935:22)
-    at beginWork$1 (chunk-YZVM2MHU.js?v=a650d660:19753:22)
-    at performUnitOfWork (chunk-YZVM2MHU.js?v=a650d660:19198:20)
-    at workLoopSync (chunk-YZVM2MHU.js?v=a650d660:19137:13)
-    at renderRootSync (chunk-YZVM2MHU.js?v=a650d660:19116:15)
-    at recoverFromConcurrentError (chunk-YZVM2MHU.js?v=a650d660:18736:28)
-SocketContext.jsx:43 ❌ Socket disconnected from server: io client disconnect
+ 🔗 Base URL: https://mcanlogde1.onrender.com
+ LOG  🚀 API Request: GET https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/bookmark/status
+ LOG  🔗 Base URL: https://mcanlogde1.onrender.com
+ LOG  🚀 API Request: GET https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments?page=1&limit=10&includeReplies=true
+ LOG  🔗 Base URL: https://mcanlogde1.onrender.com
+ ERROR  ❌ API Error: GET https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status
+ ERROR  Error Details: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status</pre>
+</body>
+</html>
+ ERROR  Error Code: ERR_BAD_REQUEST
+ ERROR  Network Error: false
+ ERROR  Full Error: [AxiosError: Request failed with status code 404]
+ ERROR  Error fetching interaction status: {"code": "ERR_BAD_REQUEST", "config": {"adapter": ["xhr", "http", "fetch"], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": undefined, "env": {"Blob": [Function Blob], "FormData": [Function FormData]}, "headers": [Object], "maxBodyLength": -1, "maxContentLength": -1, "method": "get", "timeout": 10000, "transformRequest": [[Function transformRequest]], "transformResponse": [[Function transformResponse]], "transitional": {"clarifyTimeoutError": false, "forcedJSONParsing": true, "silentJSONParsing": true}, "url": "/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "message": "The requested resource was not found.", "name": "AxiosError", "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": {"accept": "application/json", "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODZhZTE0NzVjZDc5ZjZjZGU5YWQ2MjMiLCJpZCI6IjY4NmFlMTQ3NWNkNzlmNmNkZTlhZDYyMyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzUzODAwNjMxLCJleHAiOjE3NTQ0MDU0MzF9.f5GR5wxIMqwfJdkj89-6t_CjRmqJbbM_Jdl984Vmdwg"}, "_incrementalEvents": false, "_lowerCaseResponseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "966d707268e50f09-JNB", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Tue, 29 Jul 2025 14:52:18 GMT", "rndr-id": "394a1839-e3b1-4490", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "_method": "GET", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status", "_performanceLogger": {"_closed": false, "_extras": [Object], "_pointExtras": [Object], "_points": [Object], "_timespans": [Object]}, "_requestId": null, "_response": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 5318075.431316, "_subscriptions": [], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status", "readyState": 4, "responseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "966d707268e50f09-JNB", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Tue, 29 Jul 2025 14:52:18 GMT", "rndr-id": "394a1839-e3b1-4490", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "responseURL": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status", "status": 404, "timeout": 10000, "upload": {}, "withCredentials": true}, "response": {"config": {"adapter": [Array], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": undefined, "env": [Object], "headers": [AxiosHeaders$1], "maxBodyLength": -1, "maxContentLength": -1, "method": "get", "timeout": 10000, "transformRequest": [Array], "transformResponse": [Array], "transitional": [Object], "url": "/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "data": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status</pre>
+</body>
+</html>
+", "headers": [Object], "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": [Object], "_incrementalEvents": false, "_lowerCaseResponseHeaders": [Object], "_method": "GET", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status", "_performanceLogger": [PerformanceLogger], "_requestId": null, "_response": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 5318075.431316, "_subscriptions": [Array], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status", "readyState": 4, "responseHeaders": [Object], "responseURL": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/like/status", "status": 404, "timeout": 10000, "upload": [XMLHttpRequestEventTarget], "withCredentials": true}, "status": 404, "statusText": undefined}, "status": 404, "statusCode": 404}
+ ERROR  ❌ API Error: GET https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments?page=1&limit=10&includeReplies=true
+ ERROR  Error Details: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments</pre>
+</body>
+</html>
+ ERROR  Error Code: ERR_BAD_REQUEST
+ ERROR  Network Error: false
+ ERROR  Full Error: [AxiosError: Request failed with status code 404]
+ ERROR  Error fetching comments: {"code": "ERR_BAD_REQUEST", "config": {"adapter": ["xhr", "http", "fetch"], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": undefined, "env": {"Blob": [Function Blob], "FormData": [Function FormData]}, "headers": [Object], "maxBodyLength": -1, "maxContentLength": -1, "method": "get", "timeout": 10000, "transformRequest": [[Function transformRequest]], "transformResponse": [[Function transformResponse]], "transitional": {"clarifyTimeoutError": false, "forcedJSONParsing": true, "silentJSONParsing": true}, "url": "/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments?page=1&limit=10&includeReplies=true", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "message": "The requested resource was not found.", "name": "AxiosError", "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": {"accept": "application/json", "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODZhZTE0NzVjZDc5ZjZjZGU5YWQ2MjMiLCJpZCI6IjY4NmFlMTQ3NWNkNzlmNmNkZTlhZDYyMyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzUzODAwNjMxLCJleHAiOjE3NTQ0MDU0MzF9.f5GR5wxIMqwfJdkj89-6t_CjRmqJbbM_Jdl984Vmdwg"}, "_incrementalEvents": false, "_lowerCaseResponseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "966d70742df30f09-JNB", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Tue, 29 Jul 2025 14:52:18 GMT", "rndr-id": "fea5266a-3751-4b62", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "_method": "GET", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments?page=1&limit=10&includeReplies=true", "_performanceLogger": {"_closed": false, "_extras": [Object], "_pointExtras": [Object], "_points": [Object], "_timespans": [Object]}, "_requestId": null, "_response": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 5318123.233547, "_subscriptions": [], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments?page=1&limit=10&includeReplies=true", "readyState": 4, "responseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "966d70742df30f09-JNB", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Tue, 29 Jul 2025 14:52:18 GMT", "rndr-id": "fea5266a-3751-4b62", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "responseURL": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments?page=1&limit=10&includeReplies=true", "status": 404, "timeout": 10000, "upload": {}, "withCredentials": true}, "response": {"config": {"adapter": [Array], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": undefined, "env": [Object], "headers": [AxiosHeaders$1], "maxBodyLength": -1, "maxContentLength": -1, "method": "get", "timeout": 10000, "transformRequest": [Array], "transformResponse": [Array], "transitional": [Object], "url": "/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments?page=1&limit=10&includeReplies=true", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "data": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments</pre>
+</body>
+</html>
+", "headers": [Object], "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": [Object], "_incrementalEvents": false, "_lowerCaseResponseHeaders": [Object], "_method": "GET", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments?page=1&limit=10&includeReplies=true", "_performanceLogger": [PerformanceLogger], "_requestId": null, "_response": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 5318123.233547, "_subscriptions": [Array], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments?page=1&limit=10&includeReplies=true", "readyState": 4, "responseHeaders": [Object], "responseURL": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments?page=1&limit=10&includeReplies=true", "status": 404, "timeout": 10000, "upload": [XMLHttpRequestEventTarget], "withCredentials": true}, "status": 404, "statusText": undefined}, "status": 404, "statusCode": 404}
+ ERROR  ❌ API Error: GET https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/bookmark/status
+ ERROR  Error Details: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/bookmark/status</pre>
+</body>
+</html>
+ ERROR  Error Code: ERR_BAD_REQUEST
+ ERROR  Network Error: false
+ ERROR  Full Error: [AxiosError: Request failed with status code 404]
+ LOG  🚀 API Request: POST https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments
+ LOG  🔗 Base URL: https://mcanlogde1.onrender.com
+ LOG  📤 Request Data: {"content": "Hello", "parentCommentId": undefined}
+ ERROR  ❌ API Error: POST https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments
+ ERROR  Error Details: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments</pre>
+</body>
+</html>
+ ERROR  Error Code: ERR_BAD_REQUEST
+ ERROR  Network Error: false
+ ERROR  Full Error: [AxiosError: Request failed with status code 404]
+ ERROR  Error adding comment: {"code": "ERR_BAD_REQUEST", "config": {"adapter": ["xhr", "http", "fetch"], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": "{\"content\":\"Hello\"}", "env": {"Blob": [Function Blob], "FormData": [Function FormData]}, "headers": [Object], "maxBodyLength": -1, "maxContentLength": -1, "method": "post", "timeout": 10000, "transformRequest": [[Function transformRequest]], "transformResponse": [[Function transformResponse]], "transitional": {"clarifyTimeoutError": false, "forcedJSONParsing": true, "silentJSONParsing": true}, "url": "/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "message": "The requested resource was not found.", "name": "AxiosError", "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": {"accept": "application/json", "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODZhZTE0NzVjZDc5ZjZjZGU5YWQ2MjMiLCJpZCI6IjY4NmFlMTQ3NWNkNzlmNmNkZTlhZDYyMyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzUzODAwNjMxLCJleHAiOjE3NTQ0MDU0MzF9.f5GR5wxIMqwfJdkj89-6t_CjRmqJbbM_Jdl984Vmdwg", "content-type": "application/json"}, "_incrementalEvents": false, "_lowerCaseResponseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "966d70a148af0f09-JNB", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Tue, 29 Jul 2025 14:52:25 GMT", "rndr-id": "a1067c31-938d-44ba", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "_method": "POST", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments", "_performanceLogger": {"_closed": false, "_extras": [Object], "_pointExtras": [Object], "_points": [Object], "_timespans": [Object]}, "_requestId": null, "_response": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 5325571.684316, "_subscriptions": [], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments", "readyState": 4, "responseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "966d70a148af0f09-JNB", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Tue, 29 Jul 2025 14:52:25 GMT", "rndr-id": "a1067c31-938d-44ba", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "responseURL": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments", "status": 404, "timeout": 10000, "upload": {}, "withCredentials": true}, "response": {"config": {"adapter": [Array], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": "{\"content\":\"Hello\"}", "env": [Object], "headers": [AxiosHeaders$1], "maxBodyLength": -1, "maxContentLength": -1, "method": "post", "timeout": 10000, "transformRequest": [Array], "transformResponse": [Array], "transitional": [Object], "url": "/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "data": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments</pre>
+</body>
+</html>
+", "headers": [Object], "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": [Object], "_incrementalEvents": false, "_lowerCaseResponseHeaders": [Object], "_method": "POST", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments", "_performanceLogger": [PerformanceLogger], "_requestId": null, "_response": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot POST /api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 5325571.684316, "_subscriptions": [Array], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments", "readyState": 4, "responseHeaders": [Object], "responseURL": "https://mcanlogde1.onrender.com/api/blog/get-all-blogs/6888d58d3854f38798ece8c3/comments", "status": 404, "timeout": 10000, "upload": [XMLHttpRequestEventTarget], "withCredentials": true}, "status": 404, "statusText": undefined}, "status": 404, "statusCode": 404}   and   [15:55:29.704] Running build in Washington, D.C., USA (East) – iad1
+[15:55:29.704] Build machine configuration: 2 cores, 8 GB
+[15:55:29.722] Cloning github.com/abdul977/mcanlogde1 (Branch: master, Commit: bb8da4c)
+[15:55:30.347] Cloning completed: 624.000ms
+[15:55:30.741] Restored build cache from previous deployment (682mMY6RbsXr4ys7131RCJgtawRG)
+[15:55:32.576] Running "vercel build"
+[15:55:33.591] Vercel CLI 44.5.0
+[15:55:34.195] Installing dependencies...
+[15:55:35.427] 
+[15:55:35.429] up to date in 975ms
+[15:55:35.429] 
+[15:55:35.430] 138 packages are looking for funding
+[15:55:35.430]   run `npm fund` for details
+[15:55:35.463] Running "npm run build"
+[15:55:35.573] 
+[15:55:35.573] > travel@0.0.0 build
+[15:55:35.573] > vite build
+[15:55:35.574] 
+[15:55:35.886] [36mvite v5.4.19 [32mbuilding for production...[36m[39m
+[15:55:36.252] transforming...
+[15:55:36.302] Browserslist: browsers data (caniuse-lite) is 6 months old. Please run:
+[15:55:36.302]   npx update-browserslist-db@latest
+[15:55:36.302]   Why you should do it regularly: https://github.com/browserslist/update-db#readme
+[15:55:39.163] [32m✓[39m 135 modules transformed.
+[15:55:39.168] [31mx[39m Build failed in 2.94s
+[15:55:39.168] [31merror during build:
+[15:55:39.168] [31mCould not resolve "../context/auth" from "src/pages/BlogDetails.jsx"[31m
+[15:55:39.169] file: [36m/vercel/path0/client/src/pages/BlogDetails.jsx[31m
+[15:55:39.169]     at getRollupError (file:///vercel/path0/client/node_modules/rollup/dist/es/shared/parseAst.js:397:41)
+[15:55:39.169]     at error (file:///vercel/path0/client/node_modules/rollup/dist/es/shared/parseAst.js:393:42)
+[15:55:39.169]     at ModuleLoader.handleInvalidResolvedId (file:///vercel/path0/client/node_modules/rollup/dist/es/shared/node-entry.js:21116:24)
+[15:55:39.169]     at file:///vercel/path0/client/node_modules/rollup/dist/es/shared/node-entry.js:21076:26[39m
+[15:55:39.217] Error: Command "npm run build" exited with 1
+[15:55:39.426] 
+[15:55:42.426] Exiting build container 
