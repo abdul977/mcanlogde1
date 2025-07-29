@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaUser, FaPrayingHands, FaBars, FaTimes } from "react-icons/fa";
+import { FaUser, FaPrayingHands, FaBars, FaTimes, FaUsers } from "react-icons/fa";
 import mcanLogo from "../assets/mcan-logo.png";
 import { useAuth } from "../context/UserContext";
 import { useNavigate, Link } from "react-router-dom";
@@ -98,6 +98,10 @@ const Navbar = () => {
             </Link>
             <Link to="/blog" className="text-white hover:text-mcan-light transition duration-300">
               Blog
+            </Link>
+            <Link to="/communities" className="text-white hover:text-mcan-light transition duration-300 flex items-center gap-1">
+              <FaUsers size={16} />
+              Communities
             </Link>
             <Link to="/resources" className="text-white hover:text-mcan-light transition duration-300">
               Resources
@@ -207,6 +211,14 @@ const Navbar = () => {
               onClick={closeMobileMenu}
             >
               Blog
+            </Link>
+            <Link
+              to="/communities"
+              className="flex items-center px-3 py-2 text-white hover:bg-mcan-secondary rounded-md transition duration-300"
+              onClick={closeMobileMenu}
+            >
+              <FaUsers size={16} className="mr-2" />
+              Communities
             </Link>
             <Link
               to="/resources"

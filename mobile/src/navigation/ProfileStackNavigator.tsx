@@ -22,6 +22,7 @@ import OrderHistoryScreen from '../screens/profile/OrderHistoryScreen';
 import AppSettingsScreen from '../screens/profile/AppSettingsScreen';
 import HelpSupportScreen from '../screens/profile/HelpSupportScreen';
 import BookmarksScreen from '../screens/profile/BookmarksScreen';
+import { MessagesScreen, ChatScreen } from '../screens/messages';
 
 const Stack = createStackNavigator<ProfileStackParamList>();
 
@@ -109,6 +110,22 @@ const ProfileStackNavigator: React.FC = () => {
         options={{
           title: 'My Bookmarks',
           headerShown: false, // Custom header
+        }}
+      />
+      <Stack.Screen
+        name="Messages"
+        component={MessagesScreen}
+        options={{
+          title: 'Messages',
+          headerShown: false, // Custom header
+        }}
+      />
+      <Stack.Screen
+        name="Chat"
+        component={ChatScreen}
+        options={{
+          title: 'Chat',
+          headerBackTitle: 'Messages',
         }}
       />
     </Stack.Navigator>

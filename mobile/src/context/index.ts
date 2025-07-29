@@ -12,6 +12,9 @@ export { SearchProvider, useSearch } from './SearchContext';
 // Theme Context
 export { ThemeProvider, useTheme } from './ThemeContext';
 
+// Messaging Context
+export { MessagingProvider, useMessaging } from './MessagingContext';
+
 // Socket Context (will be implemented later)
 // export { SocketProvider, useSocket } from './SocketContext';
 

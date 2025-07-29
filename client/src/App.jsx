@@ -20,6 +20,8 @@ import Support from "./pages/Support";
 import LodgeSponsorship from "./pages/LodgeSponsorship";
 import Resources from "./pages/Resources";
 import Community from "./pages/Community";
+import Communities from "./pages/Communities";
+import CreateCommunity from "./pages/CreateCommunity";
 import ProductDetails from "./pages/ProductDetails";
 import Login from "./pages/Login";
 import UserDashboard from "./pages/User/UserDashboard";
@@ -121,6 +123,8 @@ function App() {
           <Route path="/lodge-sponsorship" element={<LodgeSponsorship />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/community" element={<Community />} />
+          <Route path="/communities" element={<Communities />} />
+          <Route path="/create-community" element={<CreateCommunity />} />
           <Route path="/product/:slug" element={<ProductDetails />} />
           <Route path="/accommodation/:slug" element={<ProductDetails />} />
           <Route path="/login" element={<Login />} />

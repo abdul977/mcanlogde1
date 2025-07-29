@@ -8,7 +8,9 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "seed": "node src/scripts/seedLodges.js",
-    "check": "node src/scripts/checkData.js"
+    "check": "node src/scripts/checkData.js",
+    "migrate:community": "node src/scripts/migrateCommunitySystem.js",
+    "seed:community": "node src/scripts/seedCommunityData.js"
   },
   "keywords": [],
   "author": "",

@@ -6,7 +6,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
 
 import ErrorBoundary from './src/components/ui/ErrorBoundary';
-import { AuthProvider, CartProvider, SearchProvider, ThemeProvider, useAuth } from './src/context';
+import { AuthProvider, CartProvider, SearchProvider, ThemeProvider, MessagingProvider, useAuth } from './src/context';
 import { AppNavigator, navigationTheme } from './src/navigation';
 import { navigationService } from './src/services/navigation/NavigationService';
 import { accessibilityService } from './src/services/accessibility/AccessibilityService';
@@ -81,11 +81,13 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <AuthProvider>
-          <CartProvider>
-            <SearchProvider>
-              <AppContent />
-            </SearchProvider>
-          </CartProvider>
+          <MessagingProvider>
+            <CartProvider>
+              <SearchProvider>
+                <AppContent />
+              </SearchProvider>
+            </CartProvider>
+          </MessagingProvider>
         </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>

@@ -28,6 +28,10 @@ import bookingRoutes from "./src/routes/Booking.js";
 import messageRoutes from "./src/routes/Message.js";
 import paymentRoutes from "./src/routes/paymentRoutes.js";
 import paymentConfigRoutes from "./src/routes/paymentConfigRoutes.js";
+// Community system routes
+import chatCommunityRoutes from "./src/routes/ChatCommunity.js";
+import communityMemberRoutes from "./src/routes/CommunityMember.js";
+import communityMessageRoutes from "./src/routes/CommunityMessage.js";
 
 // Load environment variables from .env file
 dotenv.config({ path: './.env' });
@@ -53,6 +57,10 @@ const server = createServer(app);
 
 // Initialize Socket.IO
 const io = initializeSocket(server);
+
+// Initialize community socket service
+import { initializeCommunitySocket } from "./src/config/socket.js";
+initializeCommunitySocket();
 
 // CORS configuration
 app.use(cors({
@@ -132,6 +140,10 @@ app.use("/api/lectures", lectureRoutes);
 app.use("/api/quran-classes", quranClassRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/community", communityRoutes);
+// Community system routes
+app.use("/api/chat-communities", chatCommunityRoutes);
+app.use("/api/community-members", communityMemberRoutes);
+app.use("/api/community-messages", communityMessageRoutes);
 app.use("/api/donations", donationRoutes);
 app.use("/api/lectures", lectureRoutes);
 app.use("/api/bookings", bookingRoutes);

@@ -33,8 +33,7 @@ export { default as ForgotPasswordScreen } from './auth/ForgotPasswordScreen';
 // export { default as BlogDetailsScreen } from './community/BlogDetailsScreen';
 
 // Messaging Screens
-// export { default as MessagesScreen } from './messages/MessagesScreen';
-// export { default as ChatScreen } from './messages/ChatScreen';
+export { MessagesScreen, ChatScreen } from './messages';
 
 // Admin Screens
 // export { default as AdminDashboardScreen } from './admin/AdminDashboardScreen';

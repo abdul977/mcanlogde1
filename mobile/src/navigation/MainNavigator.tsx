@@ -6,19 +6,19 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { COLORS, TYPOGRAPHY } from '../constants';
 import { MainTabParamList } from './types';
 import { HomeIcon, StayIcon, ShopIcon, CommunityIcon, ProfileIcon } from '../components';
+import { useMessaging } from '../context';
 import { safeNumber } from '../utils';
 import HomeStackNavigator from './HomeStackNavigator';
 import ProfileStackNavigator from './ProfileStackNavigator';
 import AccommodationStackNavigator from './AccommodationStackNavigator';
 import ShopStackNavigator from './ShopStackNavigator';
-
-// Placeholder stack navigators - will be replaced with actual navigators
-const CommunityStackNavigator = () => <View><Text>Community Stack</Text></View>;
+import CommunityStackNavigator from './CommunityStackNavigator';
 
 const MainTab = createBottomTabNavigator<MainTabParamList>();
 
 const MainNavigator: React.FC = () => {
   const insets = useSafeAreaInsets();
+  const { unreadCount } = useMessaging();
 
   // Ensure safe area insets are numbers
   const safeBottom = safeNumber(insets.bottom, 0);
@@ -96,8 +96,9 @@ const MainNavigator: React.FC = () => {
         options={{
           tabBarLabel: 'Profile',
           tabBarIcon: ({ color, size }) => (
-            <ProfileIcon size={size} color={color} />
+            <ProfileIcon size={size} color={color} badgeCount={unreadCount} />
           ),
+          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
         }}
       />
     </MainTab.Navigator>

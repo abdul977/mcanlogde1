@@ -7,6 +7,9 @@
 // export { default as Card } from './ui/Card';
 // export { default as Modal } from './ui/Modal';
 export { default as LoadingScreen } from './ui/LoadingScreen';
+export { default as LoadingSpinner } from './ui/LoadingSpinner';
+export { default as EmptyState } from './ui/EmptyState';
+export { default as TabBarBadge } from './ui/TabBarBadge';
 export { BiometricButton } from './ui/BiometricButton';
 export { AccessibleButton } from './ui/AccessibleButton';
 export { AnimatedButton } from './ui/AnimatedButton';
@@ -33,6 +36,8 @@ export { default as PrayerTimesWidget } from './features/PrayerTimesWidget';
 export { default as BlogCard } from './features/BlogCard';
 // export { default as BookingForm } from './features/BookingForm';
 // export { default as CartItem } from './features/CartItem';
-// export { default as MessageBubble } from './features/MessageBubble';
+
+// Messaging Components
+export * from './messaging';
 
 export {}; // Temporary export to avoid empty file error

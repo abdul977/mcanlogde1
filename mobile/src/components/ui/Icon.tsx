@@ -111,9 +111,23 @@ export const CommunityIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
   <Icon name="users-alt" {...props} />
 );
 
-export const ProfileIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (
-  <Icon name="user-circle" {...props} />
-);
+export const ProfileIcon: React.FC<Omit<IconProps, 'name'> & { badgeCount?: number }> = ({
+  badgeCount,
+  ...props
+}) => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const TabBarBadge = require('./TabBarBadge').default;
+
+  return (
+    <View style={{ position: 'relative' }}>
+      <Icon name="user-circle" {...props} />
+      {badgeCount && badgeCount > 0 && (
+        <TabBarBadge count={badgeCount} size="small" />
+      )}
+    </View>
+  );
+};
 
 // Common App Icons
 export const SearchIcon: React.FC<Omit<IconProps, 'name'>> = (props) => (

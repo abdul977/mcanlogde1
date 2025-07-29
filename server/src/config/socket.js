@@ -48,6 +48,82 @@ export const initializeSocket = (server) => {
     await redisUtils.setUserSocket(socket.userId, socket.id);
     await redisUtils.setUserOnline(socket.userId);
 
+    // Community-specific socket events
+
+    // Join community room
+    socket.on('join_community', async (data) => {
+      try {
+        const { communityId } = data;
+
+        // Verify user is a member of the community
+        const CommunityMember = (await import('../models/CommunityMember.js')).default;
+        const member = await CommunityMember.findOne({
+          community: communityId,
+          user: socket.userId,
+          status: 'active'
+        });
+
+        if (member) {
+          socket.join(`community_${communityId}`);
+
+          // Update member's last seen
+          await member.updateLastSeen();
+
+          // Notify other members that user joined
+          socket.to(`community_${communityId}`).emit('member_online', {
+            userId: socket.userId,
+            timestamp: new Date()
+          });
+
+          socket.emit('community_joined', { communityId });
+          console.log(`User ${socket.userId} joined community ${communityId}`);
+        } else {
+          socket.emit('error', { message: 'Not a member of this community' });
+        }
+      } catch (error) {
+        console.error('Error joining community:', error);
+        socket.emit('error', { message: 'Failed to join community' });
+      }
+    });
+
+    // Leave community room
+    socket.on('leave_community', (data) => {
+      try {
+        const { communityId } = data;
+        socket.leave(`community_${communityId}`);
+
+        // Notify other members that user left
+        socket.to(`community_${communityId}`).emit('member_offline', {
+          userId: socket.userId,
+          timestamp: new Date()
+        });
+
+        socket.emit('community_left', { communityId });
+        console.log(`User ${socket.userId} left community ${communityId}`);
+      } catch (error) {
+        console.error('Error leaving community:', error);
+      }
+    });
+
+    // Handle typing indicators for communities
+    socket.on('community_typing_start', (data) => {
+      const { communityId } = data;
+      socket.to(`community_${communityId}`).emit('member_typing_start', {
+        userId: socket.userId,
+        communityId,
+        timestamp: new Date()
+      });
+    });
+
+    socket.on('community_typing_stop', (data) => {
+      const { communityId } = data;
+      socket.to(`community_${communityId}`).emit('member_typing_stop', {
+        userId: socket.userId,
+        communityId,
+        timestamp: new Date()
+      });
+    });
+
     // Join user to their personal room
     socket.join(`user:${socket.userId}`);
 
@@ -169,6 +245,21 @@ export const socketUtils = {
       io.to(socketId).emit('notification', notification);
     }
   }
+};
+
+// Get Socket.IO instance
+export const getIO = () => {
+  if (!io) {
+    throw new Error('Socket.IO not initialized');
+  }
+  return io;
+};
+
+// Initialize community socket service
+export const initializeCommunitySocket = () => {
+  import('../services/communitySocketService.js').then(module => {
+    module.default.initialize();
+  });
 };
 
 export { io };
