@@ -1,19 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { FaCalendar, FaClock, FaUser, FaArrowLeft, FaShare, FaTags, FaEye, FaStar, FaBook, FaHeart } from "react-icons/fa";
+import { FaCalendar, FaClock, FaUser, FaArrowLeft, FaShare, FaTags, FaEye, FaStar, FaBook, FaHeart, FaBookmark, FaComment, FaThumbsUp } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
 import Spinner from "../components/Spinner";
 import MobileLayout, { MobilePageHeader, MobileButton } from "../components/Mobile/MobileLayout";
 import { FormSection, FormField } from "../components/Mobile/ResponsiveForm";
+import { useAuth } from "../context/auth";
 
 const BlogDetails = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const [auth] = useAuth();
   const [blog, setBlog] = useState(null);
   const [relatedBlogs, setRelatedBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+  // Interaction states
+  const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
 
   // Fetch blog details
   const fetchBlogDetails = async () => {
@@ -78,6 +89,25 @@ const BlogDetails = () => {
           text: blog.excerpt,
           url: window.location.href,
         });
+
+        // Record the share
+        if (auth?.token) {
+          await axios.post(
+            `${import.meta.env.VITE_BASE_URL}/api/blog/${blog._id}/share`,
+            {
+              platform: 'native_share',
+              shareMethod: 'web_share_api',
+              shareContext: {
+                location: 'blog_detail'
+              }
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${auth.token}`,
+              },
+            }
+          );
+        }
       } catch (error) {
         console.log("Error sharing:", error);
       }
@@ -85,6 +115,173 @@ const BlogDetails = () => {
       // Fallback: copy to clipboard
       navigator.clipboard.writeText(window.location.href);
       toast.success("Blog link copied to clipboard!");
+
+      // Record the share
+      if (auth?.token) {
+        try {
+          await axios.post(
+            `${import.meta.env.VITE_BASE_URL}/api/blog/${blog._id}/share`,
+            {
+              platform: 'copy_link',
+              shareMethod: 'copy_link',
+              shareContext: {
+                location: 'blog_detail'
+              }
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${auth.token}`,
+              },
+            }
+          );
+        } catch (error) {
+          console.error('Error recording share:', error);
+        }
+      }
+    }
+  };
+
+  // Fetch interaction status
+  const fetchInteractionStatus = async () => {
+    if (!blog || !auth?.token) return;
+
+    try {
+      const [likeStatus, bookmarkStatus] = await Promise.all([
+        axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/blog/${blog._id}/like/status`,
+          {
+            headers: {
+              Authorization: `Bearer ${auth.token}`,
+            },
+          }
+        ),
+        axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/blog/${blog._id}/bookmark/status`,
+          {
+            headers: {
+              Authorization: `Bearer ${auth.token}`,
+            },
+          }
+        )
+      ]);
+
+      if (likeStatus.data.success) {
+        setLiked(likeStatus.data.liked);
+        setLikesCount(likeStatus.data.likesCount);
+      }
+
+      if (bookmarkStatus.data.success) {
+        setBookmarked(bookmarkStatus.data.bookmarked);
+      }
+    } catch (error) {
+      console.error('Error fetching interaction status:', error);
+    }
+  };
+
+  // Fetch comments
+  const fetchComments = async () => {
+    if (!blog) return;
+
+    try {
+      setCommentsLoading(true);
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/blog/${blog._id}/comments?page=1&limit=10&includeReplies=true`
+      );
+
+      if (response.data.success) {
+        setComments(response.data.comments || []);
+      }
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
+  // Handle like toggle
+  const handleLike = async () => {
+    if (!blog || !auth?.token) {
+      toast.error("Please login to like this post");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/blog/${blog._id}/like`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setLiked(response.data.liked);
+        setLikesCount(response.data.likesCount);
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      console.error('Error toggling like:', error);
+      toast.error('Failed to update like status');
+    }
+  };
+
+  // Handle bookmark toggle
+  const handleBookmark = async () => {
+    if (!blog || !auth?.token) {
+      toast.error("Please login to bookmark this post");
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/blog/${blog._id}/bookmark`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setBookmarked(response.data.bookmarked);
+        toast.success(response.data.message);
+      }
+    } catch (error) {
+      console.error('Error toggling bookmark:', error);
+      toast.error('Failed to update bookmark status');
+    }
+  };
+
+  // Handle comment submission
+  const handleAddComment = async (e) => {
+    e.preventDefault();
+    if (!blog || !auth?.token || !newComment.trim()) return;
+
+    try {
+      setCommentSubmitting(true);
+      const response = await axios.post(
+        `${import.meta.env.VITE_BASE_URL}/api/blog/${blog._id}/comments`,
+        { content: newComment.trim() },
+        {
+          headers: {
+            Authorization: `Bearer ${auth.token}`,
+          },
+        }
+      );
+
+      if (response.data.success) {
+        setComments(prev => [response.data.comment, ...prev]);
+        setNewComment('');
+        toast.success('Comment added successfully!');
+      }
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      toast.error('Failed to add comment');
+    } finally {
+      setCommentSubmitting(false);
     }
   };
 
@@ -93,6 +290,13 @@ const BlogDetails = () => {
       fetchBlogDetails();
     }
   }, [slug]);
+
+  useEffect(() => {
+    if (blog && auth?.token) {
+      fetchInteractionStatus();
+      fetchComments();
+    }
+  }, [blog, auth?.token]);
 
   if (loading) {
     return (
@@ -146,14 +350,23 @@ const BlogDetails = () => {
             title="Go back"
           />
           <MobileButton
-            onClick={() => {/* Add to favorites */}}
+            onClick={handleLike}
             variant="ghost"
             size="sm"
             icon={FaHeart}
-            title="Add to favorites"
+            title={liked ? "Unlike" : "Like"}
+            className={liked ? "text-red-500" : ""}
           />
           <MobileButton
-            onClick={() => {/* Share */}}
+            onClick={handleBookmark}
+            variant="ghost"
+            size="sm"
+            icon={FaBookmark}
+            title={bookmarked ? "Remove bookmark" : "Bookmark"}
+            className={bookmarked ? "text-blue-500" : ""}
+          />
+          <MobileButton
+            onClick={handleShare}
             variant="ghost"
             size="sm"
             icon={FaShare}
@@ -309,6 +522,121 @@ const BlogDetails = () => {
               </div>
             </FormSection>
           )}
+
+          {/* Interaction Buttons */}
+          <FormSection title="Engage with this Post" icon={FaThumbsUp} columns={1} className="mt-8">
+            <div className="flex flex-wrap gap-4 justify-center">
+              <button
+                onClick={handleLike}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition duration-300 ${
+                  liked
+                    ? 'bg-red-500 text-white hover:bg-red-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <FaHeart className={liked ? 'text-white' : 'text-red-500'} />
+                <span>{liked ? 'Liked' : 'Like'}</span>
+                {likesCount > 0 && <span className="text-sm">({likesCount})</span>}
+              </button>
+
+              <button
+                onClick={handleBookmark}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition duration-300 ${
+                  bookmarked
+                    ? 'bg-blue-500 text-white hover:bg-blue-600'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <FaBookmark className={bookmarked ? 'text-white' : 'text-blue-500'} />
+                <span>{bookmarked ? 'Bookmarked' : 'Bookmark'}</span>
+              </button>
+
+              <button
+                onClick={handleShare}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition duration-300"
+              >
+                <FaShare className="text-green-500" />
+                <span>Share</span>
+              </button>
+            </div>
+          </FormSection>
+
+          {/* Comments Section */}
+          <FormSection title={`Comments (${comments.length})`} icon={FaComment} columns={1} className="mt-8">
+            {/* Add Comment Form */}
+            {auth?.token ? (
+              <form onSubmit={handleAddComment} className="mb-6">
+                <div className="mb-4">
+                  <textarea
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    placeholder="Share your thoughts..."
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-mcan-primary focus:border-transparent resize-none"
+                    rows="4"
+                    maxLength="1000"
+                  />
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-500">
+                    {newComment.length}/1000 characters
+                  </span>
+                  <button
+                    type="submit"
+                    disabled={!newComment.trim() || commentSubmitting}
+                    className="bg-mcan-primary text-white px-6 py-2 rounded-lg font-medium hover:bg-mcan-secondary transition duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  >
+                    {commentSubmitting ? 'Posting...' : 'Post Comment'}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="mb-6 p-4 bg-gray-100 rounded-lg text-center">
+                <p className="text-gray-600 mb-2">Please login to leave a comment</p>
+                <Link
+                  to="/login"
+                  className="text-mcan-primary hover:text-mcan-secondary font-medium"
+                >
+                  Login here
+                </Link>
+              </div>
+            )}
+
+            {/* Comments List */}
+            {commentsLoading ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-mcan-primary"></div>
+                <p className="mt-2 text-gray-600">Loading comments...</p>
+              </div>
+            ) : comments.length > 0 ? (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <div key={comment._id} className="bg-gray-50 p-4 rounded-lg border-l-4 border-mcan-primary">
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-mcan-primary rounded-full flex items-center justify-center text-white text-sm font-bold">
+                          {comment.user?.name?.charAt(0).toUpperCase() || 'A'}
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-800">{comment.user?.name || 'Anonymous'}</p>
+                          <p className="text-xs text-gray-500">{comment.formattedCreatedAt}</p>
+                        </div>
+                      </div>
+                      {comment.isEdited && (
+                        <span className="text-xs text-gray-500 italic">Edited</span>
+                      )}
+                    </div>
+                    <p className="text-gray-700 leading-relaxed">{comment.content}</p>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <FaComment className="mx-auto text-4xl text-gray-400 mb-4" />
+                <p className="text-gray-600 mb-2">No comments yet</p>
+                <p className="text-sm text-gray-500">Be the first to share your thoughts!</p>
+              </div>
+            )}
+          </FormSection>
 
           {/* Call to Action */}
           <FormSection title="Stay Connected" icon={FaHeart} columns={1} className="mt-8">

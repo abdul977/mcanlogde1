@@ -74,6 +74,7 @@ export type ProfileStackParamList = {
   Chat: { userId: string; userName: string };
   PaymentHistory: undefined;
   PaymentDetails: { id: string };
+  Bookmarks: undefined;
   // Admin screens (conditional based on user role)
   AdminDashboard: undefined;
   ManageBookings: undefined;

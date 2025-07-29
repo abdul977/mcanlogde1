@@ -21,6 +21,7 @@ import MyBookingsScreen from '../screens/profile/MyBookingsScreen';
 import OrderHistoryScreen from '../screens/profile/OrderHistoryScreen';
 import AppSettingsScreen from '../screens/profile/AppSettingsScreen';
 import HelpSupportScreen from '../screens/profile/HelpSupportScreen';
+import BookmarksScreen from '../screens/profile/BookmarksScreen';
 
 const Stack = createStackNavigator<ProfileStackParamList>();
 
@@ -99,6 +100,14 @@ const ProfileStackNavigator: React.FC = () => {
         component={HelpSupportScreen}
         options={{
           title: 'Help & Support',
+          headerShown: false, // Custom header
+        }}
+      />
+      <Stack.Screen
+        name="Bookmarks"
+        component={BookmarksScreen}
+        options={{
+          title: 'My Bookmarks',
           headerShown: false, // Custom header
         }}
       />

@@ -594,17 +594,93 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.MD,
   },
-  commentsPlaceholder: {
+  addCommentContainer: {
+    marginBottom: SPACING.LG,
+  },
+  commentInput: {
+    borderWidth: 1,
+    borderColor: COLORS.GRAY_300,
+    borderRadius: BORDER_RADIUS.MD,
+    padding: SPACING.MD,
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_PRIMARY,
+    minHeight: 80,
+    textAlignVertical: 'top',
+    marginBottom: SPACING.SM,
+  },
+  submitCommentButton: {
+    backgroundColor: COLORS.PRIMARY,
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.SM,
+    borderRadius: BORDER_RADIUS.SM,
+    alignSelf: 'flex-end',
+  },
+  submitCommentButtonDisabled: {
+    backgroundColor: COLORS.GRAY_300,
+  },
+  submitCommentButtonText: {
+    color: COLORS.WHITE,
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
+  },
+  submitCommentButtonTextDisabled: {
+    color: COLORS.GRAY_500,
+  },
+  commentsLoadingContainer: {
+    alignItems: 'center',
+    paddingVertical: SPACING.LG,
+  },
+  commentsLoadingText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_SECONDARY,
+  },
+  commentsList: {
+    gap: SPACING.MD,
+  },
+  commentItem: {
+    backgroundColor: COLORS.GRAY_50,
+    padding: SPACING.MD,
+    borderRadius: BORDER_RADIUS.MD,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.PRIMARY,
+  },
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.SM,
+  },
+  commentAuthor: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
+    color: COLORS.TEXT_PRIMARY,
+  },
+  commentDate: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.XS,
+    color: COLORS.GRAY_500,
+  },
+  commentContent: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_PRIMARY,
+    lineHeight: TYPOGRAPHY.FONT_SIZES.BASE * 1.4,
+  },
+  editedIndicator: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.XS,
+    color: COLORS.GRAY_500,
+    fontStyle: 'italic',
+    marginTop: SPACING.XS,
+  },
+  noCommentsContainer: {
     alignItems: 'center',
     paddingVertical: SPACING.XL,
   },
-  commentsPlaceholderText: {
+  noCommentsText: {
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
     fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
     color: COLORS.TEXT_SECONDARY,
     marginTop: SPACING.MD,
   },
-  commentsPlaceholderSubtext: {
+  noCommentsSubtext: {
     fontSize: TYPOGRAPHY.FONT_SIZES.SM,
     color: COLORS.GRAY_500,
     marginTop: SPACING.XS,
