@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "MCAN",
+    "slug": "mcan",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "description": "MCAN - Muslim Corpers' Association of Nigeria",
+    "primaryColor": "#006400",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#006400"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.mcan.app",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#006400"
+      },
+      "edgeToEdgeEnabled": true,
+      "package": "com.mcan.app",
+      "versionCode": 1
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "mcan-mobile"
+      }
+    },
+    "owner": "mcan"
+  }
+}
