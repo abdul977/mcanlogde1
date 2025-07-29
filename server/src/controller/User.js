@@ -164,6 +164,80 @@ export const getUserProfile = async (req, res) => {
 };
 
 // Update user profile
+// Refresh token controller
+export const refreshTokenController = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        message: "Authorization header is missing"
+      });
+    }
+
+    const token = authHeader.startsWith("Bearer ")
+      ? authHeader.split(" ")[1]
+      : authHeader;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: "No token provided"
+      });
+    }
+
+    // Verify the current token
+    const decoded = JWT.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded._id || decoded.id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    // Generate new token
+    const newToken = JWT.sign({
+      _id: user._id,
+      id: user._id,
+      role: user.role
+    }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Token refreshed successfully",
+      token: newToken
+    });
+  } catch (error) {
+    console.error("Refresh token error:", error);
+    res.status(401).json({
+      success: false,
+      message: "Invalid or expired token"
+    });
+  }
+};
+
+// Logout controller
+export const logoutController = async (req, res) => {
+  try {
+    // In a stateless JWT system, logout is handled client-side by removing the token
+    // But we can still provide a logout endpoint for consistency and future token blacklisting
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully"
+    });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error during logout"
+    });
+  }
+};
+
 export const updateUserProfile = async (req, res) => {
   try {
     const {

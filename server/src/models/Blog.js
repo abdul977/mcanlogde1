@@ -92,6 +92,40 @@ blogSchema.virtual('formattedPublishDate').get(function() {
   });
 });
 
+// Virtual for likes count
+blogSchema.virtual('likesCount', {
+  ref: 'Like',
+  localField: '_id',
+  foreignField: 'blog',
+  count: true
+});
+
+// Virtual for comments count
+blogSchema.virtual('commentsCount', {
+  ref: 'Comment',
+  localField: '_id',
+  foreignField: 'blog',
+  count: true,
+  match: { status: 'approved' }
+});
+
+// Virtual for shares count
+blogSchema.virtual('sharesCount', {
+  ref: 'Share',
+  localField: '_id',
+  foreignField: 'blog',
+  count: true,
+  match: { shareSuccess: true }
+});
+
+// Virtual for bookmarks count
+blogSchema.virtual('bookmarksCount', {
+  ref: 'Bookmark',
+  localField: '_id',
+  foreignField: 'blog',
+  count: true
+});
+
 // Calculate read time based on content length
 blogSchema.pre('save', function(next) {
   if (this.isModified('content')) {
@@ -119,6 +153,158 @@ blogSchema.statics.getFeatured = function(limit = 3) {
 blogSchema.methods.incrementViews = function() {
   this.views += 1;
   return this.save();
+};
+
+// Static method to get blogs with interaction counts
+blogSchema.statics.getBlogsWithInteractions = async function(query = {}, options = {}) {
+  const {
+    page = 1,
+    limit = 10,
+    sortBy = 'publishDate',
+    sortOrder = -1,
+    includeInteractions = true
+  } = options;
+
+  const skip = (page - 1) * limit;
+
+  let aggregationPipeline = [
+    { $match: query },
+    { $sort: { [sortBy]: sortOrder } },
+    { $skip: skip },
+    { $limit: limit }
+  ];
+
+  if (includeInteractions) {
+    // Add interaction counts using lookup and count
+    aggregationPipeline.push(
+      {
+        $lookup: {
+          from: 'likes',
+          localField: '_id',
+          foreignField: 'blog',
+          as: 'likes'
+        }
+      },
+      {
+        $lookup: {
+          from: 'comments',
+          localField: '_id',
+          foreignField: 'blog',
+          pipeline: [{ $match: { status: 'approved' } }],
+          as: 'comments'
+        }
+      },
+      {
+        $lookup: {
+          from: 'shares',
+          localField: '_id',
+          foreignField: 'blog',
+          pipeline: [{ $match: { shareSuccess: true } }],
+          as: 'shares'
+        }
+      },
+      {
+        $lookup: {
+          from: 'bookmarks',
+          localField: '_id',
+          foreignField: 'blog',
+          as: 'bookmarks'
+        }
+      },
+      {
+        $addFields: {
+          likesCount: { $size: '$likes' },
+          commentsCount: { $size: '$comments' },
+          sharesCount: { $size: '$shares' },
+          bookmarksCount: { $size: '$bookmarks' }
+        }
+      },
+      {
+        $project: {
+          likes: 0,
+          comments: 0,
+          shares: 0,
+          bookmarks: 0
+        }
+      }
+    );
+  }
+
+  return await this.aggregate(aggregationPipeline);
+};
+
+// Static method to get blog with user-specific interaction status
+blogSchema.statics.getBlogWithUserInteractions = async function(blogId, userId = null) {
+  const pipeline = [
+    { $match: { _id: mongoose.Types.ObjectId(blogId) } },
+    {
+      $lookup: {
+        from: 'likes',
+        localField: '_id',
+        foreignField: 'blog',
+        as: 'allLikes'
+      }
+    },
+    {
+      $lookup: {
+        from: 'comments',
+        localField: '_id',
+        foreignField: 'blog',
+        pipeline: [{ $match: { status: 'approved' } }],
+        as: 'allComments'
+      }
+    },
+    {
+      $lookup: {
+        from: 'shares',
+        localField: '_id',
+        foreignField: 'blog',
+        pipeline: [{ $match: { shareSuccess: true } }],
+        as: 'allShares'
+      }
+    },
+    {
+      $lookup: {
+        from: 'bookmarks',
+        localField: '_id',
+        foreignField: 'blog',
+        as: 'allBookmarks'
+      }
+    },
+    {
+      $addFields: {
+        likesCount: { $size: '$allLikes' },
+        commentsCount: { $size: '$allComments' },
+        sharesCount: { $size: '$allShares' },
+        bookmarksCount: { $size: '$allBookmarks' }
+      }
+    }
+  ];
+
+  if (userId) {
+    pipeline.push({
+      $addFields: {
+        isLikedByUser: {
+          $in: [mongoose.Types.ObjectId(userId), '$allLikes.user']
+        },
+        isBookmarkedByUser: {
+          $in: [mongoose.Types.ObjectId(userId), '$allBookmarks.user']
+        }
+      }
+    });
+  }
+
+  pipeline.push({
+    $project: {
+      allLikes: 0,
+      allComments: 0,
+      allShares: 0,
+      allBookmarks: 0
+    }
+  });
+
+  const result = await this.aggregate(pipeline);
+  return result[0] || null;
 };
 
 export default mongoose.model("Blog", blogSchema);

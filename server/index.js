@@ -57,6 +57,7 @@ const io = initializeSocket(server);
 // CORS configuration
 app.use(cors({
   origin: [
+    // Web frontend origins
     'http://localhost:5173',
     'http://localhost:5174',
     'http://localhost:5175',
@@ -64,7 +65,15 @@ app.use(cors({
     'http://127.0.0.1:5174',
     'http://127.0.0.1:5175',
     'https://mcanlogde1.vercel.app',
-    process.env.FRONTEND_URL
+    process.env.FRONTEND_URL,
+    // Mobile app origins
+    'http://localhost:8081',
+    'http://127.0.0.1:8081',
+    'http://192.168.1.100:8081',
+    'http://10.0.0.1:8081',
+    'http://10.0.2.2:8081', // Android emulator
+    process.env.MOBILE_DEV_URL,
+    process.env.EXPO_DEV_URL
   ].filter(Boolean), // Remove any undefined values
   credentials: true
 }));

@@ -450,25 +450,29 @@ const styles = StyleSheet.create({
   blogCarouselContainer: {
     paddingLeft: SPACING.LG,
     paddingRight: SPACING.SM,
+    paddingBottom: SPACING.MD, // Added padding to show full card
   },
   blogLoadingContainer: {
-    height: 200,
+    height: 250, // Increased height
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.GRAY_50,
     borderRadius: 12,
+    marginBottom: SPACING.MD, // Added margin bottom
   },
   blogLoadingText: {
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
     color: COLORS.TEXT_SECONDARY,
   },
   noBlogsContainer: {
-    height: 200,
+    height: 250, // Increased height
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: COLORS.GRAY_50,
-    borderRadius: 12,
+    borderRadius: 10,
     paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.MD,
+    marginBottom: SPACING.MD, // Added margin bottom
   },
   noBlogsText: {
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
@@ -485,7 +489,7 @@ const styles = StyleSheet.create({
   },
 
   bottomSpacing: {
-    height: SPACING.XL,
+    height: SPACING.XL * 2, // Increased bottom spacing
   },
 });
 

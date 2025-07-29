@@ -4,7 +4,9 @@ import {
   loginController,
   registerController,
   getUserProfile,
-  updateUserProfile
+  updateUserProfile,
+  refreshTokenController,
+  logoutController
 } from "../controller/User.js";
 import { requireSignIn, isAdmin } from "../middlewares/Auth.js";
 
@@ -18,6 +20,8 @@ router.get('/user', getUserInfo);
 // Protected user routes
 router.get("/profile", requireSignIn, getUserProfile);
 router.put("/profile", requireSignIn, updateUserProfile);
+router.post("/refresh", requireSignIn, refreshTokenController);
+router.post("/logout", requireSignIn, logoutController);
 
 //protected User route auth
 router.get("/user-auth", requireSignIn, (req, res) => {

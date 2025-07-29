@@ -5,6 +5,11 @@ import axios from "axios";
 import MobileLayout from "../../components/Mobile/MobileLayout";
 import PaymentUploadModal from "../../components/PaymentUploadModal";
 import { useSocket } from "../../context/SocketContext";
+import Navbar from "./Navbar";
+import mcanLogo from "../../assets/mcan-logo.png";
+
+// Fallback logo URL
+const FALLBACK_LOGO = "https://www.mcanenugu.org.ng/img/core-img/logo.png";
 
 const PaymentDashboard = () => {
   const [bookings, setBookings] = useState([]);
@@ -161,7 +166,15 @@ const PaymentDashboard = () => {
 
   if (loading) {
     return (
-      <MobileLayout>
+      <MobileLayout
+        title="Payments"
+        subtitle="Payment dashboard"
+        icon={FaMoneyBillWave}
+        logoSrc={mcanLogo}
+        logoAlt="MCAN Logo"
+        fallbackLogoSrc={FALLBACK_LOGO}
+        navbar={Navbar}
+      >
         <div className="p-6">
           <div className="flex justify-center items-center py-12">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
@@ -172,7 +185,15 @@ const PaymentDashboard = () => {
   }
 
   return (
-    <MobileLayout>
+    <MobileLayout
+      title="Payments"
+      subtitle="Payment dashboard"
+      icon={FaMoneyBillWave}
+      logoSrc={mcanLogo}
+      logoAlt="MCAN Logo"
+      fallbackLogoSrc={FALLBACK_LOGO}
+      navbar={Navbar}
+    >
       <div className="p-6">
         {/* Header */}
         <div className="mb-6">

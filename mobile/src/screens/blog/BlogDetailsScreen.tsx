@@ -20,6 +20,8 @@ import {
   Alert,
   Share,
   Dimensions,
+  TextInput,
+  FlatList,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -42,13 +44,25 @@ const BlogDetailsScreen: React.FC = () => {
   const [blog, setBlog] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
   const [liked, setLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(0);
   const [bookmarked, setBookmarked] = useState(false);
   const [relatedBlogs, setRelatedBlogs] = useState<BlogPost[]>([]);
+  const [comments, setComments] = useState<any[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
 
   useEffect(() => {
     fetchBlogDetails();
     fetchRelatedBlogs();
   }, [slug]);
+
+  useEffect(() => {
+    if (blog) {
+      fetchInteractionStatus();
+      fetchComments();
+    }
+  }, [blog]);
 
   const fetchBlogDetails = async () => {
     try {
@@ -73,16 +87,76 @@ const BlogDetailsScreen: React.FC = () => {
     }
   };
 
+  const fetchInteractionStatus = async () => {
+    if (!blog) return;
+
+    try {
+      const [likeStatus, bookmarkStatus] = await Promise.all([
+        blogService.checkLikeStatus(blog._id),
+        blogService.checkBookmarkStatus(blog._id)
+      ]);
+
+      setLiked(likeStatus.liked);
+      setLikesCount(likeStatus.likesCount);
+      setBookmarked(bookmarkStatus.bookmarked);
+    } catch (error) {
+      console.error('Error fetching interaction status:', error);
+    }
+  };
+
+  const fetchComments = async () => {
+    if (!blog) return;
+
+    try {
+      setCommentsLoading(true);
+      const response = await blogService.getComments(blog._id, {
+        page: 1,
+        limit: 10,
+        includeReplies: true
+      });
+      setComments(response.comments || []);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    } finally {
+      setCommentsLoading(false);
+    }
+  };
+
   const handleShare = async () => {
     if (!blog) return;
-    
+
     try {
-      await Share.share({
+      const shareResult = await Share.share({
         message: `${blog.title}\n\n${blog.excerpt}\n\nRead more on MCAN App`,
         title: blog.title,
       });
+
+      // Record the share if successful
+      if (shareResult.action === Share.sharedAction) {
+        await blogService.recordShare(blog._id, 'native_share', {
+          shareMethod: 'native_api',
+          shareContext: {
+            location: 'blog_detail'
+          }
+        });
+      }
     } catch (error) {
       console.error('Error sharing blog:', error);
+      // Record failed share
+      try {
+        await blogService.recordShare(blog._id, 'native_share', {
+          shareMethod: 'native_api',
+          shareContext: {
+            location: 'blog_detail'
+          },
+          shareSuccess: false,
+          errorInfo: {
+            errorMessage: error.message
+          }
+        });
+      } catch (recordError) {
+        console.error('Error recording failed share:', recordError);
+      }
     }
   };
 
@@ -92,9 +166,10 @@ const BlogDetailsScreen: React.FC = () => {
     try {
       const result = await blogService.toggleLike(blog._id);
       setLiked(result.liked);
-      // Could also update likes count if we had it in the UI
+      setLikesCount(result.likesCount);
     } catch (error) {
       console.error('Error toggling like:', error);
+      Alert.alert('Error', 'Failed to update like status. Please try again.');
     }
   };
 
@@ -106,6 +181,27 @@ const BlogDetailsScreen: React.FC = () => {
       setBookmarked(result.bookmarked);
     } catch (error) {
       console.error('Error toggling bookmark:', error);
+      Alert.alert('Error', 'Failed to update bookmark status. Please try again.');
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!blog || !newComment.trim()) return;
+
+    try {
+      setCommentSubmitting(true);
+      const result = await blogService.addComment(blog._id, newComment.trim());
+
+      // Add new comment to the list
+      setComments(prev => [result.comment, ...prev]);
+      setNewComment('');
+
+      Alert.alert('Success', 'Comment added successfully!');
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      Alert.alert('Error', 'Failed to add comment. Please try again.');
+    } finally {
+      setCommentSubmitting(false);
     }
   };
 
@@ -282,14 +378,65 @@ const BlogDetailsScreen: React.FC = () => {
 
           {/* Comments Section */}
           <View style={styles.commentsSection}>
-            <Text style={styles.commentsTitle}>Comments</Text>
-            <View style={styles.commentsPlaceholder}>
-              <Ionicons name="chatbubbles-outline" size={48} color={COLORS.GRAY_400} />
-              <Text style={styles.commentsPlaceholderText}>Comments feature coming soon!</Text>
-              <Text style={styles.commentsPlaceholderSubtext}>
-                Share your thoughts and engage with the community
-              </Text>
+            <Text style={styles.commentsTitle}>Comments ({comments.length})</Text>
+
+            {/* Add Comment Form */}
+            <View style={styles.addCommentContainer}>
+              <TextInput
+                style={styles.commentInput}
+                placeholder="Add a comment..."
+                placeholderTextColor={COLORS.GRAY_400}
+                value={newComment}
+                onChangeText={setNewComment}
+                multiline
+                maxLength={1000}
+              />
+              <TouchableOpacity
+                style={[
+                  styles.submitCommentButton,
+                  (!newComment.trim() || commentSubmitting) && styles.submitCommentButtonDisabled
+                ]}
+                onPress={handleAddComment}
+                disabled={!newComment.trim() || commentSubmitting}
+              >
+                <Text style={[
+                  styles.submitCommentButtonText,
+                  (!newComment.trim() || commentSubmitting) && styles.submitCommentButtonTextDisabled
+                ]}>
+                  {commentSubmitting ? 'Posting...' : 'Post'}
+                </Text>
+              </TouchableOpacity>
             </View>
+
+            {/* Comments List */}
+            {commentsLoading ? (
+              <View style={styles.commentsLoadingContainer}>
+                <Text style={styles.commentsLoadingText}>Loading comments...</Text>
+              </View>
+            ) : comments.length > 0 ? (
+              <View style={styles.commentsList}>
+                {comments.map((comment, index) => (
+                  <View key={comment._id || index} style={styles.commentItem}>
+                    <View style={styles.commentHeader}>
+                      <Text style={styles.commentAuthor}>{comment.user?.name || 'Anonymous'}</Text>
+                      <Text style={styles.commentDate}>{comment.formattedCreatedAt}</Text>
+                    </View>
+                    <Text style={styles.commentContent}>{comment.content}</Text>
+                    {comment.isEdited && (
+                      <Text style={styles.editedIndicator}>Edited</Text>
+                    )}
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <View style={styles.noCommentsContainer}>
+                <Ionicons name="chatbubbles-outline" size={48} color={COLORS.GRAY_400} />
+                <Text style={styles.noCommentsText}>No comments yet</Text>
+                <Text style={styles.noCommentsSubtext}>
+                  Be the first to share your thoughts!
+                </Text>
+              </View>
+            )}
           </View>
         </View>
 
