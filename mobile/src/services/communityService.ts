@@ -71,35 +71,57 @@ class CommunityService {
   // Create new community
   async createCommunity(data: CreateCommunityData): Promise<Community> {
     try {
-      const formData = new FormData();
-      
-      // Add text fields
-      Object.keys(data).forEach(key => {
-        if (key !== 'avatar' && key !== 'banner') {
-          const value = data[key as keyof CreateCommunityData];
-          if (typeof value === 'object' && value !== null) {
-            formData.append(key, JSON.stringify(value));
-          } else if (value !== undefined) {
-            formData.append(key, value.toString());
+      const hasFiles = data.avatar || data.banner;
+
+      if (hasFiles) {
+        // Use FormData for file uploads
+        const formData = new FormData();
+
+        // Add text fields
+        Object.keys(data).forEach(key => {
+          if (key !== 'avatar' && key !== 'banner') {
+            const value = data[key as keyof CreateCommunityData];
+            if (typeof value === 'object' && value !== null) {
+              formData.append(key, JSON.stringify(value));
+            } else if (value !== undefined) {
+              formData.append(key, value.toString());
+            }
           }
+        });
+
+        // Add files
+        if (data.avatar) {
+          formData.append('avatar', data.avatar as any);
         }
-      });
+        if (data.banner) {
+          formData.append('banner', data.banner as any);
+        }
 
-      // Add files
-      if (data.avatar) {
-        formData.append('avatar', data.avatar as any);
-      }
-      if (data.banner) {
-        formData.append('banner', data.banner as any);
-      }
+        const response = await apiClient.post('/api/chat-communities/create', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
 
-      const response = await apiClient.post('/api/chat-communities/create', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      
-      return response.data.community;
+        return response.data.community;
+      } else {
+        // Use JSON for text-only data
+        const jsonData = {
+          name: data.name,
+          description: data.description,
+          category: data.category,
+          tags: data.tags || [],
+          isPrivate: data.isPrivate || false,
+        };
+
+        const response = await apiClient.post('/api/chat-communities/create', jsonData, {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        return response.data.community;
+      }
     } catch (error) {
       console.error('Error creating community:', error);
       throw error;
@@ -272,7 +294,7 @@ class CommunityService {
   ): Promise<void> {
     try {
       await apiClient.put(
-        `/community-members/${communityId}/members/${userId}/ban`,
+        `/api/community-members/${communityId}/members/${userId}/ban`,
         { reason, duration }
       );
     } catch (error) {
@@ -288,7 +310,7 @@ class CommunityService {
   ): Promise<void> {
     try {
       await apiClient.put(
-        `/community-members/${communityId}/members/${userId}/unban`,
+        `/api/community-members/${communityId}/members/${userId}/unban`,
         { reason }
       );
     } catch (error) {
@@ -305,7 +327,7 @@ class CommunityService {
   ): Promise<void> {
     try {
       await apiClient.put(
-        `/community-members/${communityId}/members/${userId}/mute`,
+        `/api/community-members/${communityId}/members/${userId}/mute`,
         { reason, duration }
       );
     } catch (error) {
@@ -322,7 +344,7 @@ class CommunityService {
   ): Promise<void> {
     try {
       await apiClient.put(
-        `/community-members/${communityId}/moderators/${userId}/add`,
+        `/api/community-members/${communityId}/moderators/${userId}/add`,
         { permissions }
       );
     } catch (error) {
@@ -337,7 +359,7 @@ class CommunityService {
   ): Promise<void> {
     try {
       await apiClient.put(
-        `/community-members/${communityId}/moderators/${userId}/remove`
+        `/api/community-members/${communityId}/moderators/${userId}/remove`
       );
     } catch (error) {
       console.error('Error removing moderator:', error);
@@ -378,7 +400,7 @@ class CommunityService {
   ): Promise<void> {
     try {
       await apiClient.put(
-        `/community-members/${communityId}/members/${userId}/role`,
+        `/api/community-members/${communityId}/members/${userId}/role`,
         { role }
       );
     } catch (error) {
@@ -484,7 +506,7 @@ class CommunityService {
       }
 
       const response = await apiClient.put(
-        `/chat-communities/${communityId}`,
+        `/api/chat-communities/${communityId}`,
         formData,
         {
           headers: {

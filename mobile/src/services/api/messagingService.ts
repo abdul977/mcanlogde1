@@ -74,9 +74,7 @@ export interface GetConversationResponse extends ApiResponse {
 }
 
 export interface UnreadCountResponse extends ApiResponse {
-  data: {
-    count: number;
-  };
+  unreadCount: number;
 }
 
 export interface AdminUsersResponse extends ApiResponse {

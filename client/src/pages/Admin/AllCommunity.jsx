@@ -115,8 +115,11 @@ const AllCommunity = () => {
   };
 
   // Handle view community item
-  const handleView = async (id) => {
+  const handleView = async (itemOrId) => {
     try {
+      // Extract ID from item object or use directly if it's already an ID
+      const id = typeof itemOrId === 'object' ? itemOrId._id || itemOrId.id : itemOrId;
+
       const { data } = await axios.get(
         `${import.meta.env.VITE_BASE_URL}/api/community/admin/get-community-by-id/${id}`,
         {
@@ -138,13 +141,19 @@ const AllCommunity = () => {
   };
 
   // Handle edit community item
-  const handleEdit = (id) => {
+  const handleEdit = (itemOrId) => {
+    // Extract ID from item object or use directly if it's already an ID
+    const id = typeof itemOrId === 'object' ? itemOrId._id || itemOrId.id : itemOrId;
     navigate(`/admin/edit-community/${id}`);
   };
 
   // Handle delete community item
-  const handleDelete = async (id, title) => {
-    if (window.confirm(`Are you sure you want to delete "${title}"?`)) {
+  const handleDelete = async (itemOrId, title) => {
+    // Extract ID and title from item object or use directly if they're already provided
+    const id = typeof itemOrId === 'object' ? itemOrId._id || itemOrId.id : itemOrId;
+    const itemTitle = typeof itemOrId === 'object' ? itemOrId.title : title;
+
+    if (window.confirm(`Are you sure you want to delete "${itemTitle}"?`)) {
       try {
         const { data } = await axios.delete(
           `${import.meta.env.VITE_BASE_URL}/api/community/admin/delete-community/${id}`,

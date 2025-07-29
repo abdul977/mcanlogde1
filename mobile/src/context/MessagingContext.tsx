@@ -72,7 +72,7 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
     try {
       const response = await messagingService.getUnreadCount();
       if (response.success) {
-        setUnreadCount(response.data.count);
+        setUnreadCount(response.unreadCount || response.data?.count || 0);
       }
     } catch (error) {
       console.error('Error fetching unread count:', error);
