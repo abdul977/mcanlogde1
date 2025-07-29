@@ -51,7 +51,7 @@ import EditQuranClass from "./pages/Admin/EditQuranClass";
 import CreateResource from "./pages/Admin/CreateResource";
 import AllResources from "./pages/Admin/AllResources";
 import EditResource from "./pages/Admin/EditResource";
-import CreateCommunity from "./pages/Admin/CreateCommunity";
+import AdminCreateCommunity from "./pages/Admin/CreateCommunity";
 import AllCommunity from "./pages/Admin/AllCommunity";
 import EditCommunity from "./pages/Admin/EditCommunity";
 import CreateDonation from "./pages/Admin/CreateDonation";
@@ -170,7 +170,7 @@ function App() {
             <Route path="create-resource" element={<CreateResource />} />
             <Route path="resources" element={<AllResources />} />
             <Route path="edit-resource/:id" element={<EditResource />} />
-            <Route path="create-community" element={<CreateCommunity />} />
+            <Route path="create-community" element={<AdminCreateCommunity />} />
             <Route path="community" element={<AllCommunity />} />
             <Route path="edit-community/:id" element={<EditCommunity />} />
             <Route path="create-donation" element={<CreateDonation />} />

@@ -82,3 +82,7 @@ export const isAdmin = async (req, res, next) => {
     });
   }
 };
+
+// Aliases for backward compatibility
+export const requireAuth = requireSignIn;
+export const requireAdmin = isAdmin;
