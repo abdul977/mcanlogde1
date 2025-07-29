@@ -23,20 +23,26 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 
-import { COLORS, TYPOGRAPHY, SPACING, APP_CONFIG, SHADOWS } from '../../constants';
+import { COLORS, TYPOGRAPHY, SPACING, SHADOWS } from '../../constants';
 import { useAuth } from '../../context';
 import { SafeAreaScreen, BlogCard } from '../../components';
 import PrayerTimesWidget from '../../components/features/PrayerTimesWidget';
 import { BlogPost } from '../../types';
 import { blogService } from '../../services/api';
+import { HomeStackParamList } from '../../navigation/types';
+import { useEnhancedNavigation } from '../../hooks/useEnhancedNavigation';
 
 const { width: screenWidth } = Dimensions.get('window');
 
+type HomeScreenNavigationProp = StackNavigationProp<HomeStackParamList, 'Home'>;
+
 const HomeScreen: React.FC = () => {
   console.log('🏠 HomeScreen rendering...');
-  const navigation = useNavigation();
-  const { user, logout, isLoading } = useAuth();
+  const navigation = useNavigation<HomeScreenNavigationProp>();
+  const { navigateToTab } = useEnhancedNavigation();
+  const { user, logout } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [featuredBlogs, setFeaturedBlogs] = useState<BlogPost[]>([]);
   const [blogsLoading, setBlogsLoading] = useState(false);
@@ -102,7 +108,7 @@ const HomeScreen: React.FC = () => {
   // Handle blog card press
   const handleBlogPress = (blog: BlogPost) => {
     console.log('📖 Blog pressed:', blog.title);
-    navigation.navigate('BlogDetails' as never, { slug: blog.slug } as never);
+    navigation.navigate('BlogDetails', { slug: blog.slug });
   };
 
   // Get greeting based on time of day
@@ -121,7 +127,7 @@ const HomeScreen: React.FC = () => {
       subtitle: 'Find your stay',
       icon: 'bed-outline',
       color: COLORS.PRIMARY,
-      onPress: () => navigation.navigate('AccommodationsTab' as never),
+      onPress: () => navigateToTab('AccommodationsTab'),
     },
     {
       id: 'shop',
@@ -129,7 +135,7 @@ const HomeScreen: React.FC = () => {
       subtitle: 'Islamic products',
       icon: 'storefront-outline',
       color: COLORS.SUCCESS,
-      onPress: () => navigation.navigate('ShopTab' as never),
+      onPress: () => navigateToTab('ShopTab'),
     },
     {
       id: 'events',
@@ -137,7 +143,7 @@ const HomeScreen: React.FC = () => {
       subtitle: 'Join programs',
       icon: 'calendar-outline',
       color: COLORS.WARNING,
-      onPress: () => navigation.navigate('CommunityTab' as never),
+      onPress: () => navigateToTab('CommunityTab'),
     },
     {
       id: 'prayer',
@@ -145,7 +151,7 @@ const HomeScreen: React.FC = () => {
       subtitle: 'Daily schedule',
       icon: 'time-outline',
       color: COLORS.INFO,
-      onPress: () => navigation.navigate('PrayerTimes' as never),
+      onPress: () => navigation.navigate('PrayerTimes'),
     },
   ];
 
