@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUsers, FaPlus, FaSearch, FaFilter, FaMobile, FaDownload } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { UserContext } from "../context/UserContext";
+import { useAuth } from "../context/UserContext";
 
 const Communities = () => {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const [auth] = useAuth();
+  const { user } = auth;
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");

@@ -1,13 +1,14 @@
-import React, { useState, useContext } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUsers, FaImage, FaUpload, FaTimes, FaSpinner } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { UserContext } from "../context/UserContext";
+import { useAuth } from "../context/UserContext";
 
 const CreateCommunity = () => {
   const navigate = useNavigate();
-  const { user } = useContext(UserContext);
+  const [auth] = useAuth();
+  const { user } = auth;
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
