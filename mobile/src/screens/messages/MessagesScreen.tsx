@@ -11,8 +11,7 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING } from '../../constants';
-import { ConversationItem } from '../../components/messaging';
-import { LoadingSpinner, EmptyState } from '../../components/ui';
+import { ConversationItem, LoadingSpinner, EmptyState } from '../../components';
 import { messagingService, Conversation } from '../../services/api/messagingService';
 import { socketService } from '../../services/socket/socketService';
 import { useAuth } from '../../context/AuthContext';
@@ -249,8 +248,8 @@ const styles = StyleSheet.create({
   },
   loadingText: {
     marginTop: SPACING.MD,
-    fontSize: TYPOGRAPHY.FONT_SIZES.MD,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.REGULAR,
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
     color: COLORS.GRAY_600,
   },
   emptyContainer: {
@@ -264,14 +263,14 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: TYPOGRAPHY.FONT_SIZES.LG,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
     color: COLORS.ERROR,
     marginTop: SPACING.MD,
     marginBottom: SPACING.SM,
   },
   errorMessage: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.MD,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.REGULAR,
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
     color: COLORS.GRAY_600,
     textAlign: 'center',
     marginBottom: SPACING.LG,
@@ -284,8 +283,8 @@ const styles = StyleSheet.create({
   },
   retryButtonText: {
     color: COLORS.WHITE,
-    fontSize: TYPOGRAPHY.FONT_SIZES.MD,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.MEDIUM,
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
   },
   fab: {
     position: 'absolute',

@@ -149,7 +149,7 @@ const styles = StyleSheet.create({
   avatarText: {
     color: COLORS.WHITE,
     fontSize: TYPOGRAPHY.FONT_SIZES.LG,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
   },
   onlineIndicator: {
     position: 'absolute',
@@ -173,14 +173,14 @@ const styles = StyleSheet.create({
   },
   participantName: {
     flex: 1,
-    fontSize: TYPOGRAPHY.FONT_SIZES.MD,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.MEDIUM,
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
     color: COLORS.GRAY_900,
     marginRight: SPACING.SM,
   },
   timestamp: {
     fontSize: TYPOGRAPHY.FONT_SIZES.SM,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.REGULAR,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
     color: COLORS.GRAY_500,
   },
   messageRow: {
@@ -191,12 +191,12 @@ const styles = StyleSheet.create({
   lastMessage: {
     flex: 1,
     fontSize: TYPOGRAPHY.FONT_SIZES.SM,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.REGULAR,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
     color: COLORS.GRAY_600,
     marginRight: SPACING.SM,
   },
   unreadMessage: {
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
     color: COLORS.GRAY_900,
   },
   unreadBadge: {
@@ -211,7 +211,7 @@ const styles = StyleSheet.create({
   unreadCount: {
     color: COLORS.WHITE,
     fontSize: TYPOGRAPHY.FONT_SIZES.XS,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
   },
 });
 

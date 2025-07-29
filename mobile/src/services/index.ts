@@ -40,3 +40,6 @@ export * from './animation/AnimationService';
 
 // Navigation Services
 export * from './navigation/NavigationService';
+
+// Community Services
+export { communityService } from './communityService';

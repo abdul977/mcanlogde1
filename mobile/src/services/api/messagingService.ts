@@ -1,5 +1,5 @@
 import { ApiResponse } from '../../types';
-import { apiClient } from './apiClient';
+import apiClient from './apiClient';
 import { ENDPOINTS } from '../../constants';
 
 // Message types

@@ -48,15 +48,15 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: TYPOGRAPHY.FONT_SIZES.LG,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
     color: COLORS.GRAY_700,
     textAlign: 'center',
     marginTop: SPACING.LG,
     marginBottom: SPACING.SM,
   },
   subtitle: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.MD,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.REGULAR,
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
     color: COLORS.GRAY_500,
     textAlign: 'center',
     marginBottom: SPACING.LG,
@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
   },
   actionText: {
     color: COLORS.WHITE,
-    fontSize: TYPOGRAPHY.FONT_SIZES.MD,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.MEDIUM,
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
   },
 });
 

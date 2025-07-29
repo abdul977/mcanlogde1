@@ -65,7 +65,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   badgeText: {
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
     textAlign: 'center',
   },
   smallText: {

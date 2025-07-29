@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   },
   typingText: {
     fontSize: TYPOGRAPHY.FONT_SIZES.SM,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.REGULAR,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
     color: COLORS.GRAY_600,
     fontStyle: 'italic',
     marginRight: SPACING.SM,

@@ -163,6 +163,83 @@ export interface BlogPost {
   formattedPublishDate?: string;
 }
 
+// Community Types
+export interface Community {
+  _id: string;
+  name: string;
+  description: string;
+  category: 'education' | 'welfare' | 'spiritual' | 'social' | 'charity' | 'youth' | 'women' | 'general' | 'technology' | 'health';
+  creator: User;
+  admins: User[];
+  moderators: User[];
+  members?: CommunityMember[];
+  memberCount: number;
+  isPrivate: boolean;
+  status: 'pending' | 'approved' | 'rejected' | 'suspended' | 'archived';
+  tags: string[];
+  settings?: {
+    allowInvites: boolean;
+    requireApproval: boolean;
+    allowFileSharing: boolean;
+  };
+  lastActivity: string;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommunityMember {
+  _id: string;
+  user: User;
+  community: string;
+  role: 'admin' | 'moderator' | 'member';
+  joinedAt: string;
+  lastActive?: string;
+  permissions: string[];
+  isMuted: boolean;
+  mutedUntil?: string;
+  warnings: number;
+}
+
+export interface CommunityMessage {
+  _id: string;
+  community: string;
+  sender: User;
+  content: string;
+  messageType: 'text' | 'image' | 'file' | 'system' | 'announcement';
+  attachments?: {
+    type: 'image' | 'file';
+    url: string;
+    filename: string;
+    size: number;
+  }[];
+  replyTo?: CommunityMessage;
+  reactions?: {
+    emoji: string;
+    users: string[];
+    count: number;
+  }[];
+  isEdited: boolean;
+  isDeleted: boolean;
+  deletedBy?: User;
+  deletedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ModerationLog {
+  _id: string;
+  community: string;
+  action: 'message_deleted' | 'member_warned' | 'member_muted' | 'member_kicked' | 'member_banned' | 'message_flagged' | 'spam_detected';
+  moderator?: User;
+  targetUser?: User;
+  targetMessage?: string;
+  reason?: string;
+  status?: 'pending' | 'approved' | 'dismissed';
+  metadata?: Record<string, any>;
+  createdAt: string;
+}
+
 export interface Message {
   _id: string;
   sender: User;

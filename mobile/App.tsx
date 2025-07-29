@@ -5,8 +5,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
 
-import ErrorBoundary from './src/components/ui/ErrorBoundary';
-import { AuthProvider, CartProvider, SearchProvider, ThemeProvider, MessagingProvider, useAuth } from './src/context';
+import { ErrorBoundary } from './src/components';
+import { AuthProvider, CartProvider, SearchProvider, ThemeProvider, MessagingProvider, SocketProvider, useAuth } from './src/context';
 import { AppNavigator, navigationTheme } from './src/navigation';
 import { navigationService } from './src/services/navigation/NavigationService';
 import { accessibilityService } from './src/services/accessibility/AccessibilityService';
@@ -81,13 +81,15 @@ export default function App() {
     <ErrorBoundary>
       <ThemeProvider>
         <AuthProvider>
-          <MessagingProvider>
-            <CartProvider>
-              <SearchProvider>
-                <AppContent />
-              </SearchProvider>
-            </CartProvider>
-          </MessagingProvider>
+          <SocketProvider>
+            <MessagingProvider>
+              <CartProvider>
+                <SearchProvider>
+                  <AppContent />
+                </SearchProvider>
+              </CartProvider>
+            </MessagingProvider>
+          </SocketProvider>
         </AuthProvider>
       </ThemeProvider>
     </ErrorBoundary>

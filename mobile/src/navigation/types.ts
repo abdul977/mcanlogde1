@@ -54,11 +54,12 @@ export type ShopStackParamList = {
 
 // Community Stack
 export type CommunityStackParamList = {
-  Community: undefined;
-  Events: { category?: 'lecture' | 'quran_class' | 'community_event' };
-  EventDetails: { id: string };
-  Blog: { categoryId?: string };
-  BlogDetails: { id: string; slug: string };
+  CommunityList: undefined;
+  CommunityDetail: { communityId: string; communityName: string };
+  CommunityCreate: undefined;
+  CommunitySettings: { communityId: string };
+  CommunityMembers: { communityId: string };
+  CommunityModeration: { communityId: string };
 };
 
 // Profile Stack

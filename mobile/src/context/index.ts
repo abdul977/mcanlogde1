@@ -15,8 +15,8 @@ export { ThemeProvider, useTheme } from './ThemeContext';
 // Messaging Context
 export { MessagingProvider, useMessaging } from './MessagingContext';
 
-// Socket Context (will be implemented later)
-// export { SocketProvider, useSocket } from './SocketContext';
+// Socket Context
+export { SocketProvider, useSocket } from './SocketContext';
 
 // Settings Context (will be implemented later)
 // export { SettingsProvider, useSettings } from './SettingsContext';

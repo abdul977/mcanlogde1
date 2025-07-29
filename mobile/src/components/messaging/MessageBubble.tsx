@@ -162,9 +162,9 @@ const styles = StyleSheet.create({
     borderColor: COLORS.GRAY_200,
   },
   messageText: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.MD,
-    lineHeight: TYPOGRAPHY.FONT_SIZES.MD * 1.4,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.REGULAR,
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    lineHeight: TYPOGRAPHY.FONT_SIZES.BASE * 1.4,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
   },
   sentText: {
     color: COLORS.WHITE,
@@ -180,7 +180,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: TYPOGRAPHY.FONT_SIZES.XS,
-    fontFamily: TYPOGRAPHY.FONT_FAMILY.REGULAR,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
   },
   sentTimestamp: {
     color: COLORS.WHITE,

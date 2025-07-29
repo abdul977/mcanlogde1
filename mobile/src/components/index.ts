@@ -16,6 +16,9 @@ export { AnimatedButton } from './ui/AnimatedButton';
 export { default as SafeAreaWrapper, SafeAreaScreen, SafeAreaHeader, SafeAreaContent } from './ui/SafeAreaWrapper';
 export { default as Icon } from './ui/Icon';
 export * from './ui/Icon';
+export { default as Header } from './ui/Header';
+export { default as Avatar } from './ui/Avatar';
+export { default as ErrorBoundary } from './ui/ErrorBoundary';
 
 // Layout Components
 // export { default as Screen } from './layout/Screen';
@@ -36,6 +39,9 @@ export { default as PrayerTimesWidget } from './features/PrayerTimesWidget';
 export { default as BlogCard } from './features/BlogCard';
 // export { default as BookingForm } from './features/BookingForm';
 // export { default as CartItem } from './features/CartItem';
+
+// Community Components
+export { default as CommunityCard } from './community/CommunityCard';
 
 // Messaging Components
 export * from './messaging';

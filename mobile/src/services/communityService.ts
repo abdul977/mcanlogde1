@@ -1,5 +1,15 @@
-import { apiClient } from './apiClient';
-import type { Community, CommunityMessage, CreateCommunityData } from '../types';
+import apiClient from './api/apiClient';
+import type { Community, CommunityMessage } from '../types';
+
+export interface CreateCommunityData {
+  name: string;
+  description: string;
+  category: string;
+  tags?: string[];
+  isPrivate?: boolean;
+  avatar?: any;
+  banner?: any;
+}
 
 export interface CommunityFilters {
   category?: string;
@@ -28,7 +38,7 @@ class CommunityService {
       if (filters.page) params.append('page', filters.page.toString());
       if (filters.limit) params.append('limit', filters.limit.toString());
 
-      const response = await apiClient.get(`/chat-communities?${params.toString()}`);
+      const response = await apiClient.get(`/api/chat-communities?${params.toString()}`);
       return response.data.communities;
     } catch (error) {
       console.error('Error fetching communities:', error);
@@ -39,7 +49,7 @@ class CommunityService {
   // Get user's communities
   async getUserCommunities(): Promise<Community[]> {
     try {
-      const response = await apiClient.get('/chat-communities/user/my-communities');
+      const response = await apiClient.get('/api/chat-communities/user/my-communities');
       return response.data.communities.map((item: any) => item.community);
     } catch (error) {
       console.error('Error fetching user communities:', error);
@@ -50,7 +60,7 @@ class CommunityService {
   // Get single community by ID
   async getCommunity(communityId: string): Promise<Community> {
     try {
-      const response = await apiClient.get(`/chat-communities/${communityId}`);
+      const response = await apiClient.get(`/api/chat-communities/${communityId}`);
       return response.data.community;
     } catch (error) {
       console.error('Error fetching community:', error);
@@ -83,7 +93,7 @@ class CommunityService {
         formData.append('banner', data.banner as any);
       }
 
-      const response = await apiClient.post('/chat-communities/create', formData, {
+      const response = await apiClient.post('/api/chat-communities/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -99,7 +109,7 @@ class CommunityService {
   // Join community
   async joinCommunity(communityId: string): Promise<void> {
     try {
-      await apiClient.post(`/community-members/${communityId}/join`);
+      await apiClient.post(`/api/community-members/${communityId}/join`);
     } catch (error) {
       console.error('Error joining community:', error);
       throw error;
@@ -109,7 +119,7 @@ class CommunityService {
   // Leave community
   async leaveCommunity(communityId: string): Promise<void> {
     try {
-      await apiClient.post(`/community-members/${communityId}/leave`);
+      await apiClient.post(`/api/community-members/${communityId}/leave`);
     } catch (error) {
       console.error('Error leaving community:', error);
       throw error;
@@ -130,7 +140,7 @@ class CommunityService {
       if (filters.after) params.append('after', filters.after);
 
       const response = await apiClient.get(
-        `/community-messages/${communityId}/messages?${params.toString()}`
+        `/api/community-messages/${communityId}/messages?${params.toString()}`
       );
       return response.data.messages;
     } catch (error) {
@@ -169,7 +179,7 @@ class CommunityService {
       }
 
       const response = await apiClient.post(
-        `/community-messages/${communityId}/send`,
+        `/api/community-messages/${communityId}/send`,
         formData,
         {
           headers: {
@@ -188,7 +198,7 @@ class CommunityService {
   // Delete message
   async deleteMessage(messageId: string, reason?: string): Promise<void> {
     try {
-      await apiClient.delete(`/community-messages/message/${messageId}`, {
+      await apiClient.delete(`/api/community-messages/message/${messageId}`, {
         data: { reason: reason || 'Message deleted' }
       });
     } catch (error) {
@@ -200,7 +210,7 @@ class CommunityService {
   // Pin/Unpin message
   async togglePinMessage(messageId: string, pin: boolean = true): Promise<void> {
     try {
-      await apiClient.put(`/community-messages/message/${messageId}/pin`, { pin });
+      await apiClient.put(`/api/community-messages/message/${messageId}/pin`, { pin });
     } catch (error) {
       console.error('Error toggling pin message:', error);
       throw error;
@@ -228,7 +238,7 @@ class CommunityService {
       if (filters.search) params.append('search', filters.search);
 
       const response = await apiClient.get(
-        `/community-members/${communityId}/members?${params.toString()}`
+        `/api/community-members/${communityId}/members?${params.toString()}`
       );
       return response.data.members;
     } catch (error) {
@@ -245,7 +255,7 @@ class CommunityService {
   ): Promise<void> {
     try {
       await apiClient.put(
-        `/community-members/${communityId}/members/${userId}/kick`,
+        `/api/community-members/${communityId}/members/${userId}/kick`,
         { reason }
       );
     } catch (error) {
@@ -322,7 +332,7 @@ class CommunityService {
   }
 
   async removeModerator(
-    communityId: string, 
+    communityId: string,
     userId: string
   ): Promise<void> {
     try {
@@ -331,6 +341,116 @@ class CommunityService {
       );
     } catch (error) {
       console.error('Error removing moderator:', error);
+      throw error;
+    }
+  }
+
+  // Additional methods for the new screens
+  async getCommunityById(communityId: string): Promise<Community> {
+    return this.getCommunity(communityId);
+  }
+
+  async updateCommunitySettings(
+    communityId: string,
+    settings: Record<string, any>
+  ): Promise<void> {
+    try {
+      await apiClient.put(`/api/chat-communities/${communityId}/settings`, settings);
+    } catch (error) {
+      console.error('Error updating community settings:', error);
+      throw error;
+    }
+  }
+
+  async deleteCommunity(communityId: string): Promise<void> {
+    try {
+      await apiClient.delete(`/api/chat-communities/${communityId}`);
+    } catch (error) {
+      console.error('Error deleting community:', error);
+      throw error;
+    }
+  }
+
+  async updateMemberRole(
+    communityId: string,
+    userId: string,
+    role: string
+  ): Promise<void> {
+    try {
+      await apiClient.put(
+        `/community-members/${communityId}/members/${userId}/role`,
+        { role }
+      );
+    } catch (error) {
+      console.error('Error updating member role:', error);
+      throw error;
+    }
+  }
+
+  async removeMember(
+    communityId: string,
+    userId: string
+  ): Promise<void> {
+    try {
+      await apiClient.delete(`/api/community-members/${communityId}/members/${userId}`);
+    } catch (error) {
+      console.error('Error removing member:', error);
+      throw error;
+    }
+  }
+
+  async getModerationLogs(communityId: string): Promise<any[]> {
+    try {
+      const response = await apiClient.get(`/api/chat-communities/${communityId}/moderation-logs`);
+      return response.data.logs || [];
+    } catch (error) {
+      console.error('Error fetching moderation logs:', error);
+      throw error;
+    }
+  }
+
+  async getPendingReports(communityId: string): Promise<any[]> {
+    try {
+      const response = await apiClient.get(`/api/chat-communities/${communityId}/reports?status=pending`);
+      return response.data.reports || [];
+    } catch (error) {
+      console.error('Error fetching pending reports:', error);
+      throw error;
+    }
+  }
+
+  async handleReport(reportId: string, action: 'approve' | 'dismiss'): Promise<void> {
+    try {
+      await apiClient.put(`/api/chat-communities/reports/${reportId}/${action}`);
+    } catch (error) {
+      console.error('Error handling report:', error);
+      throw error;
+    }
+  }
+
+  async clearChatHistory(communityId: string): Promise<void> {
+    try {
+      await apiClient.delete(`/api/community-messages/${communityId}/clear`);
+    } catch (error) {
+      console.error('Error clearing chat history:', error);
+      throw error;
+    }
+  }
+
+  async muteAllMembers(communityId: string, duration: number): Promise<void> {
+    try {
+      await apiClient.put(`/api/community-members/${communityId}/mute-all`, { duration });
+    } catch (error) {
+      console.error('Error muting all members:', error);
+      throw error;
+    }
+  }
+
+  async lockCommunity(communityId: string): Promise<void> {
+    try {
+      await apiClient.put(`/api/chat-communities/${communityId}/lock`);
+    } catch (error) {
+      console.error('Error locking community:', error);
       throw error;
     }
   }
