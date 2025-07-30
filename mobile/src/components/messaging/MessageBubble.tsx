@@ -130,36 +130,40 @@ const styles = StyleSheet.create({
   container: {
     marginVertical: SPACING.XS,
     paddingHorizontal: SPACING.MD,
+    width: '100%',
   },
   sentContainer: {
     alignItems: 'flex-end',
+    alignSelf: 'flex-end',
+    marginLeft: '20%', // Ensure sent messages don't take full width
   },
   receivedContainer: {
     alignItems: 'flex-start',
+    alignSelf: 'flex-start',
+    marginRight: '20%', // Ensure received messages don't take full width
   },
   bubble: {
-    maxWidth: '80%',
+    maxWidth: '100%',
+    minWidth: 60,
     paddingHorizontal: SPACING.MD,
     paddingVertical: SPACING.SM,
     borderRadius: 18,
-    elevation: 1,
+    elevation: 2,
     shadowColor: COLORS.BLACK,
     shadowOffset: {
       width: 0,
       height: 1,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOpacity: 0.15,
+    shadowRadius: 3,
   },
   sentBubble: {
-    backgroundColor: COLORS.PRIMARY,
+    backgroundColor: '#007AFF', // WhatsApp-like blue for sent messages
     borderBottomRightRadius: 4,
   },
   receivedBubble: {
-    backgroundColor: COLORS.WHITE,
+    backgroundColor: '#F0F0F0', // Light gray for received messages
     borderBottomLeftRadius: 4,
-    borderWidth: 1,
-    borderColor: COLORS.GRAY_200,
   },
   messageText: {
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
@@ -170,7 +174,7 @@ const styles = StyleSheet.create({
     color: COLORS.WHITE,
   },
   receivedText: {
-    color: COLORS.GRAY_900,
+    color: '#000000', // Pure black for better readability on light gray
   },
   timestampContainer: {
     flexDirection: 'row',
@@ -179,15 +183,15 @@ const styles = StyleSheet.create({
     marginTop: SPACING.XS,
   },
   timestamp: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.XS,
+    fontSize: 11, // Smaller timestamp like WhatsApp
     fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
   },
   sentTimestamp: {
     color: COLORS.WHITE,
-    opacity: 0.8,
+    opacity: 0.9,
   },
   receivedTimestamp: {
-    color: COLORS.GRAY_500,
+    color: COLORS.GRAY_600,
   },
   statusContainer: {
     marginLeft: SPACING.XS,

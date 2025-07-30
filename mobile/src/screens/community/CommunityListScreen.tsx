@@ -101,9 +101,7 @@ const CommunityListScreen: React.FC = () => {
     }
   };
 
-  const handleCreateCommunity = () => {
-    navigation.navigate('CommunityCreate');
-  };
+
 
   const renderCommunityItem = ({ item }: { item: Community }) => (
     <CommunityCard
@@ -149,11 +147,8 @@ const CommunityListScreen: React.FC = () => {
     <SafeAreaView style={styles.container}>
       <Header
         title="Communities"
-        rightComponent={
-          <TouchableOpacity onPress={handleCreateCommunity}>
-            <Ionicons name="add" size={24} color={COLORS.PRIMARY} />
-          </TouchableOpacity>
-        }
+        backgroundColor={COLORS.PRIMARY}
+        titleColor={COLORS.WHITE}
       />
 
       {/* Tab Selector */}

@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { COLORS, TYPOGRAPHY } from '../constants';
@@ -98,7 +98,6 @@ const MainNavigator: React.FC = () => {
           tabBarIcon: ({ color, size }) => (
             <ProfileIcon size={size} color={color} badgeCount={unreadCount} />
           ),
-          tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
         }}
       />
     </MainTab.Navigator>

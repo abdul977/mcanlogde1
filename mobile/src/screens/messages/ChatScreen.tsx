@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING } from '../../constants';
 import { MessageBubble, TypingIndicator, MessageInput, LoadingSpinner } from '../../components';
@@ -31,6 +32,7 @@ interface ChatScreenProps {
 const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   const { userId, userName } = route.params;
   const { user, token } = useAuth();
+  const insets = useSafeAreaInsets();
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -62,16 +64,21 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
     try {
       setError(null);
       const response = await messagingService.getConversation(userId);
-      
+
       if (response.success) {
         setMessages(response.data.messages);
-        setThreadId(response.data.threadId);
-        
-        // Join the thread for real-time updates
-        if (response.data.threadId) {
-          socketService.joinThread(response.data.threadId);
+
+        // Generate threadId from user IDs (match server logic)
+        const currentUserId = user?._id;
+        if (currentUserId) {
+          const sortedIds = [currentUserId, userId].sort();
+          const generatedThreadId = `thread_${sortedIds[0]}_${sortedIds[1]}`;
+          setThreadId(generatedThreadId);
+
+          // Join the thread for real-time updates
+          socketService.joinThread(generatedThreadId);
         }
-        
+
         // Mark messages as read
         await messagingService.markMessagesAsRead(userId);
       } else {
@@ -83,7 +90,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
     } finally {
       setLoading(false);
     }
-  }, [userId]);
+  }, [userId, user?._id]);
 
   // Initialize conversation
   useEffect(() => {
@@ -102,25 +109,43 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   // Listen for real-time messages
   useEffect(() => {
     const unsubscribeNewMessage = socketService.onNewMessage((message) => {
+      console.log('📨 New message received via socket:', message);
       setMessages(prevMessages => {
         // Check if message already exists to prevent duplicates
-        const messageExists = prevMessages.some(msg => msg._id === message._id);
+        const messageExists = prevMessages.some(msg =>
+          msg._id === message._id ||
+          (msg.content === message.content &&
+           msg.sender._id === message.sender._id &&
+           Math.abs(new Date(msg.createdAt).getTime() - new Date(message.createdAt).getTime()) < 5000)
+        );
+
         if (messageExists) {
+          console.log('⚠️ Duplicate message detected, skipping socket message');
           return prevMessages;
         }
-        
+
+        // Remove any optimistic messages that might match this real message
+        const withoutOptimistic = prevMessages.filter(msg =>
+          !(msg.__isOptimistic &&
+            msg.content === message.content &&
+            msg.sender._id === message.sender._id)
+        );
+
         // Add new message and sort by creation time
-        const updatedMessages = [...prevMessages, message].sort(
+        const updatedMessages = [...withoutOptimistic, message].sort(
           (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
         );
-        
+
+        console.log('✅ Socket message added to list, total messages:', updatedMessages.length);
         return updatedMessages;
       });
 
-      // Auto-scroll to bottom for new messages
-      setTimeout(() => {
-        flatListRef.current?.scrollToEnd({ animated: true });
-      }, 100);
+      // Auto-scroll to bottom for new messages (only for messages from others)
+      if (message.sender._id !== user?._id) {
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({ animated: true });
+        }, 100);
+      }
     });
 
     const unsubscribeTyping = socketService.onUserTyping((data) => {
@@ -156,11 +181,89 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   const handleSendMessage = async (messageText: string) => {
     try {
       setSending(true);
-      
+
+      // Create optimistic message for immediate display
+      const optimisticMessage = {
+        _id: `temp_${Date.now()}`, // Temporary ID
+        content: messageText,
+        sender: {
+          _id: user?._id || '',
+          name: user?.name || '',
+          email: user?.email || '',
+        },
+        recipient: {
+          _id: userId,
+          name: userName,
+          email: '',
+        },
+        createdAt: new Date().toISOString(),
+        isRead: false,
+        messageType: 'text' as const,
+        priority: 'normal' as const,
+        attachments: [],
+        threadId: threadId || '',
+        __isOptimistic: true, // Flag to identify optimistic messages
+      };
+
+      // Add optimistic message immediately
+      setMessages(prevMessages => {
+        const updatedMessages = [...prevMessages, optimisticMessage].sort(
+          (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
+        return updatedMessages;
+      });
+
+      // Auto-scroll to bottom immediately
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 50);
+
       const response = await messagingService.sendMessage({
         recipientId: userId,
         content: messageText,
       });
+
+      if (response.success) {
+        // Replace optimistic message with real message from server
+        setMessages(prevMessages => {
+          const withoutOptimistic = prevMessages.filter(msg => msg._id !== optimisticMessage._id);
+          const updatedMessages = [...withoutOptimistic, response.data].sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+          return updatedMessages;
+        });
+
+        console.log('✅ Message sent successfully, replaced optimistic message');
+      } else {
+        // Remove optimistic message on failure
+        setMessages(prevMessages =>
+          prevMessages.filter(msg => msg._id !== optimisticMessage._id)
+        );
+        Alert.alert('Error', response.message || 'Failed to send message');
+      }
+    } catch (error: any) {
+      console.error('Error sending message:', error);
+
+      // Remove optimistic message on error
+      setMessages(prevMessages =>
+        prevMessages.filter(msg => !msg.__isOptimistic)
+      );
+
+      Alert.alert('Error', 'Failed to send message. Please try again.');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleSendImage = async (imageUri: string, caption?: string) => {
+    try {
+      setSending(true);
+
+      const response = await messagingService.sendImageMessage(
+        userId,
+        imageUri,
+        caption
+      );
 
       if (response.success) {
         // Message will be added via socket listener
@@ -169,11 +272,11 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
           flatListRef.current?.scrollToEnd({ animated: true });
         }, 100);
       } else {
-        Alert.alert('Error', response.message || 'Failed to send message');
+        Alert.alert('Error', response.message || 'Failed to send image');
       }
     } catch (error: any) {
-      console.error('Error sending message:', error);
-      Alert.alert('Error', 'Failed to send message. Please try again.');
+      console.error('Error sending image:', error);
+      Alert.alert('Error', 'Failed to send image. Please try again.');
     } finally {
       setSending(false);
     }
@@ -194,7 +297,7 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
   const renderMessage = ({ item, index }: { item: Message; index: number }) => {
     const isCurrentUser = item.sender._id === user?._id;
     const previousMessage = index > 0 ? messages[index - 1] : null;
-    const showTimestamp = !previousMessage || 
+    const showTimestamp = !previousMessage ||
       new Date(item.createdAt).getTime() - new Date(previousMessage.createdAt).getTime() > 300000; // 5 minutes
 
     return (
@@ -241,11 +344,16 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
     return <View style={styles.container}>{renderError()}</View>;
   }
 
+  // Calculate tab bar height and bottom spacing
+  const tabBarHeight = 60; // Standard tab bar height
+  const bottomSafeArea = Math.max(insets.bottom, 0);
+  const totalBottomSpace = tabBarHeight + bottomSafeArea;
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 140 : 20}
     >
       <FlatList
         ref={flatListRef}
@@ -262,16 +370,20 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
           flatListRef.current?.scrollToEnd({ animated: false });
         }}
         ListFooterComponent={renderTypingIndicator}
-        contentContainerStyle={styles.messagesList}
+        contentContainerStyle={[styles.messagesList, { paddingBottom: totalBottomSpace + 100 }]}
+        style={styles.messagesContainer}
       />
 
-      <MessageInput
-        onSendMessage={handleSendMessage}
-        onTypingStart={handleTypingStart}
-        onTypingStop={handleTypingStop}
-        sending={sending}
-        disabled={!socketService.getConnectionStatus()}
-      />
+      <View style={[styles.inputWrapper, { bottom: totalBottomSpace }]}>
+        <MessageInput
+          onSendMessage={handleSendMessage}
+          onSendImage={handleSendImage}
+          onTypingStart={handleTypingStart}
+          onTypingStop={handleTypingStop}
+          sending={sending}
+          disabled={false}
+        />
+      </View>
     </KeyboardAvoidingView>
   );
 };
@@ -279,13 +391,22 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.GRAY_50,
+    backgroundColor: '#E5DDD5', // WhatsApp-like background color
+  },
+  messagesContainer: {
+    flex: 1,
+  },
+  inputWrapper: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    zIndex: 1000,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: COLORS.GRAY_50,
+    backgroundColor: '#E5DDD5',
   },
   loadingText: {
     marginTop: SPACING.MD,
@@ -295,6 +416,8 @@ const styles = StyleSheet.create({
   },
   messagesList: {
     paddingVertical: SPACING.SM,
+    paddingBottom: SPACING.MD,
+    flexGrow: 1,
   },
   errorContainer: {
     flex: 1,

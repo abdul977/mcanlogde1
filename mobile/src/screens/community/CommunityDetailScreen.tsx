@@ -289,7 +289,7 @@ const CommunityDetailScreen: React.FC = () => {
   const renderMessage = ({ item, index }: { item: CommunityMessage; index: number }) => {
     const isOwnMessage = item.sender._id === user?._id;
     const showSender = !isOwnMessage && (index === 0 || messages[index - 1].sender._id !== item.sender._id);
-    
+
     return (
       <MessageBubble
         message={item}

@@ -63,6 +63,7 @@ export const loginController = async (req, res) => {
       token,
       user: {
         id: user._id,
+        _id: user._id, // Add _id field for mobile app compatibility
         name: user.name,
         email: user.email,
         role: user.role,
@@ -96,6 +97,7 @@ export const getUserInfo = (req, res) => {
         success: true,
         user: {
           id: user._id,
+          _id: user._id, // Add _id field for mobile app compatibility
           name: user.name,
           email: user.email,
           role: user.role,
@@ -135,6 +137,7 @@ export const getUserProfile = async (req, res) => {
       success: true,
       user: {
         id: user._id,
+        _id: user._id, // Add _id field for mobile app compatibility
         name: user.name,
         email: user.email,
         role: user.role,

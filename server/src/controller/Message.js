@@ -7,6 +7,11 @@ import supabaseStorage from "../services/supabaseStorage.js";
 // Send a new message
 export const sendMessageController = async (req, res) => {
   try {
+    console.log('📨 Message send request received');
+    console.log('📤 Request body:', req.body);
+    console.log('📁 Request files:', req.files);
+    console.log('📋 Content-Type:', req.headers['content-type']);
+
     const { recipientId, content, priority = 'normal', messageType = 'text', caption } = req.body;
     const senderId = req.user._id || req.user.id;
 
@@ -41,7 +46,10 @@ export const sendMessageController = async (req, res) => {
     let attachments = [];
     let messageContent = content;
 
+    console.log('🖼️ Checking for image upload:', { messageType, hasFiles: !!req.files, hasImage: !!req.files?.image });
+
     if (messageType === 'image' && req.files?.image) {
+      console.log('📁 Image file details:', req.files.image);
       try {
         const result = await supabaseStorage.uploadFromTempFile(
           req.files.image,
@@ -69,6 +77,12 @@ export const sendMessageController = async (req, res) => {
           message: "Error uploading image"
         });
       }
+    } else if (messageType === 'image' && !req.files?.image) {
+      console.error('❌ Image message requested but no image file received');
+      return res.status(400).json({
+        success: false,
+        message: "No image file received. Please select an image to send."
+      });
     }
 
     // Create message

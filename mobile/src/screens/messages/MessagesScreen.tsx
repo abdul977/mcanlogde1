@@ -9,9 +9,10 @@ import {
   Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, TYPOGRAPHY, SPACING } from '../../constants';
-import { ConversationItem, LoadingSpinner, EmptyState } from '../../components';
+import { ConversationItem, LoadingSpinner, EmptyState, Header } from '../../components';
 import { messagingService, Conversation } from '../../services/api/messagingService';
 import { socketService } from '../../services/socket/socketService';
 import { useAuth } from '../../context/AuthContext';
@@ -24,14 +25,33 @@ interface MessagesScreenProps {
   navigation: MessagesScreenNavigationProp;
 }
 
+interface AdminUser {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+  unreadCount: number;
+  createdAt: string;
+}
+
 const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
   const { user, token } = useAuth();
+  const insets = useSafeAreaInsets();
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load conversations
+  // Check if current user is admin
+  const isAdmin = user?.role === 'admin';
+
+  // Debug state changes
+  useEffect(() => {
+    console.log('📊 Admin users state updated:', adminUsers.length, adminUsers);
+  }, [adminUsers]);
+
+  // Load conversations for regular users
   const loadConversations = useCallback(async () => {
     try {
       setError(null);
@@ -55,16 +75,63 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
     }
   }, []);
 
-  // Initialize socket connection and load conversations
+  // Load all users for admin
+  const loadAdminUsers = useCallback(async () => {
+    try {
+      setError(null);
+      console.log('🔄 Loading admin users...');
+
+      const response = await messagingService.getAllUsersForMessaging();
+      console.log('📥 Admin users response:', response);
+
+      if (response.success) {
+        // Map the response data to match AdminUser interface
+        const users = (response.data || []).map((user: any) => ({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          unreadCount: user.unreadCount || 0,
+          createdAt: user.createdAt || new Date().toISOString(),
+        }));
+
+        console.log('👥 Mapped admin users:', users);
+        console.log('📊 Admin users count:', users.length);
+
+        setAdminUsers(users);
+      } else {
+        console.error('❌ Failed to load admin users:', response.message);
+        setError(response.message || 'Failed to load users');
+        setAdminUsers([]);
+      }
+    } catch (err: any) {
+      console.error('❌ Error loading admin users:', err);
+      setError(err.message || 'Failed to load users');
+      setAdminUsers([]);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+
+
+  // Initialize socket connection and load data
   useEffect(() => {
     const initializeMessaging = async () => {
       if (token) {
         try {
+          console.log('🚀 Initializing messaging for:', isAdmin ? 'admin' : 'user');
+
           // Connect to socket
           await socketService.connect(token);
-          
-          // Load conversations
-          await loadConversations();
+
+          // Load data based on user role
+          if (isAdmin) {
+            await loadAdminUsers();
+          } else {
+            await loadConversations();
+          }
         } catch (error) {
           console.error('Error initializing messaging:', error);
           setError('Failed to connect to messaging service');
@@ -79,7 +146,7 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
     return () => {
       socketService.removeAllListeners();
     };
-  }, [token, loadConversations]);
+  }, [token, isAdmin]); // Simplified dependencies
 
   // Listen for new messages to update conversation list
   useEffect(() => {
@@ -113,18 +180,26 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
     return unsubscribeNewMessage;
   }, [user?._id]);
 
-  // Refresh conversations when screen comes into focus
+  // Refresh data when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       if (!loading) {
-        loadConversations();
+        if (isAdmin) {
+          loadAdminUsers();
+        } else {
+          loadConversations();
+        }
       }
-    }, [loadConversations, loading])
+    }, [loading, isAdmin])
   );
 
   const handleRefresh = () => {
     setRefreshing(true);
-    loadConversations();
+    if (isAdmin) {
+      loadAdminUsers();
+    } else {
+      loadConversations();
+    }
   };
 
   const handleConversationPress = (conversation: Conversation) => {
@@ -138,6 +213,13 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
         userName: otherParticipant.name,
       });
     }
+  };
+
+  const handleAdminUserPress = (adminUser: AdminUser) => {
+    navigation.navigate('Chat', {
+      userId: adminUser._id,
+      userName: adminUser.name,
+    });
   };
 
   const handleNewMessage = () => {
@@ -178,15 +260,55 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
     />
   );
 
-  const renderEmptyState = () => (
-    <EmptyState
-      icon="chatbubbles-outline"
-      title="No Conversations"
-      subtitle="Start a conversation with an administrator"
-      actionText="New Message"
-      onActionPress={handleNewMessage}
-    />
+  const renderAdminUserItem = ({ item }: { item: AdminUser }) => (
+    <TouchableOpacity
+      style={styles.adminUserItem}
+      onPress={() => handleAdminUserPress(item)}
+    >
+      <View style={styles.adminUserAvatar}>
+        <Ionicons name="person" size={24} color={COLORS.WHITE} />
+      </View>
+      <View style={styles.adminUserInfo}>
+        <Text style={styles.adminUserName}>{item.name}</Text>
+        <Text style={styles.adminUserEmail}>{item.email}</Text>
+        <Text style={styles.adminUserRole}>
+          {item.role === 'admin' ? 'Administrator' : 'User'}
+        </Text>
+      </View>
+      {item.unreadCount > 0 && (
+        <View style={styles.unreadBadge}>
+          <Text style={styles.unreadText}>
+            {item.unreadCount > 99 ? '99+' : item.unreadCount}
+          </Text>
+        </View>
+      )}
+      <Ionicons name="chevron-forward" size={20} color={COLORS.GRAY_400} />
+    </TouchableOpacity>
   );
+
+  const renderEmptyState = () => {
+    if (isAdmin) {
+      return (
+        <EmptyState
+          icon="people-outline"
+          title="No Users Found"
+          subtitle="No users are available for messaging"
+          actionText="Refresh"
+          onActionPress={handleRefresh}
+        />
+      );
+    }
+
+    return (
+      <EmptyState
+        icon="chatbubbles-outline"
+        title="No Conversations"
+        subtitle="Start a conversation with an administrator"
+        actionText="New Message"
+        onActionPress={handleNewMessage}
+      />
+    );
+  };
 
   const renderError = () => (
     <View style={styles.errorContainer}>
@@ -201,40 +323,107 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
 
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        <LoadingSpinner size="large" />
-        <Text style={styles.loadingText}>Loading conversations...</Text>
+      <View style={styles.container}>
+        <Header
+          title="Messages"
+          backgroundColor={COLORS.PRIMARY}
+          titleColor={COLORS.WHITE}
+        />
+        <View style={styles.loadingContainer}>
+          <LoadingSpinner size="large" />
+          <Text style={styles.loadingText}>Loading conversations...</Text>
+        </View>
       </View>
     );
   }
 
-  if (error && conversations.length === 0) {
-    return <View style={styles.container}>{renderError()}</View>;
+  if (error && conversations.length === 0 && adminUsers.length === 0) {
+    return (
+      <View style={styles.container}>
+        <Header
+          title={isAdmin ? "User Messages" : "Messages"}
+          backgroundColor={COLORS.PRIMARY}
+          titleColor={COLORS.WHITE}
+        />
+        {renderError()}
+      </View>
+    );
   }
+
+  // Calculate bottom padding to account for tab bar
+  const tabBarHeight = 60 + Math.max(insets.bottom - 8, 0);
+  const bottomPadding = tabBarHeight + SPACING.MD;
+
+  // Debug logging for render
+  console.log('🎨 Rendering MessagesScreen:', {
+    isAdmin,
+    adminUsersCount: adminUsers.length,
+    conversationsCount: conversations.length,
+    loading,
+    error
+  });
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={conversations}
-        renderItem={renderConversationItem}
-        keyExtractor={(item) => item._id || item.threadId || Math.random().toString()}
-        refreshControl={
-          <RefreshControl
-            refreshing={refreshing}
-            onRefresh={handleRefresh}
-            colors={[COLORS.PRIMARY]}
-            tintColor={COLORS.PRIMARY}
-          />
-        }
-        ListEmptyComponent={renderEmptyState}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={conversations.length === 0 ? styles.emptyContainer : undefined}
+      <Header
+        title={isAdmin ? "User Messages" : "Messages"}
+        backgroundColor={COLORS.PRIMARY}
+        titleColor={COLORS.WHITE}
       />
 
-      {/* Floating Action Button */}
-      <TouchableOpacity style={styles.fab} onPress={handleNewMessage}>
-        <Ionicons name="add" size={24} color={COLORS.WHITE} />
-      </TouchableOpacity>
+      {isAdmin ? (
+        <FlatList
+          data={adminUsers}
+          renderItem={renderAdminUserItem}
+          keyExtractor={(item) => item._id}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={[COLORS.PRIMARY]}
+              tintColor={COLORS.PRIMARY}
+            />
+          }
+          ListEmptyComponent={renderEmptyState}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={
+            adminUsers.length === 0
+              ? [styles.emptyContainer, { paddingBottom: bottomPadding }]
+              : { paddingBottom: bottomPadding }
+          }
+        />
+      ) : (
+        <FlatList
+          data={conversations}
+          renderItem={renderConversationItem}
+          keyExtractor={(item) => item._id || item.threadId || Math.random().toString()}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={handleRefresh}
+              colors={[COLORS.PRIMARY]}
+              tintColor={COLORS.PRIMARY}
+            />
+          }
+          ListEmptyComponent={renderEmptyState}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={
+            conversations.length === 0
+              ? [styles.emptyContainer, { paddingBottom: bottomPadding }]
+              : { paddingBottom: bottomPadding }
+          }
+        />
+      )}
+
+      {/* Floating Action Button - only show for regular users */}
+      {!isAdmin && (
+        <TouchableOpacity
+          style={[styles.fab, { bottom: tabBarHeight + SPACING.MD }]}
+          onPress={handleNewMessage}
+        >
+          <Ionicons name="add" size={24} color={COLORS.WHITE} />
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -292,7 +481,6 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: SPACING.XL,
     right: SPACING.XL,
     width: 56,
     height: 56,
@@ -308,6 +496,61 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.3,
     shadowRadius: 4,
+  },
+  // Admin user item styles
+  adminUserItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.MD,
+    paddingVertical: SPACING.MD,
+    backgroundColor: COLORS.WHITE,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.GRAY_200,
+  },
+  adminUserAvatar: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.PRIMARY,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.MD,
+  },
+  adminUserInfo: {
+    flex: 1,
+  },
+  adminUserName: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
+    color: COLORS.GRAY_900,
+    marginBottom: 2,
+  },
+  adminUserEmail: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL as any,
+    color: COLORS.GRAY_600,
+    marginBottom: 2,
+  },
+  adminUserRole: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.XS,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL as any,
+    color: COLORS.PRIMARY,
+    textTransform: 'uppercase',
+  },
+  unreadBadge: {
+    backgroundColor: COLORS.ERROR,
+    borderRadius: 12,
+    minWidth: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: SPACING.SM,
+    paddingHorizontal: 6,
+  },
+  unreadText: {
+    color: COLORS.WHITE,
+    fontSize: TYPOGRAPHY.FONT_SIZES.XS,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.BOLD as any,
   },
 });
 

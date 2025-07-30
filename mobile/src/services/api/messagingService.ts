@@ -28,7 +28,8 @@ export interface Message {
   }>;
   isRead: boolean;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
+  __isOptimistic?: boolean; // Flag for optimistic updates
 }
 
 export interface Conversation {
@@ -97,6 +98,8 @@ export interface AdminUsersResponse extends ApiResponse {
     name: string;
     email: string;
     role: string;
+    unreadCount?: number;
+    createdAt?: string;
   }>;
 }
 
@@ -114,6 +117,78 @@ class MessagingService {
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Send an image message with file upload
+   */
+  async sendImageMessage(
+    recipientId: string,
+    imageUri: string,
+    caption?: string
+  ): Promise<SendMessageResponse> {
+    try {
+      console.log('📤 Starting image upload:', { recipientId, imageUri, caption });
+
+      // Create FormData for file upload
+      const formData = new FormData();
+
+      // Add the image file
+      const filename = imageUri.split('/').pop() || 'image.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+      console.log('📁 File details:', { filename, type });
+
+      // React Native FormData format for file uploads
+      formData.append('image', {
+        uri: imageUri,
+        name: filename,
+        type: type,
+      } as any);
+
+      formData.append('recipientId', recipientId);
+      formData.append('messageType', 'image');
+
+      if (caption) {
+        formData.append('content', caption);
+      }
+
+      console.log('📤 Sending FormData to server...');
+
+      const response = await apiClient.post<SendMessageResponse>(
+        ENDPOINTS.SEND_MESSAGE,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          timeout: 30000, // 30 second timeout for image uploads
+        }
+      );
+
+      console.log('✅ Image upload successful:', response.data);
+      return response.data;
+    } catch (error: any) {
+      console.error('❌ Error sending image message:', error);
+      console.error('❌ Error response:', error.response?.data);
+      console.error('❌ Error status:', error.response?.status);
+
+      let errorMessage = 'Failed to send image message';
+
+      if (error.response?.data?.message) {
+        errorMessage = error.response.data.message;
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      // Return error response instead of throwing
+      return {
+        success: false,
+        message: errorMessage,
+        data: null
+      };
     }
   }
 
@@ -155,10 +230,44 @@ class MessagingService {
    */
   async getConversation(userId: string): Promise<GetConversationResponse> {
     try {
-      const response = await apiClient.get<GetConversationResponse>(
+      const response = await apiClient.get<any>(
         `${ENDPOINTS.MESSAGES}/conversation/${userId}`
       );
-      return response.data;
+
+      // Handle server response format: { success: true, messages: [...], otherUser: {...} }
+      const serverResponse = response.data;
+
+      if (serverResponse.success) {
+        return {
+          success: true,
+          message: 'Conversation retrieved successfully',
+          data: {
+            messages: serverResponse.messages || [],
+            threadId: '', // Will be generated in ChatScreen
+            participant: serverResponse.otherUser || {
+              _id: userId,
+              name: 'Unknown User',
+              email: '',
+              role: 'user'
+            }
+          }
+        };
+      } else {
+        return {
+          success: false,
+          message: serverResponse.message || 'Failed to fetch conversation',
+          data: {
+            messages: [],
+            threadId: '',
+            participant: {
+              _id: userId,
+              name: 'Unknown User',
+              email: '',
+              role: 'user'
+            }
+          }
+        };
+      }
     } catch (error) {
       console.error('Error fetching conversation:', error);
       throw error;
@@ -200,10 +309,26 @@ class MessagingService {
    */
   async getAdminUsers(): Promise<AdminUsersResponse> {
     try {
-      const response = await apiClient.get<AdminUsersResponse>(
+      const response = await apiClient.get<any>(
         `${ENDPOINTS.MESSAGES}/admins`
       );
-      return response.data;
+
+      // Handle server response format: { success: true, users: [...] }
+      const serverResponse = response.data;
+
+      if (serverResponse.success) {
+        return {
+          success: true,
+          message: 'Admin users retrieved successfully',
+          data: serverResponse.users || []
+        };
+      } else {
+        return {
+          success: false,
+          message: serverResponse.message || 'Failed to fetch admin users',
+          data: []
+        };
+      }
     } catch (error) {
       console.error('Error fetching admin users:', error);
       throw error;
@@ -215,10 +340,28 @@ class MessagingService {
    */
   async getAllUsersForMessaging(): Promise<AdminUsersResponse> {
     try {
-      const response = await apiClient.get<AdminUsersResponse>(
+      const response = await apiClient.get<any>(
         `${ENDPOINTS.MESSAGES}/admin/users`
       );
-      return response.data;
+
+      console.log('📥 Admin users API response:', response.data);
+
+      // Handle server response format: { success: true, users: [...], pagination: {...} }
+      const serverResponse = response.data;
+
+      if (serverResponse.success) {
+        return {
+          success: true,
+          message: 'Users retrieved successfully',
+          data: serverResponse.users || []
+        };
+      } else {
+        return {
+          success: false,
+          message: serverResponse.message || 'Failed to fetch users',
+          data: []
+        };
+      }
     } catch (error) {
       console.error('Error fetching all users:', error);
       throw error;

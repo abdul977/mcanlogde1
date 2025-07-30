@@ -5,14 +5,16 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
-  KeyboardAvoidingView,
   Alert,
+  ActionSheetIOS,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import * as ImagePicker from 'expo-image-picker';
 import { COLORS, TYPOGRAPHY, SPACING } from '../../constants';
 
 interface MessageInputProps {
   onSendMessage: (message: string) => void;
+  onSendImage?: (imageUri: string, caption?: string) => void;
   onTypingStart?: () => void;
   onTypingStop?: () => void;
   placeholder?: string;
@@ -22,6 +24,7 @@ interface MessageInputProps {
 
 const MessageInput: React.FC<MessageInputProps> = ({
   onSendMessage,
+  onSendImage,
   onTypingStart,
   onTypingStop,
   placeholder = 'Type a message...',
@@ -32,6 +35,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const [isTyping, setIsTyping] = useState(false);
   const inputRef = useRef<TextInput>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+
 
   const handleTextChange = (text: string) => {
     setMessage(text);
@@ -92,33 +97,123 @@ const MessageInput: React.FC<MessageInputProps> = ({
       setIsTyping(false);
       onTypingStop?.();
     }
-    
+
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
   };
 
+  const handleImagePicker = async () => {
+    try {
+      // Request permissions
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Please grant permission to access your photo library to send images.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      // Show action sheet on iOS, direct picker on Android
+      if (Platform.OS === 'ios') {
+        ActionSheetIOS.showActionSheetWithOptions(
+          {
+            options: ['Cancel', 'Take Photo', 'Choose from Library'],
+            cancelButtonIndex: 0,
+          },
+          async (buttonIndex) => {
+            if (buttonIndex === 1) {
+              await openCamera();
+            } else if (buttonIndex === 2) {
+              await openImageLibrary();
+            }
+          }
+        );
+      } else {
+        // On Android, show alert
+        Alert.alert(
+          'Select Image',
+          'Choose an option',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'Take Photo', onPress: openCamera },
+            { text: 'Choose from Library', onPress: openImageLibrary },
+          ]
+        );
+      }
+    } catch (error) {
+      console.error('Error opening image picker:', error);
+      Alert.alert('Error', 'Failed to open image picker. Please try again.');
+    }
+  };
+
+  const openCamera = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert(
+          'Permission Required',
+          'Please grant camera permission to take photos.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        onSendImage?.(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error opening camera:', error);
+      Alert.alert('Error', 'Failed to open camera. Please try again.');
+    }
+  };
+
+  const openImageLibrary = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        onSendImage?.(result.assets[0].uri);
+      }
+    } catch (error) {
+      console.error('Error opening image library:', error);
+      Alert.alert('Error', 'Failed to open image library. Please try again.');
+    }
+  };
+
   const canSend = message.trim().length > 0 && !disabled && !sending;
 
+
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <View style={styles.inputContainer}>
-        {/* Attachment button (future feature) */}
+        {/* Image attachment button */}
         <TouchableOpacity
           style={styles.attachmentButton}
-          onPress={() => {
-            // TODO: Implement attachment functionality
-            Alert.alert('Coming Soon', 'File attachments will be available soon!');
-          }}
-          disabled={disabled}
+          onPress={handleImagePicker}
+          disabled={disabled || sending}
         >
           <Ionicons
-            name="attach"
-            size={24}
-            color={disabled ? COLORS.GRAY_400 : COLORS.GRAY_600}
+            name="camera"
+            size={20}
+            color={disabled || sending ? COLORS.GRAY_400 : COLORS.GRAY_600}
           />
         </TouchableOpacity>
 
@@ -150,48 +245,58 @@ const MessageInput: React.FC<MessageInputProps> = ({
         >
           <Ionicons
             name={sending ? 'hourglass' : 'send'}
-            size={20}
-            color={canSend ? COLORS.WHITE : COLORS.GRAY_400}
+            size={18}
+            color={canSend ? COLORS.WHITE : COLORS.GRAY_500}
           />
         </TouchableOpacity>
       </View>
-    </KeyboardAvoidingView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: COLORS.WHITE,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.GRAY_200,
+    backgroundColor: 'transparent', // Remove white background
+    paddingHorizontal: SPACING.SM,
+    paddingVertical: SPACING.XS,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    paddingHorizontal: SPACING.MD,
-    paddingVertical: SPACING.SM,
-    minHeight: 60,
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 25,
+    paddingHorizontal: SPACING.SM,
+    paddingVertical: SPACING.XS,
+    marginHorizontal: SPACING.XS,
+    elevation: 2,
+    shadowColor: COLORS.BLACK,
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
   },
   attachmentButton: {
-    width: 40,
-    height: 40,
+    width: 36,
+    height: 36,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: SPACING.SM,
-    marginBottom: SPACING.XS,
+    marginRight: SPACING.XS,
   },
   textInput: {
     flex: 1,
-    backgroundColor: COLORS.GRAY_100,
-    borderRadius: 20,
-    paddingHorizontal: SPACING.MD,
+    backgroundColor: 'transparent',
+    paddingHorizontal: SPACING.SM,
     paddingVertical: SPACING.SM,
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL as any,
     color: COLORS.GRAY_900,
     maxHeight: 100,
-    marginRight: SPACING.SM,
+    minHeight: 40,
+    marginHorizontal: SPACING.XS,
     textAlignVertical: 'center',
+    borderRadius: 20,
     ...Platform.select({
       ios: {
         paddingTop: SPACING.SM,
@@ -202,18 +307,27 @@ const styles = StyleSheet.create({
     }),
   },
   sendButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: SPACING.XS,
+    marginLeft: SPACING.XS,
   },
   sendButtonActive: {
-    backgroundColor: COLORS.PRIMARY,
+    backgroundColor: '#007AFF', // WhatsApp-like blue
+    elevation: 2,
+    shadowColor: '#007AFF',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.3,
+    shadowRadius: 2,
   },
   sendButtonInactive: {
     backgroundColor: COLORS.GRAY_300,
+    elevation: 0,
   },
 });
 
