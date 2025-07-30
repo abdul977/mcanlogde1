@@ -1,7 +1,8 @@
 import React from 'react';
-import { ViewStyle } from 'react-native';
+import { ViewStyle, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS, ICON_SIZES } from '../../constants';
+import TabBarBadge from './TabBarBadge';
 
 export type IconSize = keyof typeof ICON_SIZES | number;
 
@@ -115,10 +116,6 @@ export const ProfileIcon: React.FC<Omit<IconProps, 'name'> & { badgeCount?: numb
   badgeCount,
   ...props
 }) => {
-  const React = require('react');
-  const { View } = require('react-native');
-  const TabBarBadge = require('./TabBarBadge').default;
-
   return (
     <View style={{ position: 'relative' }}>
       <Icon name="user-circle" {...props} />

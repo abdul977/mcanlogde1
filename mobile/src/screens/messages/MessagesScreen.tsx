@@ -36,15 +36,19 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
     try {
       setError(null);
       const response = await messagingService.getConversations();
-      
+
       if (response.success) {
-        setConversations(response.data);
+        // Handle both possible response formats: data or conversations
+        const conversationsData = response.data || response.conversations || [];
+        setConversations(Array.isArray(conversationsData) ? conversationsData : []);
       } else {
         setError(response.message || 'Failed to load conversations');
+        setConversations([]); // Ensure conversations is always an array
       }
     } catch (err: any) {
       console.error('Error loading conversations:', err);
       setError(err.message || 'Failed to load conversations');
+      setConversations([]); // Ensure conversations is always an array
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -124,9 +128,9 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
   };
 
   const handleConversationPress = (conversation: Conversation) => {
-    const otherParticipant = conversation.participants.find(
-      participant => participant._id !== user?._id
-    );
+    // Handle both server formats: participants array or otherUser object
+    const otherParticipant = conversation.otherUser ||
+      (conversation.participants?.find(participant => participant._id !== user?._id));
 
     if (otherParticipant) {
       navigation.navigate('Chat', {
@@ -213,7 +217,7 @@ const MessagesScreen: React.FC<MessagesScreenProps> = ({ navigation }) => {
       <FlatList
         data={conversations}
         renderItem={renderConversationItem}
-        keyExtractor={(item) => item._id}
+        keyExtractor={(item) => item._id || item.threadId || Math.random().toString()}
         refreshControl={
           <RefreshControl
             refreshing={refreshing}
@@ -249,7 +253,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: SPACING.MD,
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL as any,
     color: COLORS.GRAY_600,
   },
   emptyContainer: {
@@ -263,14 +267,14 @@ const styles = StyleSheet.create({
   },
   errorTitle: {
     fontSize: TYPOGRAPHY.FONT_SIZES.LG,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
     color: COLORS.ERROR,
     marginTop: SPACING.MD,
     marginBottom: SPACING.SM,
   },
   errorMessage: {
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL as any,
     color: COLORS.GRAY_600,
     textAlign: 'center',
     marginBottom: SPACING.LG,
@@ -284,7 +288,7 @@ const styles = StyleSheet.create({
   retryButtonText: {
     color: COLORS.WHITE,
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
   },
   fab: {
     position: 'absolute',

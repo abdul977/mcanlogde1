@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainerRef, NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { LogBox } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import * as Linking from 'expo-linking';
 
@@ -75,6 +76,23 @@ export default function App() {
   useEffect(() => {
     // Prepare the splash screen
     SplashScreen.preventAutoHideAsync();
+
+    // Configure LogBox to ignore specific warnings
+    LogBox.ignoreLogs([
+      // 'Text strings must be rendered within a <Text> component', // Temporarily enabled to debug
+      // 'Warning: Text strings must be rendered within a <Text> component', // Temporarily enabled to debug
+      'Console Error',
+      'Warning: Stack:',
+      'Warning: TypeError:',
+      'ERROR  Warning:',
+      'ERROR  💀 FATAL:',
+      'GROUP    🚨 FATAL ERROR',
+      'Request failed with status code 404',
+      'Community not found',
+      'Network Error',
+      'AxiosError',
+      'Error loading',
+    ]);
   }, []);
 
   return (

@@ -63,7 +63,23 @@ const CommunityDetailScreen: React.FC = () => {
       setCommunity(communityData);
     } catch (error) {
       console.error('Error loading community:', error);
-      Alert.alert('Error', 'Failed to load community details');
+
+      // Check if it's a 404 error (community not found)
+      if (error.response?.status === 404 || error.message?.includes('not found')) {
+        Alert.alert(
+          'Community Not Found',
+          'This community no longer exists or has been removed.',
+          [
+            {
+              text: 'Go Back',
+              onPress: () => navigation.goBack(),
+              style: 'default'
+            }
+          ]
+        );
+      } else {
+        Alert.alert('Error', 'Failed to load community details');
+      }
     }
   };
 
@@ -74,7 +90,24 @@ const CommunityDetailScreen: React.FC = () => {
       setMessages(messagesData.reverse()); // Reverse to show newest at bottom
     } catch (error) {
       console.error('Error loading messages:', error);
-      Alert.alert('Error', 'Failed to load messages');
+
+      // Check if it's a 404 error (community not found)
+      if (error.response?.status === 404 || error.message?.includes('not found')) {
+        // Community doesn't exist, navigate back
+        Alert.alert(
+          'Community Not Found',
+          'This community no longer exists or has been removed.',
+          [
+            {
+              text: 'Go Back',
+              onPress: () => navigation.goBack(),
+              style: 'default'
+            }
+          ]
+        );
+      } else {
+        Alert.alert('Error', 'Failed to load messages');
+      }
     } finally {
       setLoading(false);
     }

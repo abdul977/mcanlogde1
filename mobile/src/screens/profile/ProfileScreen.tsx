@@ -23,13 +23,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS } from '../../constants';
-import { useAuth } from '../../context';
+import { useAuth, useMessaging } from '../../context';
 import { SafeAreaScreen } from '../../components';
 
 const ProfileScreen: React.FC = () => {
   console.log('👤 ProfileScreen rendering...');
   const navigation = useNavigation();
   const { user, logout } = useAuth();
+  const { unreadCount } = useMessaging();
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({
     bookings: 0,
@@ -95,6 +96,15 @@ const ProfileScreen: React.FC = () => {
       icon: 'receipt-outline',
       color: COLORS.SUCCESS,
       onPress: () => navigation.navigate('OrderHistory' as never),
+    },
+    {
+      id: 'messages',
+      title: 'Messages',
+      subtitle: unreadCount > 0 ? `${unreadCount} unread messages` : 'Chat with admin & support',
+      icon: 'chatbubbles-outline',
+      color: COLORS.PRIMARY,
+      onPress: () => navigation.navigate('Messages' as never),
+      badge: unreadCount > 0 ? unreadCount : undefined,
     },
     {
       id: 'account-security',
@@ -206,6 +216,11 @@ const ProfileScreen: React.FC = () => {
               >
                 <View style={[styles.menuIcon, { backgroundColor: item.color + '15' }]}>
                   <Ionicons name={item.icon as any} size={24} color={item.color} />
+                  {item.badge && (
+                    <View style={styles.badge}>
+                      <Text style={styles.badgeText}>{item.badge}</Text>
+                    </View>
+                  )}
                 </View>
                 <View style={styles.menuText}>
                   <Text style={styles.menuTitle}>{item.title}</Text>
@@ -395,6 +410,25 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: SPACING.XL,
+  },
+  badge: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: COLORS.ERROR,
+    borderRadius: 10,
+    minWidth: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: COLORS.WHITE,
+  },
+  badgeText: {
+    color: COLORS.WHITE,
+    fontSize: TYPOGRAPHY.FONT_SIZES.XS,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.BOLD as any,
+    textAlign: 'center',
   },
 });
 

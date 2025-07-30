@@ -18,9 +18,9 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
   onLongPress,
 }) => {
   // Get the other participant (not the current user)
-  const otherParticipant = conversation.participants.find(
-    participant => participant._id !== currentUserId
-  );
+  // Handle both server formats: participants array or otherUser object
+  const otherParticipant = conversation.otherUser ||
+    (conversation.participants?.find(participant => participant._id !== currentUserId));
 
   const formatLastMessageTime = (dateString: string): string => {
     const date = new Date(dateString);
@@ -39,8 +39,23 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       return 'No messages yet';
     }
 
-    const { content, messageType, sender } = conversation.lastMessage;
-    const isCurrentUserSender = sender._id === currentUserId;
+    const lastMessage = conversation.lastMessage;
+    const content = lastMessage.content || '';
+
+    // Handle both server formats
+    let isCurrentUserSender = false;
+    let messageType = 'text';
+
+    if ('sender' in lastMessage && lastMessage.sender) {
+      // Full message format
+      isCurrentUserSender = lastMessage.sender._id === currentUserId;
+      messageType = lastMessage.messageType || 'text';
+    } else if ('isFromCurrentUser' in lastMessage) {
+      // Simplified server format
+      isCurrentUserSender = lastMessage.isFromCurrentUser || false;
+      messageType = lastMessage.messageType || 'text';
+    }
+
     const prefix = isCurrentUserSender ? 'You: ' : '';
 
     if (messageType === 'image') {
@@ -49,8 +64,8 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
 
     // Truncate long messages
     const maxLength = 35;
-    const truncatedContent = content.length > maxLength 
-      ? `${content.substring(0, maxLength)}...` 
+    const truncatedContent = content.length > maxLength
+      ? `${content.substring(0, maxLength)}...`
       : content;
 
     return `${prefix}${truncatedContent}`;
@@ -149,7 +164,7 @@ const styles = StyleSheet.create({
   avatarText: {
     color: COLORS.WHITE,
     fontSize: TYPOGRAPHY.FONT_SIZES.LG,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
   },
   onlineIndicator: {
     position: 'absolute',
@@ -174,13 +189,13 @@ const styles = StyleSheet.create({
   participantName: {
     flex: 1,
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
     color: COLORS.GRAY_900,
     marginRight: SPACING.SM,
   },
   timestamp: {
     fontSize: TYPOGRAPHY.FONT_SIZES.SM,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL as any,
     color: COLORS.GRAY_500,
   },
   messageRow: {
@@ -191,12 +206,12 @@ const styles = StyleSheet.create({
   lastMessage: {
     flex: 1,
     fontSize: TYPOGRAPHY.FONT_SIZES.SM,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL as any,
     color: COLORS.GRAY_600,
     marginRight: SPACING.SM,
   },
   unreadMessage: {
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
     color: COLORS.GRAY_900,
   },
   unreadBadge: {
@@ -211,7 +226,7 @@ const styles = StyleSheet.create({
   unreadCount: {
     color: COLORS.WHITE,
     fontSize: TYPOGRAPHY.FONT_SIZES.XS,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
   },
 });
 

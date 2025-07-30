@@ -32,16 +32,29 @@ export interface Message {
 }
 
 export interface Conversation {
-  _id: string;
-  participants: Array<{
+  _id?: string;
+  threadId?: string;
+  participants?: Array<{
     _id: string;
     name: string;
     email: string;
     role: string;
   }>;
-  lastMessage: Message;
+  otherUser?: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+  };
+  lastMessage?: Message | {
+    content: string;
+    createdAt: string;
+    isFromCurrentUser?: boolean;
+    messageType?: string;
+    priority?: string;
+  };
   unreadCount: number;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface SendMessageRequest {
@@ -57,7 +70,8 @@ export interface SendMessageResponse extends ApiResponse {
 }
 
 export interface GetConversationsResponse extends ApiResponse {
-  data: Conversation[];
+  data?: Conversation[];
+  conversations?: Conversation[];
 }
 
 export interface GetConversationResponse extends ApiResponse {
@@ -108,10 +122,28 @@ class MessagingService {
    */
   async getConversations(): Promise<GetConversationsResponse> {
     try {
-      const response = await apiClient.get<GetConversationsResponse>(
+      const response = await apiClient.get<any>(
         ENDPOINTS.CONVERSATIONS
       );
-      return response.data;
+
+      // Handle server response format: { success: true, conversations: [...] }
+      const serverResponse = response.data;
+
+      if (serverResponse.success) {
+        return {
+          success: true,
+          message: serverResponse.message || 'Conversations retrieved successfully',
+          data: serverResponse.conversations || serverResponse.data || [],
+          conversations: serverResponse.conversations || serverResponse.data || []
+        };
+      } else {
+        return {
+          success: false,
+          message: serverResponse.message || 'Failed to fetch conversations',
+          data: [],
+          conversations: []
+        };
+      }
     } catch (error) {
       console.error('Error fetching conversations:', error);
       throw error;
