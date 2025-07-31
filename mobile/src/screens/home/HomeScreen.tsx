@@ -311,6 +311,8 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.LG,
     paddingBottom: SPACING.XL,
     paddingHorizontal: SPACING.LG,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   headerContent: {
     flexDirection: 'row',
@@ -420,6 +422,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.PRIMARY + '10',
     padding: SPACING.LG,
     borderRadius: 12,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
     borderLeftWidth: 4,
     borderLeftColor: COLORS.PRIMARY,
     alignItems: 'center',
@@ -495,7 +499,7 @@ const styles = StyleSheet.create({
   },
 
   bottomSpacing: {
-    height: SPACING.XL * 2, // Increased bottom spacing
+    height: SPACING.LG, // Reduced bottom spacing for better layout
   },
 });
 

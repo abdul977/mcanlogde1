@@ -68,6 +68,8 @@ const Header: React.FC<HeaderProps> = ({
     paddingBottom: SPACING.SM,
     borderBottomWidth: transparent ? 0 : 1,
     borderBottomColor: COLORS.GRAY_200,
+    borderBottomLeftRadius: backgroundColor === COLORS.PRIMARY ? 20 : 0,
+    borderBottomRightRadius: backgroundColor === COLORS.PRIMARY ? 20 : 0,
     ...style,
   };
 

@@ -113,7 +113,12 @@ const ProductDetailsScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentInsetAdjustmentBehavior="automatic"
+        contentContainerStyle={{ paddingBottom: 180 }}
+      >
         {/* Product Image */}
         <View style={styles.imageContainer}>
           <View style={styles.placeholderImage}>
@@ -244,6 +249,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   backButton: {
     padding: SPACING.SM,
@@ -438,7 +445,7 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_SECONDARY,
   },
   bottomSpacing: {
-    height: 120, // Space for fixed button
+    height: 180, // Further increased space to prevent overlap with fixed button
   },
   fixedButtonContainer: {
     position: 'absolute',
@@ -447,10 +454,15 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: COLORS.WHITE,
     padding: SPACING.LG,
-    paddingBottom: SPACING.LG + 20,
+    paddingBottom: SPACING.LG + 40, // Further increased safe area space
     borderTopWidth: 1,
     borderTopColor: COLORS.GRAY_200,
     ...SHADOWS.LG,
+    elevation: 15, // Higher elevation to ensure it stays above content on Android
+    zIndex: 1000, // Ensure it stays above other content on iOS
+    shadowOpacity: 0.3, // More prominent shadow
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: -4 },
   },
   totalContainer: {
     flexDirection: 'row',

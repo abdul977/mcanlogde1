@@ -116,8 +116,14 @@ export const createOrderController = async (req, res) => {
 
     const totalAmount = subtotal + taxAmount + shippingCost - discountAmount;
 
+    // Generate order number
+    const timestamp = Date.now().toString();
+    const random = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const orderNumber = `MCAN${timestamp.slice(-6)}${random}`;
+
     // Create order
     const order = new Order({
+      orderNumber,
       user: userId,
       items: processedItems,
       subtotal,

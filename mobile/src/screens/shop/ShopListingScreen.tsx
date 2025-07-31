@@ -243,6 +243,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   headerTitle: {
     fontSize: TYPOGRAPHY.FONT_SIZES.XL,
@@ -301,7 +303,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: SPACING.LG,
-    paddingBottom: 100, // Space for tab bar
+    paddingBottom: 80, // Reduced space for tab bar
   },
   row: {
     justifyContent: 'space-between',

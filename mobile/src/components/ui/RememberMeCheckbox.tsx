@@ -203,6 +203,8 @@ const styles = StyleSheet.create({
   },
   labelDisabled: {
     color: COLORS.GRAY_400,
+    fontWeight: '400' as const,
+    flex: 1,
   },
 });
 

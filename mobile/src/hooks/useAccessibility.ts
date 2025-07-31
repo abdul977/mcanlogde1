@@ -136,7 +136,7 @@ export const useAccessibility = (): UseAccessibilityReturn => {
     return () => {
       listeners.forEach(cleanup => cleanup());
     };
-  }, [initializeAccessibility]);
+  }, []); // Remove initializeAccessibility dependency since it's memoized with useCallback
 
   // Announce message
   const announce = useCallback((message: string, type: AnnouncementType = AnnouncementType.POLITE) => {

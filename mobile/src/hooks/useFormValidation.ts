@@ -220,12 +220,15 @@ export const useFormValidation = (options: UseFormValidationOptions): UseFormVal
   const hasErrors = Object.values(errors).some(result => !result.isValid);
   const hasWarnings = Object.values(errors).some(result => result.warnings && result.warnings.length > 0);
 
-  // Call validation change callback
+  // Call validation change callback (with ref to prevent infinite loops)
+  const onValidationChangeRef = useRef(onValidationChange);
+  onValidationChangeRef.current = onValidationChange;
+
   useEffect(() => {
-    if (onValidationChange) {
-      onValidationChange(formIsValid, errors);
+    if (onValidationChangeRef.current) {
+      onValidationChangeRef.current(formIsValid, errors);
     }
-  }, [formIsValid, errors, onValidationChange]);
+  }, [formIsValid, errors]);
 
   return {
     // State

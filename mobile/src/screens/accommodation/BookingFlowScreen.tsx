@@ -2,7 +2,7 @@
  * Booking Flow Screen - Multi-step booking process
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,11 +10,16 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
+import * as DocumentPicker from 'expo-document-picker';
 
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS } from '../../constants';
+import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, API_CONFIG, ENDPOINTS } from '../../constants';
+import { useAuth } from '../../context';
 import { SafeAreaScreen, ValidatedInput, AnimatedButton } from '../../components';
 import { useFormValidation } from '../../hooks/useFormValidation';
 import { ValidationConfig } from '../../utils/validation';
@@ -22,8 +27,18 @@ import { ValidationConfig } from '../../utils/validation';
 const BookingFlowScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
+  const { token } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'transfer' | 'card' | null>(null);
+  const [paymentDetails, setPaymentDetails] = useState(null);
+  const [paymentProof, setPaymentProof] = useState(null);
+  const [paymentData, setPaymentData] = useState({
+    transactionReference: '',
+    paymentDate: new Date().toISOString().split('T')[0],
+    userNotes: '',
+  });
 
   const steps = [
     { id: 1, title: 'Personal Details', icon: 'person-outline' },
@@ -32,6 +47,112 @@ const BookingFlowScreen: React.FC = () => {
     { id: 4, title: 'Confirmation', icon: 'checkmark-circle-outline' },
   ];
 
+  // Fetch payment details when reaching payment step
+  useEffect(() => {
+    if (currentStep === 3 && !paymentDetails) {
+      fetchPaymentDetails();
+    }
+  }, [currentStep]);
+
+  const fetchPaymentDetails = async () => {
+    try {
+      const response = await fetch(`${API_CONFIG.BASE_URL}/api/payment-config/details`);
+      const result = await response.json();
+      if (result.success) {
+        setPaymentDetails(result.data);
+      }
+    } catch (error) {
+      console.error('Error fetching payment details:', error);
+    }
+  };
+
+  const pickPaymentProof = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission Required', 'Please grant camera roll permissions to upload payment proof.');
+        return;
+      }
+
+      Alert.alert(
+        'Select Payment Proof',
+        'Choose how you want to upload your payment proof',
+        [
+          { text: 'Camera', onPress: () => openCamera() },
+          { text: 'Gallery', onPress: () => openGallery() },
+          { text: 'Document', onPress: () => openDocumentPicker() },
+          { text: 'Cancel', style: 'cancel' },
+        ]
+      );
+    } catch (error) {
+      console.error('Error requesting permissions:', error);
+    }
+  };
+
+  const openCamera = async () => {
+    try {
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setPaymentProof(result.assets[0]);
+      }
+    } catch (error) {
+      console.error('Error opening camera:', error);
+    }
+  };
+
+  const openGallery = async () => {
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setPaymentProof(result.assets[0]);
+      }
+    } catch (error) {
+      console.error('Error opening gallery:', error);
+    }
+  };
+
+  const openDocumentPicker = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: ['image/*', 'application/pdf'],
+        copyToCacheDirectory: true,
+      });
+
+      if (!result.canceled && result.assets[0]) {
+        setPaymentProof(result.assets[0]);
+      }
+    } catch (error) {
+      console.error('Error opening document picker:', error);
+    }
+  };
+
+  const copyToClipboard = async (text: string, label: string) => {
+    try {
+      // For React Native, we would use @react-native-clipboard/clipboard
+      // For now, just show an alert with the text
+      Alert.alert(
+        `${label} Copied`,
+        `${label}: ${text}\n\nThis has been copied to your clipboard.`,
+        [{ text: 'OK' }]
+      );
+    } catch (error) {
+      console.error('Error copying to clipboard:', error);
+      Alert.alert('Copy Failed', 'Unable to copy to clipboard');
+    }
+  };
+
   // Form validation configuration
   const validationRules: Record<string, ValidationConfig> = {
     fullName: { required: true, minLength: 2 },
@@ -39,7 +160,11 @@ const BookingFlowScreen: React.FC = () => {
     stateCode: { required: true, minLength: 5 },
     checkInDate: { required: true },
     checkOutDate: { required: true },
+    numberOfGuests: { required: true, min: 1, max: 6 },
+    bookingDuration: { required: true, min: 1, max: 12 },
     emergencyContact: { required: true },
+    emergencyContactName: { required: true, minLength: 2 },
+    emergencyContactRelationship: { required: true, minLength: 2 },
   };
 
   const {
@@ -57,7 +182,11 @@ const BookingFlowScreen: React.FC = () => {
       stateCode: '',
       checkInDate: '',
       checkOutDate: '',
+      numberOfGuests: '1',
+      bookingDuration: '1',
       emergencyContact: '',
+      emergencyContactName: '',
+      emergencyContactRelationship: '',
       specialRequests: '',
     },
     validationRules,
@@ -65,10 +194,122 @@ const BookingFlowScreen: React.FC = () => {
     validateOnBlur: true,
   });
 
-  const handleNext = () => {
-    if (currentStep < steps.length) {
-      setCurrentStep(currentStep + 1);
+  const handleNext = async () => {
+    try {
+      setIsValidating(true);
+      // Validate current step before proceeding
+      const isValid = await validateCurrentStep();
+      if (isValid && currentStep < steps.length) {
+        setCurrentStep(currentStep + 1);
+      }
+    } finally {
+      setIsValidating(false);
     }
+  };
+
+  const validateCurrentStep = async () => {
+    switch (currentStep) {
+      case 1:
+        // Validate guest information
+        const guestFields = ['fullName', 'phone', 'stateCode', 'emergencyContact', 'emergencyContactName', 'emergencyContactRelationship'];
+        return await validateFields(guestFields);
+      case 2:
+        // Validate booking dates and details
+        const bookingFields = ['checkInDate', 'checkOutDate', 'numberOfGuests', 'bookingDuration'];
+        return await validateFields(bookingFields);
+      case 3:
+        // Payment step - validate payment method selection
+        if (!selectedPaymentMethod) {
+          Alert.alert(
+            'Payment Method Required',
+            'Please select a payment method to continue.',
+            [{ text: 'OK' }]
+          );
+          return false;
+        }
+        return true;
+      default:
+        return true;
+    }
+  };
+
+  const validateFields = async (fieldNames: string[]) => {
+    // First, mark all fields as touched to trigger validation
+    fieldNames.forEach(fieldName => {
+      setFieldTouched(fieldName);
+    });
+
+    // Wait a brief moment for validation state to update
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    let isValid = true;
+    const invalidFields: string[] = [];
+    const emptyFields: string[] = [];
+
+    fieldNames.forEach(fieldName => {
+      const fieldValue = values[fieldName];
+      const fieldValidation = validationErrors[fieldName];
+
+      // Check if field is empty
+      if (!fieldValue || fieldValue.trim() === '') {
+        isValid = false;
+        emptyFields.push(fieldName);
+      }
+      // Check validation result if field has value
+      else if (fieldValidation && !fieldValidation.isValid) {
+        isValid = false;
+        invalidFields.push(fieldName);
+      }
+    });
+
+    // Additional date validation
+    if (fieldNames.includes('checkInDate') && fieldNames.includes('checkOutDate')) {
+      if (values.checkInDate && values.checkOutDate) {
+        const checkIn = new Date(values.checkInDate);
+        const checkOut = new Date(values.checkOutDate);
+        if (checkOut <= checkIn) {
+          isValid = false;
+          Alert.alert(
+            'Date Validation Error',
+            'Check-out date must be after check-in date.',
+            [{ text: 'OK' }]
+          );
+          return false;
+        }
+      }
+    }
+
+    // Only show validation popup if there are actual validation issues
+    if (!isValid && (emptyFields.length > 0 || invalidFields.length > 0)) {
+      let errorMessage = 'Please fill in all required fields correctly before proceeding.';
+
+      if (emptyFields.length > 0) {
+        const fieldLabels = emptyFields.map(field => {
+          switch (field) {
+            case 'fullName': return 'Full Name';
+            case 'phone': return 'Phone Number';
+            case 'stateCode': return 'State';
+            case 'emergencyContact': return 'Emergency Contact';
+            case 'emergencyContactName': return 'Emergency Contact Name';
+            case 'emergencyContactRelationship': return 'Emergency Contact Relationship';
+            case 'checkInDate': return 'Check-in Date';
+            case 'checkOutDate': return 'Check-out Date';
+            case 'numberOfGuests': return 'Number of Guests';
+            case 'bookingDuration': return 'Booking Duration';
+            default: return field;
+          }
+        });
+        errorMessage = `Please fill in the following required fields: ${fieldLabels.join(', ')}`;
+      }
+
+      Alert.alert(
+        'Validation Error',
+        errorMessage,
+        [{ text: 'OK' }]
+      );
+    }
+
+    return isValid;
   };
 
   const handlePrevious = () => {
@@ -80,16 +321,100 @@ const BookingFlowScreen: React.FC = () => {
   const handleBookingSubmit = async (formData: any) => {
     try {
       setIsLoading(true);
-      // TODO: Submit booking to API
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-      
+
+      // Prepare booking data according to API requirements (matching working test script)
+      const checkInDate = new Date(values.checkInDate);
+      const checkOutDate = new Date(values.checkOutDate);
+      const bookingMonths = parseInt(values.bookingDuration);
+      const startDate = checkInDate.toISOString();
+      const endDate = new Date(checkInDate.getTime() + (bookingMonths * 30 * 24 * 60 * 60 * 1000)).toISOString();
+
+      const bookingData = {
+        bookingType: 'accommodation',
+        accommodationId: route.params?.accommodationId,
+        checkInDate: checkInDate.toISOString(),
+        checkOutDate: checkOutDate.toISOString(),
+        numberOfGuests: parseInt(values.numberOfGuests),
+        userNotes: values.specialRequests || '',
+        contactInfo: {
+          phone: values.phone,
+          emergencyContact: {
+            name: values.emergencyContactName,
+            phone: values.emergencyContact,
+            relationship: values.emergencyContactRelationship
+          }
+        },
+        bookingDuration: {
+          months: bookingMonths,
+          startDate: startDate,
+          endDate: endDate
+        },
+        totalAmount: route.params?.accommodationPrice || 0
+      };
+
+      // Check if user is authenticated
+      if (!token) {
+        Alert.alert(
+          'Authentication Required',
+          'Please log in to make a booking.',
+          [{ text: 'OK' }]
+        );
+        return;
+      }
+
+      console.log('🔑 Token exists:', !!token);
+      console.log('📤 Booking data:', JSON.stringify(bookingData, null, 2));
+      console.log('🌐 API URL:', `${API_CONFIG.BASE_URL}${ENDPOINTS.CREATE_BOOKING}`);
+
+      // Make API call to create booking (using same format as working test script)
+      const response = await fetch(`${API_CONFIG.BASE_URL}${ENDPOINTS.CREATE_BOOKING}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`, // Use Bearer token format like test script
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      console.log('📡 Response status:', response.status);
+      console.log('📡 Response headers:', response.headers);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('❌ API Error Response:', errorData);
+        throw new Error(errorData.message || 'Failed to create booking');
+      }
+
+      const result = await response.json();
+      console.log('✅ API Success Response:', result);
+
+      // Check if the response indicates success (consistent with web version)
+      if (!result.success) {
+        throw new Error(result.message || 'Booking submission failed');
+      }
+
       Alert.alert(
         'Booking Successful!',
         'Your accommodation booking has been submitted. You will receive a confirmation email shortly.',
-        [{ text: 'OK', onPress: () => navigation.navigate('MyBookings' as never) }]
+        [{
+          text: 'OK',
+          onPress: () => {
+            // Navigate to ProfileTab and then to MyBookings
+            navigation.navigate('Main', {
+              screen: 'ProfileTab',
+              params: {
+                screen: 'MyBookings'
+              }
+            });
+          }
+        }]
       );
     } catch (error) {
-      Alert.alert('Error', 'Failed to submit booking. Please try again.');
+      console.error('Booking submission error:', error);
+      Alert.alert(
+        'Booking Error',
+        error.message || 'Failed to submit booking. Please try again.'
+      );
     } finally {
       setIsLoading(false);
     }
@@ -144,6 +469,18 @@ const BookingFlowScreen: React.FC = () => {
             />
 
             <ValidatedInput
+              label="Emergency Contact Name"
+              placeholder="Enter emergency contact name"
+              value={values.emergencyContactName}
+              onChangeText={(text) => setValue('emergencyContactName', text)}
+              onBlur={() => setFieldTouched('emergencyContactName')}
+              validationResult={validationErrors.emergencyContactName}
+              showValidation={touched.emergencyContactName}
+              leftIcon="person-outline"
+              required
+            />
+
+            <ValidatedInput
               label="Emergency Contact"
               placeholder="Emergency contact number"
               value={values.emergencyContact}
@@ -153,6 +490,18 @@ const BookingFlowScreen: React.FC = () => {
               showValidation={touched.emergencyContact}
               leftIcon="call-outline"
               keyboardType="phone-pad"
+              required
+            />
+
+            <ValidatedInput
+              label="Relationship"
+              placeholder="e.g., Parent, Sibling, Friend"
+              value={values.emergencyContactRelationship}
+              onChangeText={(text) => setValue('emergencyContactRelationship', text)}
+              onBlur={() => setFieldTouched('emergencyContactRelationship')}
+              validationResult={validationErrors.emergencyContactRelationship}
+              showValidation={touched.emergencyContactRelationship}
+              leftIcon="people-outline"
               required
             />
           </View>
@@ -193,6 +542,54 @@ const BookingFlowScreen: React.FC = () => {
             />
 
             <ValidatedInput
+              label="Number of Guests"
+              placeholder="Select number of guests"
+              value={values.numberOfGuests}
+              onChangeText={(text) => setValue('numberOfGuests', text)}
+              onBlur={() => setFieldTouched('numberOfGuests')}
+              validationResult={validationErrors.numberOfGuests}
+              showValidation={touched.numberOfGuests}
+              leftIcon="people-outline"
+              isDropdown
+              dropdownOptions={[
+                { label: '1 person', value: '1' },
+                { label: '2 people', value: '2' },
+                { label: '3 people', value: '3' },
+                { label: '4 people', value: '4' },
+                { label: '5 people', value: '5' },
+                { label: '6 people', value: '6' },
+              ]}
+              required
+            />
+
+            <ValidatedInput
+              label="Booking Duration (Months)"
+              placeholder="Select booking duration"
+              value={values.bookingDuration}
+              onChangeText={(text) => setValue('bookingDuration', text)}
+              onBlur={() => setFieldTouched('bookingDuration')}
+              validationResult={validationErrors.bookingDuration}
+              showValidation={touched.bookingDuration}
+              leftIcon="time-outline"
+              isDropdown
+              dropdownOptions={[
+                { label: '1 month', value: '1' },
+                { label: '2 months', value: '2' },
+                { label: '3 months', value: '3' },
+                { label: '4 months', value: '4' },
+                { label: '5 months', value: '5' },
+                { label: '6 months', value: '6' },
+                { label: '7 months', value: '7' },
+                { label: '8 months', value: '8' },
+                { label: '9 months', value: '9' },
+                { label: '10 months', value: '10' },
+                { label: '11 months', value: '11' },
+                { label: '12 months', value: '12' },
+              ]}
+              required
+            />
+
+            <ValidatedInput
               label="Special Requests"
               placeholder="Any special requests or requirements"
               value={values.specialRequests}
@@ -221,33 +618,197 @@ const BookingFlowScreen: React.FC = () => {
           <View style={styles.stepContent}>
             <Text style={styles.stepTitle}>Payment</Text>
             <Text style={styles.stepDescription}>
-              Choose your payment method
+              Complete your payment to confirm your booking
             </Text>
 
-            <View style={styles.paymentOptions}>
-              <TouchableOpacity style={styles.paymentOption}>
-                <Ionicons name="card-outline" size={24} color={COLORS.PRIMARY} />
-                <View style={styles.paymentText}>
-                  <Text style={styles.paymentTitle}>Bank Transfer</Text>
-                  <Text style={styles.paymentSubtitle}>Pay via bank transfer</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color={COLORS.GRAY_400} />
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.paymentOption}>
-                <Ionicons name="card" size={24} color={COLORS.PRIMARY} />
-                <View style={styles.paymentText}>
-                  <Text style={styles.paymentTitle}>Card Payment</Text>
-                  <Text style={styles.paymentSubtitle}>Pay with debit/credit card</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color={COLORS.GRAY_400} />
-              </TouchableOpacity>
-            </View>
-
+            {/* Payment Amount */}
             <View style={styles.totalCard}>
               <Text style={styles.totalLabel}>Total Amount</Text>
               <Text style={styles.totalAmount}>₦25,000</Text>
             </View>
+
+            {/* Payment Method Selection */}
+            <View style={styles.paymentMethodSection}>
+              <Text style={styles.sectionTitle}>Select Payment Method</Text>
+              <Text style={styles.sectionDescription}>
+                Choose your preferred payment method
+              </Text>
+
+              <View style={styles.paymentOptions}>
+                <TouchableOpacity
+                  style={[
+                    styles.paymentOption,
+                    selectedPaymentMethod === 'transfer' && styles.paymentOptionSelected
+                  ]}
+                  onPress={() => setSelectedPaymentMethod('transfer')}
+                >
+                  <Ionicons name="card-outline" size={24} color={COLORS.PRIMARY} />
+                  <View style={styles.paymentText}>
+                    <Text style={styles.paymentTitle}>Bank Transfer</Text>
+                    <Text style={styles.paymentSubtitle}>Pay via bank transfer</Text>
+                  </View>
+                  <Ionicons
+                    name={selectedPaymentMethod === 'transfer' ? "radio-button-on" : "radio-button-off"}
+                    size={20}
+                    color={COLORS.PRIMARY}
+                  />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={[
+                    styles.paymentOption,
+                    selectedPaymentMethod === 'card' && styles.paymentOptionSelected
+                  ]}
+                  onPress={() => setSelectedPaymentMethod('card')}
+                >
+                  <Ionicons name="card" size={24} color={COLORS.PRIMARY} />
+                  <View style={styles.paymentText}>
+                    <Text style={styles.paymentTitle}>Card Payment</Text>
+                    <Text style={styles.paymentSubtitle}>Pay with debit/credit card</Text>
+                  </View>
+                  <Ionicons
+                    name={selectedPaymentMethod === 'card' ? "radio-button-on" : "radio-button-off"}
+                    size={20}
+                    color={COLORS.PRIMARY}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* Bank Transfer Details */}
+            {selectedPaymentMethod === 'transfer' && paymentDetails?.bankDetails && (
+              <View style={styles.bankDetailsCard}>
+                <View style={styles.bankDetailsHeader}>
+                  <Ionicons name="business-outline" size={24} color={COLORS.PRIMARY} />
+                  <Text style={styles.bankDetailsTitle}>Bank Transfer Details</Text>
+                </View>
+
+                <View style={styles.bankDetailRow}>
+                  <Text style={styles.bankDetailLabel}>Account Name:</Text>
+                  <TouchableOpacity
+                    style={styles.copyableText}
+                    onPress={() => copyToClipboard(paymentDetails.bankDetails.accountName, 'Account Name')}
+                  >
+                    <Text style={styles.bankDetailValue}>{paymentDetails.bankDetails.accountName}</Text>
+                    <Ionicons name="copy-outline" size={16} color={COLORS.PRIMARY} />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.bankDetailRow}>
+                  <Text style={styles.bankDetailLabel}>Account Number:</Text>
+                  <TouchableOpacity
+                    style={styles.copyableText}
+                    onPress={() => copyToClipboard(paymentDetails.bankDetails.accountNumber, 'Account Number')}
+                  >
+                    <Text style={styles.bankDetailValue}>{paymentDetails.bankDetails.accountNumber}</Text>
+                    <Ionicons name="copy-outline" size={16} color={COLORS.PRIMARY} />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.bankDetailRow}>
+                  <Text style={styles.bankDetailLabel}>Bank Name:</Text>
+                  <TouchableOpacity
+                    style={styles.copyableText}
+                    onPress={() => copyToClipboard(paymentDetails.bankDetails.bankName, 'Bank Name')}
+                  >
+                    <Text style={styles.bankDetailValue}>{paymentDetails.bankDetails.bankName}</Text>
+                    <Ionicons name="copy-outline" size={16} color={COLORS.PRIMARY} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            )}
+
+            {/* Payment Instructions */}
+            {selectedPaymentMethod && (
+              <View style={styles.instructionsCard}>
+                <Text style={styles.instructionsTitle}>Payment Instructions</Text>
+                <Text style={styles.instructionsText}>
+                  {selectedPaymentMethod === 'transfer' ? (
+                    '1. Transfer the exact amount to the bank details above\n' +
+                    '2. Use your booking reference as the transfer description\n' +
+                    '3. Upload your payment receipt or screenshot below\n' +
+                    '4. Your booking will be confirmed once payment is verified'
+                  ) : (
+                    '1. You will be redirected to a secure payment page\n' +
+                    '2. Enter your card details to complete payment\n' +
+                    '3. Your booking will be confirmed immediately after payment\n' +
+                    '4. You will receive a confirmation email'
+                  )}
+                </Text>
+              </View>
+            )}
+
+            {/* Payment Proof Upload - Only for Bank Transfer */}
+            {selectedPaymentMethod === 'transfer' && (
+              <View style={styles.uploadSection}>
+              <Text style={styles.uploadTitle}>Upload Payment Proof</Text>
+
+              {paymentProof ? (
+                <View style={styles.uploadedFile}>
+                  {paymentProof.type?.startsWith('image/') ? (
+                    <Image source={{ uri: paymentProof.uri }} style={styles.uploadedImage} />
+                  ) : (
+                    <View style={styles.documentPreview}>
+                      <Ionicons name="document-outline" size={40} color={COLORS.PRIMARY} />
+                      <Text style={styles.documentName}>{paymentProof.name}</Text>
+                    </View>
+                  )}
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={() => setPaymentProof(null)}
+                  >
+                    <Ionicons name="close-circle" size={24} color={COLORS.ERROR} />
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <TouchableOpacity style={styles.uploadButton} onPress={pickPaymentProof}>
+                  <Ionicons name="cloud-upload-outline" size={32} color={COLORS.PRIMARY} />
+                  <Text style={styles.uploadButtonText}>Upload Receipt/Screenshot</Text>
+                  <Text style={styles.uploadButtonSubtext}>JPG, PNG, or PDF (Max 5MB)</Text>
+                </TouchableOpacity>
+              )}
+              {/* Transaction Reference */}
+              <ValidatedInput
+                label="Transaction Reference (Optional)"
+                placeholder="Enter transaction reference"
+                value={paymentData.transactionReference}
+                onChangeText={(text) => setPaymentData(prev => ({ ...prev, transactionReference: text }))}
+                leftIcon="receipt-outline"
+              />
+
+              {/* Payment Date */}
+              <ValidatedInput
+                label="Payment Date"
+                placeholder="Select payment date"
+                value={paymentData.paymentDate}
+                onChangeText={(text) => setPaymentData(prev => ({ ...prev, paymentDate: text }))}
+                leftIcon="calendar-outline"
+                isDatePicker
+              />
+
+              {/* Additional Notes */}
+              <ValidatedInput
+                label="Additional Notes (Optional)"
+                placeholder="Any additional information about your payment"
+                value={paymentData.userNotes}
+                onChangeText={(text) => setPaymentData(prev => ({ ...prev, userNotes: text }))}
+                leftIcon="chatbubble-outline"
+                multiline
+                numberOfLines={3}
+              />
+            </View>
+            )}
+
+            {/* Common fields for all payment methods */}
+            <ValidatedInput
+              label="Special Requests (Optional)"
+              placeholder="Any special requests for your booking"
+              value={values.specialRequests}
+              onChangeText={(text) => setValue('specialRequests', text)}
+              leftIcon="chatbubble-outline"
+              multiline
+              numberOfLines={3}
+            />
           </View>
         );
 
@@ -335,7 +896,11 @@ const BookingFlowScreen: React.FC = () => {
         ))}
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollViewContent}
+      >
         {renderStepContent()}
       </ScrollView>
 
@@ -355,6 +920,8 @@ const BookingFlowScreen: React.FC = () => {
               variant="primary"
               size="medium"
               rightIcon="arrow-forward"
+              loading={isValidating}
+              disabled={isValidating}
             />
           ) : (
             <AnimatedButton
@@ -384,6 +951,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   backButton: {
     padding: SPACING.SM,
@@ -447,6 +1016,9 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
+  scrollViewContent: {
+    paddingBottom: 200, // Further increased padding to prevent overlap with tab navigation
+  },
   stepContent: {
     padding: SPACING.LG,
   },
@@ -490,6 +1062,21 @@ const styles = StyleSheet.create({
     fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
     color: COLORS.TEXT_PRIMARY,
   },
+  paymentMethodSection: {
+    marginBottom: SPACING.LG,
+  },
+  sectionTitle: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.LG,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.SM,
+  },
+  sectionDescription: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_SECONDARY,
+    marginBottom: SPACING.LG,
+    lineHeight: TYPOGRAPHY.LINE_HEIGHTS.RELAXED * TYPOGRAPHY.FONT_SIZES.BASE,
+  },
   paymentOptions: {
     gap: SPACING.MD,
     marginBottom: SPACING.LG,
@@ -500,7 +1087,13 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
     padding: SPACING.LG,
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: COLORS.GRAY_200,
     ...SHADOWS.SM,
+  },
+  paymentOptionSelected: {
+    borderColor: COLORS.PRIMARY,
+    backgroundColor: COLORS.PRIMARY + '10',
   },
   paymentText: {
     flex: 1,
@@ -528,9 +1121,133 @@ const styles = StyleSheet.create({
     marginBottom: SPACING.SM,
   },
   totalAmount: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.XXL,
+    fontSize: TYPOGRAPHY.FONT_SIZES['2XL'],
     fontWeight: TYPOGRAPHY.FONT_WEIGHTS.BOLD as any,
     color: COLORS.PRIMARY,
+  },
+  // Bank Details Styles
+  bankDetailsCard: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 12,
+    padding: SPACING.LG,
+    marginVertical: SPACING.MD,
+    ...SHADOWS.SM,
+  },
+  bankDetailsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: SPACING.MD,
+  },
+  bankDetailsTitle: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.LG,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
+    color: COLORS.TEXT_PRIMARY,
+    marginLeft: SPACING.SM,
+  },
+  bankDetailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.SM,
+  },
+  bankDetailLabel: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    color: COLORS.TEXT_SECONDARY,
+    flex: 1,
+  },
+  copyableText: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 2,
+    justifyContent: 'flex-end',
+  },
+  bankDetailValue: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
+    color: COLORS.TEXT_PRIMARY,
+    marginRight: SPACING.XS,
+  },
+  // Instructions Styles
+  instructionsCard: {
+    backgroundColor: COLORS.INFO + '10',
+    borderRadius: 12,
+    padding: SPACING.LG,
+    marginVertical: SPACING.MD,
+    borderLeftWidth: 4,
+    borderLeftColor: COLORS.INFO,
+  },
+  instructionsTitle: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.SM,
+  },
+  instructionsText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    color: COLORS.TEXT_SECONDARY,
+    lineHeight: TYPOGRAPHY.LINE_HEIGHTS.RELAXED * TYPOGRAPHY.FONT_SIZES.SM,
+  },
+  // Upload Styles
+  uploadSection: {
+    marginVertical: SPACING.MD,
+  },
+  uploadTitle: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
+    color: COLORS.TEXT_PRIMARY,
+    marginBottom: SPACING.SM,
+  },
+  uploadButton: {
+    backgroundColor: COLORS.GRAY_50,
+    borderRadius: 12,
+    borderWidth: 2,
+    borderColor: COLORS.GRAY_200,
+    borderStyle: 'dashed',
+    padding: SPACING.XL,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  uploadButtonText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
+    color: COLORS.PRIMARY,
+    marginTop: SPACING.SM,
+  },
+  uploadButtonSubtext: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: SPACING.XS,
+  },
+  uploadedFile: {
+    position: 'relative',
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 12,
+    padding: SPACING.MD,
+    ...SHADOWS.SM,
+  },
+  uploadedImage: {
+    width: '100%',
+    height: 200,
+    borderRadius: 8,
+    resizeMode: 'cover',
+  },
+  documentPreview: {
+    alignItems: 'center',
+    padding: SPACING.LG,
+  },
+  documentName: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    color: COLORS.TEXT_PRIMARY,
+    marginTop: SPACING.SM,
+    textAlign: 'center',
+  },
+  removeButton: {
+    position: 'absolute',
+    top: SPACING.SM,
+    right: SPACING.SM,
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 12,
+    ...SHADOWS.SM,
   },
   confirmationIcon: {
     alignItems: 'center',
@@ -582,7 +1299,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
-    paddingVertical: SPACING.LG,
+    paddingTop: SPACING.LG,
+    paddingBottom: SPACING.XL + 20, // Extra padding to account for tab navigation
     backgroundColor: COLORS.WHITE,
     borderTopWidth: 1,
     borderTopColor: COLORS.GRAY_200,

@@ -22,29 +22,27 @@ const AccommodationDetailsScreen: React.FC = () => {
   const route = useRoute();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
-  // Mock data - would come from API based on route params
-  const accommodation = {
-    id: '1',
-    title: 'MCAN Lodge - Male Block A',
-    location: 'Abuja, FCT',
+  // Get accommodation data from route params (passed from AccommodationListingScreen)
+  const accommodation = route.params?.accommodation || {
+    _id: route.params?.id || 'default-id',
+    title: 'MCAN Lodge',
+    location: 'Nigeria',
     price: 25000,
-    gender: 'male',
-    amenities: ['WiFi', 'AC', 'Kitchen', 'Security', 'Laundry', 'Parking'],
-    rating: 4.5,
-    reviews: 23,
+    genderRestriction: 'brothers',
+    facilities: ['WiFi', 'AC', 'Kitchen', 'Security'],
     images: [],
     isAvailable: true,
-    description: 'Comfortable and secure accommodation designed specifically for male corps members. Located in a safe neighborhood with easy access to transportation and essential services.',
-    features: [
-      'Fully furnished rooms',
-      '24/7 security',
-      'High-speed internet',
-      'Shared kitchen facilities',
-      'Laundry services',
-      'Parking space',
-      'Prayer room',
-      'Study area',
-    ],
+    description: 'Comfortable accommodation for corps members.',
+    accommodationType: 'Single Room',
+  };
+
+  // Ensure facilities is always an array
+  if (!accommodation.facilities || !Array.isArray(accommodation.facilities)) {
+    accommodation.facilities = [];
+  }
+
+  // Mock data for features not in server response
+  const additionalInfo = {
     rules: [
       'No smoking inside the building',
       'Quiet hours: 10 PM - 6 AM',
@@ -60,7 +58,11 @@ const AccommodationDetailsScreen: React.FC = () => {
   };
 
   const handleBookNow = () => {
-    navigation.navigate('BookingFlow' as never, { accommodationId: accommodation.id } as never);
+    navigation.navigate('BookingFlow' as never, {
+      accommodationId: accommodation._id,
+      accommodationPrice: accommodation.price,
+      accommodationTitle: accommodation.title
+    } as never);
   };
 
   return (
@@ -87,7 +89,7 @@ const AccommodationDetailsScreen: React.FC = () => {
             <Text style={styles.placeholderText}>Accommodation Photos</Text>
           </View>
           <View style={styles.genderBadge}>
-            <Text style={styles.genderText}>{accommodation.gender.toUpperCase()}</Text>
+            <Text style={styles.genderText}>{accommodation.genderRestriction.toUpperCase()}</Text>
           </View>
         </View>
 
@@ -95,10 +97,8 @@ const AccommodationDetailsScreen: React.FC = () => {
         <View style={styles.section}>
           <View style={styles.titleRow}>
             <Text style={styles.title}>{accommodation.title}</Text>
-            <View style={styles.ratingContainer}>
-              <Ionicons name="star" size={16} color={COLORS.WARNING} />
-              <Text style={styles.ratingText}>{accommodation.rating}</Text>
-              <Text style={styles.reviewsText}>({accommodation.reviews} reviews)</Text>
+            <View style={styles.typeContainer}>
+              <Text style={styles.typeText}>{accommodation.accommodationType}</Text>
             </View>
           </View>
           
@@ -119,37 +119,26 @@ const AccommodationDetailsScreen: React.FC = () => {
           <Text style={styles.description}>{accommodation.description}</Text>
         </View>
 
-        {/* Amenities */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Amenities</Text>
-          <View style={styles.amenitiesGrid}>
-            {accommodation.amenities.map((amenity, index) => (
-              <View key={index} style={styles.amenityItem}>
-                <Ionicons name="checkmark-circle" size={16} color={COLORS.SUCCESS} />
-                <Text style={styles.amenityText}>{amenity}</Text>
-              </View>
-            ))}
+        {/* Facilities */}
+        {accommodation.facilities && accommodation.facilities.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Facilities</Text>
+            <View style={styles.amenitiesGrid}>
+              {accommodation.facilities.map((facility, index) => (
+                <View key={index} style={styles.amenityItem}>
+                  <Ionicons name="checkmark-circle" size={16} color={COLORS.SUCCESS} />
+                  <Text style={styles.amenityText}>{facility}</Text>
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
-
-        {/* Features */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Features</Text>
-          <View style={styles.featuresList}>
-            {accommodation.features.map((feature, index) => (
-              <View key={index} style={styles.featureItem}>
-                <Ionicons name="checkmark" size={16} color={COLORS.PRIMARY} />
-                <Text style={styles.featureText}>{feature}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
+        )}
 
         {/* Rules */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>House Rules</Text>
           <View style={styles.rulesList}>
-            {accommodation.rules.map((rule, index) => (
+            {additionalInfo.rules.map((rule, index) => (
               <View key={index} style={styles.ruleItem}>
                 <Ionicons name="information-circle-outline" size={16} color={COLORS.INFO} />
                 <Text style={styles.ruleText}>{rule}</Text>
@@ -164,15 +153,15 @@ const AccommodationDetailsScreen: React.FC = () => {
           <View style={styles.contactCard}>
             <View style={styles.contactItem}>
               <Ionicons name="call-outline" size={20} color={COLORS.PRIMARY} />
-              <Text style={styles.contactText}>{accommodation.contact.phone}</Text>
+              <Text style={styles.contactText}>{additionalInfo.contact.phone}</Text>
             </View>
             <View style={styles.contactItem}>
               <Ionicons name="mail-outline" size={20} color={COLORS.PRIMARY} />
-              <Text style={styles.contactText}>{accommodation.contact.email}</Text>
+              <Text style={styles.contactText}>{additionalInfo.contact.email}</Text>
             </View>
             <View style={styles.contactItem}>
               <Ionicons name="location-outline" size={20} color={COLORS.PRIMARY} />
-              <Text style={styles.contactText}>{accommodation.contact.address}</Text>
+              <Text style={styles.contactText}>{additionalInfo.contact.address}</Text>
             </View>
           </View>
         </View>
@@ -208,6 +197,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   backButton: {
     padding: SPACING.SM,
@@ -380,7 +371,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   bottomSpacing: {
-    height: 100, // Space for fixed button
+    height: 80, // Reduced space for fixed button
   },
   fixedButtonContainer: {
     position: 'absolute',
@@ -389,10 +380,21 @@ const styles = StyleSheet.create({
     right: 0,
     backgroundColor: COLORS.WHITE,
     padding: SPACING.LG,
-    paddingBottom: SPACING.LG + 20, // Extra space for safe area
+    paddingBottom: SPACING.LG + 30, // Increased safe area space to prevent cutoff
     borderTopWidth: 1,
     borderTopColor: COLORS.GRAY_200,
     ...SHADOWS.LG,
+  },
+  typeContainer: {
+    backgroundColor: COLORS.GRAY_100,
+    paddingHorizontal: SPACING.SM,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  typeText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    color: COLORS.TEXT_SECONDARY,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
   },
 });
 

@@ -214,7 +214,10 @@ const PaymentDashboard = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Bank Details */}
-              {paymentDetails.bankDetails && paymentDetails.bankDetails.accountNumber && (
+              {paymentDetails.bankDetails &&
+               paymentDetails.bankDetails.accountNumber &&
+               paymentDetails.bankDetails.accountNumber !== "0000000000" &&
+               paymentDetails.bankDetails.bankName !== "Please configure bank details" && (
                 <div className="bg-white rounded-lg p-4 border border-gray-200">
                   <div className="flex items-center gap-2 mb-3">
                     <FaUniversity className="text-blue-600" />
@@ -285,6 +288,28 @@ const PaymentDashboard = () => {
                 </div>
               )}
             </div>
+
+            {/* No Payment Methods Available Message */}
+            {(!paymentDetails.bankDetails ||
+              paymentDetails.bankDetails.accountNumber === "0000000000" ||
+              paymentDetails.bankDetails.bankName === "Please configure bank details") &&
+             (!paymentDetails.mobilePayments || paymentDetails.mobilePayments.length === 0) && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <FaExclamationTriangle className="text-yellow-600 mt-1" />
+                  <div>
+                    <h3 className="font-semibold text-yellow-800 mb-2">Payment Methods Not Configured</h3>
+                    <p className="text-yellow-700 text-sm mb-3">
+                      Payment account details are currently being set up. Please check back later or contact support for assistance.
+                    </p>
+                    <div className="text-xs text-yellow-600">
+                      <p>• Bank transfer details will be available once configured</p>
+                      <p>• Mobile money options will be displayed when available</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Payment Instructions */}
             {paymentDetails.paymentInstructions && (

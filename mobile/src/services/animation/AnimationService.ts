@@ -121,7 +121,7 @@ export const ANIMATION_PRESETS = {
   LOADING_PULSE: {
     type: AnimationType.SCALE,
     duration: 1000,
-    easing: Easing.inOut(Easing.sine),
+    easing: Easing.inOut(Easing.ease),
     loop: true,
     reverse: true,
   },
@@ -431,7 +431,7 @@ class AnimationService {
     scaleValue: Animated.Value
   ): Animated.CompositeAnimation {
     const duration = this.getDuration(1000);
-    
+
     if (duration === 0) {
       return Animated.timing(scaleValue, {
         toValue: 1,
@@ -444,13 +444,13 @@ class AnimationService {
       Animated.timing(scaleValue, {
         toValue: 1.1,
         duration: duration / 2,
-        easing: Easing.inOut(Easing.sine),
+        easing: Easing.inOut(Easing.ease),
         useNativeDriver: true,
       }),
       Animated.timing(scaleValue, {
         toValue: 1,
         duration: duration / 2,
-        easing: Easing.inOut(Easing.sine),
+        easing: Easing.inOut(Easing.ease),
         useNativeDriver: true,
       }),
     ]);

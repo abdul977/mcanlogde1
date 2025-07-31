@@ -197,7 +197,10 @@ const PaymentUploadModal = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Bank Details */}
-                {paymentDetails.bankDetails && paymentDetails.bankDetails.accountNumber && (
+                {paymentDetails.bankDetails &&
+                 paymentDetails.bankDetails.accountNumber &&
+                 paymentDetails.bankDetails.accountNumber !== "0000000000" &&
+                 paymentDetails.bankDetails.bankName !== "Please configure bank details" && (
                   <div className="bg-white p-3 rounded border">
                     <div className="flex items-center gap-2 mb-2">
                       <FaUniversity className="text-blue-600" />

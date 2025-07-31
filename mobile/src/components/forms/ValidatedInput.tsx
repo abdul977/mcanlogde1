@@ -15,12 +15,15 @@ import {
   Animated,
   AccessibilityInfo,
   TextInputProps,
+  Modal,
+  ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 import { COLORS, TYPOGRAPHY, SPACING, BORDER_RADIUS } from '../../constants';
 import { ValidationResult } from '../../utils/validation';
 import { useAccessibility, useFocusManagement } from '../../hooks/useAccessibility';
+import { DatePickerModal } from '../modals/DatePickerModal';
 
 // Input variant types
 type InputVariant = 'default' | 'outlined' | 'filled';
@@ -34,32 +37,42 @@ interface ValidatedInputProps extends Omit<TextInputProps, 'style'> {
   onChangeText: (text: string) => void;
   onBlur?: () => void;
   onFocus?: () => void;
-  
+
   // Validation
   validationResult?: ValidationResult;
   showValidation?: boolean;
   validateOnChange?: boolean;
   validateOnBlur?: boolean;
-  
+
   // Styling
   variant?: InputVariant;
   size?: InputSize;
   disabled?: boolean;
   required?: boolean;
-  
+
   // Icons
   leftIcon?: string;
   rightIcon?: string;
   onRightIconPress?: () => void;
-  
+
   // Password specific
   secureTextEntry?: boolean;
   showPasswordToggle?: boolean;
-  
+
+  // Date picker specific
+  isDatePicker?: boolean;
+  minimumDate?: Date;
+  maximumDate?: Date;
+  datePickerMode?: 'date' | 'time' | 'datetime';
+
+  // Dropdown specific
+  isDropdown?: boolean;
+  dropdownOptions?: Array<{ label: string; value: string }>;
+
   // Accessibility
   accessibilityLabel?: string;
   accessibilityHint?: string;
-  
+
   // Container styling
   containerStyle?: any;
   inputStyle?: any;
@@ -97,6 +110,16 @@ export const ValidatedInput: React.FC<ValidatedInputProps> = ({
   secureTextEntry = false,
   showPasswordToggle = false,
 
+  // Date picker
+  isDatePicker = false,
+  minimumDate,
+  maximumDate,
+  datePickerMode = 'date',
+
+  // Dropdown
+  isDropdown = false,
+  dropdownOptions = [],
+
   // Accessibility
   accessibilityLabel,
   accessibilityHint,
@@ -113,6 +136,8 @@ export const ValidatedInput: React.FC<ValidatedInputProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(!secureTextEntry);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   // Accessibility hooks
   const {
@@ -196,6 +221,53 @@ export const ValidatedInput: React.FC<ValidatedInputProps> = ({
   // Toggle password visibility
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+  };
+
+  // Handle date picker
+  const handleDatePickerPress = () => {
+    if (isDatePicker && !disabled) {
+      setShowDatePicker(true);
+      setHasInteracted(true);
+    }
+  };
+
+  const handleDateSelect = (date: Date) => {
+    const formattedDate = date.toISOString().split('T')[0]; // YYYY-MM-DD format
+    onChangeText(formattedDate);
+    setShowDatePicker(false);
+  };
+
+  const formatDisplayDate = (dateString: string) => {
+    if (!dateString) return '';
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric',
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
+  // Handle dropdown
+  const handleDropdownPress = () => {
+    if (isDropdown && !disabled) {
+      setShowDropdown(true);
+      setHasInteracted(true);
+    }
+  };
+
+  const handleDropdownSelect = (selectedValue: string) => {
+    onChangeText(selectedValue);
+    setShowDropdown(false);
+  };
+
+  const getDropdownDisplayText = () => {
+    if (!value) return '';
+    const selectedOption = dropdownOptions.find(option => option.value === value);
+    return selectedOption ? selectedOption.label : value;
   };
   
   // Get container style based on variant and state
@@ -315,21 +387,63 @@ export const ValidatedInput: React.FC<ValidatedInputProps> = ({
           </View>
         )}
         
-        {/* Text Input */}
-        <TextInput
-          ref={inputRef}
-          style={[getInputStyle(), inputStyle]}
-          value={value}
-          onChangeText={handleChangeText}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          placeholder={placeholder}
-          placeholderTextColor={COLORS.GRAY_400}
-          secureTextEntry={secureTextEntry && !showPassword}
-          editable={!disabled}
-          {...getEnhancedAccessibilityProps()}
-          {...textInputProps}
-        />
+        {/* Text Input, Date Picker Trigger, or Dropdown Trigger */}
+        {isDatePicker ? (
+          <TouchableOpacity
+            style={[getInputStyle(), inputStyle, styles.datePickerTrigger]}
+            onPress={handleDatePickerPress}
+            disabled={disabled}
+            accessibilityRole="button"
+            accessibilityLabel={`Select ${label || 'date'}`}
+            accessibilityHint="Opens date picker"
+          >
+            <Text style={[
+              styles.datePickerText,
+              !value && styles.placeholderText,
+              disabled && styles.disabledText
+            ]}>
+              {value ? formatDisplayDate(value) : placeholder}
+            </Text>
+          </TouchableOpacity>
+        ) : isDropdown ? (
+          <TouchableOpacity
+            style={[getInputStyle(), inputStyle, styles.dropdownTrigger]}
+            onPress={handleDropdownPress}
+            disabled={disabled}
+            accessibilityRole="button"
+            accessibilityLabel={`Select ${label || 'option'}`}
+            accessibilityHint="Opens dropdown menu"
+          >
+            <Text style={[
+              styles.dropdownText,
+              !value && styles.placeholderText,
+              disabled && styles.disabledText
+            ]}>
+              {value ? getDropdownDisplayText() : placeholder}
+            </Text>
+            <Ionicons
+              name="chevron-down"
+              size={20}
+              color={disabled ? COLORS.GRAY_300 : COLORS.GRAY_500}
+              style={styles.dropdownIcon}
+            />
+          </TouchableOpacity>
+        ) : (
+          <TextInput
+            ref={inputRef}
+            style={[getInputStyle(), inputStyle]}
+            value={value}
+            onChangeText={handleChangeText}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder={placeholder}
+            placeholderTextColor={COLORS.GRAY_400}
+            secureTextEntry={secureTextEntry && !showPassword}
+            editable={!disabled}
+            {...getEnhancedAccessibilityProps()}
+            {...textInputProps}
+          />
+        )}
         
         {/* Right Icon / Password Toggle */}
         {(rightIcon || showPasswordToggle) && (
@@ -408,6 +522,67 @@ export const ValidatedInput: React.FC<ValidatedInputProps> = ({
             </View>
           )}
         </View>
+      )}
+
+      {/* Date Picker Modal */}
+      {isDatePicker && (
+        <DatePickerModal
+          visible={showDatePicker}
+          selectedDate={value ? new Date(value) : new Date()}
+          minimumDate={minimumDate}
+          maximumDate={maximumDate}
+          onDateSelect={handleDateSelect}
+          onClose={() => setShowDatePicker(false)}
+          title={`Select ${label || 'Date'}`}
+          mode={datePickerMode}
+        />
+      )}
+
+      {/* Dropdown Modal */}
+      {isDropdown && (
+        <Modal
+          visible={showDropdown}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setShowDropdown(false)}
+        >
+          <TouchableOpacity
+            style={styles.dropdownOverlay}
+            activeOpacity={1}
+            onPress={() => setShowDropdown(false)}
+          >
+            <View style={styles.dropdownModal}>
+              <View style={styles.dropdownHeader}>
+                <Text style={styles.dropdownTitle}>Select {label}</Text>
+                <TouchableOpacity onPress={() => setShowDropdown(false)}>
+                  <Ionicons name="close" size={24} color={COLORS.GRAY_600} />
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={styles.dropdownList}>
+                {dropdownOptions.map((option, index) => (
+                  <TouchableOpacity
+                    key={index}
+                    style={[
+                      styles.dropdownOption,
+                      value === option.value && styles.selectedOption
+                    ]}
+                    onPress={() => handleDropdownSelect(option.value)}
+                  >
+                    <Text style={[
+                      styles.dropdownOptionText,
+                      value === option.value && styles.selectedOptionText
+                    ]}>
+                      {option.label}
+                    </Text>
+                    {value === option.value && (
+                      <Ionicons name="checkmark" size={20} color={COLORS.PRIMARY} />
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </View>
+          </TouchableOpacity>
+        </Modal>
       )}
     </Animated.View>
   );
@@ -530,6 +705,81 @@ const styles = StyleSheet.create({
   },
   strengthStrong: {
     color: COLORS.SUCCESS,
+  },
+  // Date picker styles
+  datePickerTrigger: {
+    justifyContent: 'center',
+  },
+  datePickerText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_PRIMARY,
+  },
+  placeholderText: {
+    color: COLORS.GRAY_400,
+  },
+  disabledText: {
+    color: COLORS.GRAY_300,
+  },
+  // Dropdown styles
+  dropdownTrigger: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  dropdownText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_PRIMARY,
+    flex: 1,
+  },
+  dropdownIcon: {
+    marginLeft: SPACING.SM,
+  },
+  dropdownOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+  dropdownModal: {
+    backgroundColor: COLORS.WHITE,
+    borderTopLeftRadius: BORDER_RADIUS.XL,
+    borderTopRightRadius: BORDER_RADIUS.XL,
+    maxHeight: '70%',
+  },
+  dropdownHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: SPACING.LG,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.GRAY_200,
+  },
+  dropdownTitle: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.LG,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
+    color: COLORS.TEXT_PRIMARY,
+  },
+  dropdownList: {
+    maxHeight: 300,
+  },
+  dropdownOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: SPACING.LG,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.GRAY_100,
+  },
+  selectedOption: {
+    backgroundColor: COLORS.PRIMARY_LIGHT,
+  },
+  dropdownOptionText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_PRIMARY,
+    flex: 1,
+  },
+  selectedOptionText: {
+    color: COLORS.PRIMARY,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
   },
 });
 

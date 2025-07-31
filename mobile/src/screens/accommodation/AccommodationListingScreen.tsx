@@ -16,83 +16,117 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, GENDER_OPTIONS } from '../../constants';
+import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, GENDER_OPTIONS, API_CONFIG, ENDPOINTS } from '../../constants';
 import { SafeAreaScreen } from '../../components';
+import { useAuth } from '../../context';
 
 interface Accommodation {
-  id: string;
+  _id: string;
   title: string;
   location: string;
   price: number;
-  gender: 'male' | 'female' | 'mixed';
-  amenities: string[];
-  rating: number;
-  reviews: number;
+  genderRestriction: 'brothers' | 'sisters' | 'family';
+  facilities: string[];
   images: string[];
   isAvailable: boolean;
   description: string;
+  accommodationType: string;
+  slug: string;
 }
 
 const AccommodationListingScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { token, user } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedGender, setSelectedGender] = useState<string>('all');
-  const [accommodations, setAccommodations] = useState<Accommodation[]>([
-    {
-      id: '1',
-      title: 'MCAN Lodge - Male Block A',
-      location: 'Abuja, FCT',
-      price: 25000,
-      gender: 'male',
-      amenities: ['WiFi', 'AC', 'Kitchen', 'Security'],
-      rating: 4.5,
-      reviews: 23,
-      images: [],
-      isAvailable: true,
-      description: 'Comfortable accommodation for male corps members',
-    },
-    {
-      id: '2',
-      title: 'MCAN Lodge - Female Block B',
-      location: 'Lagos, Nigeria',
-      price: 30000,
-      gender: 'female',
-      amenities: ['WiFi', 'AC', 'Kitchen', 'Security', 'Laundry'],
-      rating: 4.8,
-      reviews: 31,
-      images: [],
-      isAvailable: true,
-      description: 'Premium accommodation for female corps members',
-    },
-    {
-      id: '3',
-      title: 'MCAN Shared Apartment',
-      location: 'Kano, Nigeria',
-      price: 20000,
-      gender: 'mixed',
-      amenities: ['WiFi', 'Kitchen', 'Security'],
-      rating: 4.2,
-      reviews: 15,
-      images: [],
-      isAvailable: false,
-      description: 'Affordable shared accommodation',
-    },
-  ]);
+  const [accommodations, setAccommodations] = useState<Accommodation[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
-  const filteredAccommodations = accommodations.filter(acc => 
-    selectedGender === 'all' || acc.gender === selectedGender
-  );
+  // Fetch accommodations from server
+  const fetchAccommodations = async () => {
+    try {
+      setError(null);
+
+      if (!token) {
+        setError('Please log in to view accommodations');
+        return;
+      }
+
+      // Determine user gender for appropriate accommodations
+      const userGender = user?.gender || 'mixed';
+      let endpoint = `${API_CONFIG.BASE_URL}${ENDPOINTS.ACCOMMODATIONS_BY_GENDER}`;
+
+      // Use gender-specific endpoint like our working test script
+      if (userGender === 'female') {
+        endpoint = `${API_CONFIG.BASE_URL}${ENDPOINTS.ACCOMMODATIONS_BY_GENDER}/sisters`;
+      } else if (userGender === 'male') {
+        endpoint = `${API_CONFIG.BASE_URL}${ENDPOINTS.ACCOMMODATIONS_BY_GENDER}/brothers`;
+      } else {
+        // Fallback to all accommodations
+        endpoint = `${API_CONFIG.BASE_URL}${ENDPOINTS.ACCOMMODATIONS}`;
+      }
+
+      console.log('🏠 Fetching accommodations from:', endpoint);
+
+      const response = await fetch(endpoint, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: Failed to fetch accommodations`);
+      }
+
+      const data = await response.json();
+      console.log('🏠 Accommodations response:', data);
+
+      if (data.success && data.posts) {
+        setAccommodations(data.posts);
+      } else {
+        throw new Error(data.message || 'Failed to load accommodations');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching accommodations:', error);
+      setError(error.message || 'Failed to load accommodations');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load accommodations on component mount
+  React.useEffect(() => {
+    fetchAccommodations();
+  }, [token, user]);
+
+  const filteredAccommodations = accommodations.filter(acc => {
+    if (selectedGender === 'all') return true;
+
+    // Map gender filter to server gender restriction format
+    const genderMap = {
+      'male': 'brothers',
+      'female': 'sisters',
+      'mixed': 'family'
+    };
+
+    return acc.genderRestriction === genderMap[selectedGender];
+  });
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // TODO: Fetch accommodations from API
-    setTimeout(() => setRefreshing(false), 1000);
+    await fetchAccommodations();
+    setRefreshing(false);
   };
 
   const renderAccommodationCard = ({ item }: { item: Accommodation }) => (
     <TouchableOpacity
       style={styles.accommodationCard}
-      onPress={() => navigation.navigate('AccommodationDetails' as never, { id: item.id } as never)}
+      onPress={() => navigation.navigate('AccommodationDetails' as never, {
+        id: item._id,
+        accommodation: item
+      } as never)}
     >
       <View style={styles.imageContainer}>
         <View style={styles.placeholderImage}>
@@ -104,17 +138,15 @@ const AccommodationListingScreen: React.FC = () => {
           </View>
         )}
         <View style={styles.genderBadge}>
-          <Text style={styles.genderText}>{item.gender.toUpperCase()}</Text>
+          <Text style={styles.genderText}>{item.genderRestriction.toUpperCase()}</Text>
         </View>
       </View>
 
       <View style={styles.cardContent}>
         <View style={styles.cardHeader}>
           <Text style={styles.accommodationTitle} numberOfLines={2}>{item.title}</Text>
-          <View style={styles.ratingContainer}>
-            <Ionicons name="star" size={14} color={COLORS.WARNING} />
-            <Text style={styles.ratingText}>{item.rating}</Text>
-            <Text style={styles.reviewsText}>({item.reviews})</Text>
+          <View style={styles.typeContainer}>
+            <Text style={styles.typeText}>{item.accommodationType}</Text>
           </View>
         </View>
 
@@ -126,13 +158,13 @@ const AccommodationListingScreen: React.FC = () => {
         <Text style={styles.description} numberOfLines={2}>{item.description}</Text>
 
         <View style={styles.amenitiesContainer}>
-          {item.amenities.slice(0, 3).map((amenity, index) => (
+          {Array.isArray(item.facilities) && item.facilities.slice(0, 3).map((facility, index) => (
             <View key={index} style={styles.amenityTag}>
-              <Text style={styles.amenityText}>{amenity}</Text>
+              <Text style={styles.amenityText}>{facility}</Text>
             </View>
           ))}
-          {item.amenities.length > 3 && (
-            <Text style={styles.moreAmenities}>+{item.amenities.length - 3} more</Text>
+          {Array.isArray(item.facilities) && item.facilities.length > 3 && (
+            <Text style={styles.moreAmenities}>+{item.facilities.length - 3} more</Text>
           )}
         </View>
 
@@ -144,6 +176,11 @@ const AccommodationListingScreen: React.FC = () => {
           <TouchableOpacity
             style={[styles.bookButton, !item.isAvailable && styles.bookButtonDisabled]}
             disabled={!item.isAvailable}
+            onPress={() => navigation.navigate('BookingFlow' as never, {
+              accommodationId: item._id,
+              accommodationPrice: item.price,
+              accommodationTitle: item.title
+            } as never)}
           >
             <Text style={[styles.bookButtonText, !item.isAvailable && styles.bookButtonTextDisabled]}>
               {item.isAvailable ? 'Book Now' : 'Unavailable'}
@@ -192,24 +229,45 @@ const AccommodationListingScreen: React.FC = () => {
         </ScrollView>
       </View>
 
+      {/* Loading State */}
+      {loading && (
+        <View style={styles.loadingContainer}>
+          <Text style={styles.loadingText}>Loading accommodations...</Text>
+        </View>
+      )}
+
+      {/* Error State */}
+      {error && (
+        <View style={styles.errorContainer}>
+          <Ionicons name="alert-circle-outline" size={48} color={COLORS.ERROR} />
+          <Text style={styles.errorTitle}>Error Loading Accommodations</Text>
+          <Text style={styles.errorText}>{error}</Text>
+          <TouchableOpacity style={styles.retryButton} onPress={fetchAccommodations}>
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Accommodations List */}
-      <FlatList
-        data={filteredAccommodations}
-        renderItem={renderAccommodationCard}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.listContainer}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="bed-outline" size={64} color={COLORS.GRAY_400} />
-            <Text style={styles.emptyTitle}>No Accommodations Found</Text>
-            <Text style={styles.emptySubtitle}>
-              Try adjusting your filters or check back later
-            </Text>
-          </View>
-        }
-      />
+      {!loading && !error && (
+        <FlatList
+          data={filteredAccommodations}
+          renderItem={renderAccommodationCard}
+          keyExtractor={(item) => item._id}
+          contentContainerStyle={styles.listContainer}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Ionicons name="bed-outline" size={64} color={COLORS.GRAY_400} />
+              <Text style={styles.emptyTitle}>No Accommodations Found</Text>
+              <Text style={styles.emptySubtitle}>
+                Try adjusting your filters or check back later
+              </Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaScreen>
   );
 };
@@ -226,6 +284,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   headerTitle: {
     fontSize: TYPOGRAPHY.FONT_SIZES.XL,
@@ -264,7 +324,7 @@ const styles = StyleSheet.create({
   },
   listContainer: {
     padding: SPACING.LG,
-    paddingBottom: 100, // Space for tab bar
+    paddingBottom: 80, // Reduced space for tab bar
   },
   accommodationCard: {
     backgroundColor: COLORS.WHITE,
@@ -433,6 +493,60 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
     color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: SPACING.XL * 2,
+  },
+  loadingText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: SPACING.MD,
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: SPACING.XL * 2,
+    paddingHorizontal: SPACING.LG,
+  },
+  errorTitle: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.XL,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
+    color: COLORS.ERROR,
+    marginTop: SPACING.LG,
+    marginBottom: SPACING.SM,
+    textAlign: 'center',
+  },
+  errorText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_SECONDARY,
+    textAlign: 'center',
+    marginBottom: SPACING.LG,
+  },
+  retryButton: {
+    backgroundColor: COLORS.PRIMARY,
+    paddingHorizontal: SPACING.LG,
+    paddingVertical: SPACING.MD,
+    borderRadius: SPACING.SM,
+  },
+  retryButtonText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
+    color: COLORS.WHITE,
+  },
+  typeContainer: {
+    backgroundColor: COLORS.GRAY_100,
+    paddingHorizontal: SPACING.SM,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  typeText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.XS,
+    color: COLORS.TEXT_SECONDARY,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
   },
 });
 

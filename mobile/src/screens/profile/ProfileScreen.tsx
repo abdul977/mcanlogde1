@@ -22,14 +22,14 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS } from '../../constants';
+import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, API_CONFIG, ENDPOINTS } from '../../constants';
 import { useAuth, useMessaging } from '../../context';
 import { SafeAreaScreen } from '../../components';
 
 const ProfileScreen: React.FC = () => {
   console.log('👤 ProfileScreen rendering...');
   const navigation = useNavigation();
-  const { user, logout } = useAuth();
+  const { user, token, logout } = useAuth();
   const { unreadCount } = useMessaging();
   const [refreshing, setRefreshing] = useState(false);
   const [stats, setStats] = useState({
@@ -38,12 +38,51 @@ const ProfileScreen: React.FC = () => {
     messages: 0,
   });
 
+  // Fetch user statistics
+  const fetchStats = async () => {
+    try {
+      // Only fetch stats if user is authenticated
+      if (!token) {
+        return;
+      }
+
+      // Fetch bookings count
+      const bookingsResponse = await fetch(`${API_CONFIG.BASE_URL}${ENDPOINTS.MY_BOOKINGS}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (bookingsResponse.ok) {
+        const bookingsData = await bookingsResponse.json();
+        const bookingsCount = bookingsData.bookings ? bookingsData.bookings.length : (Array.isArray(bookingsData) ? bookingsData.length : 0);
+
+        setStats(prevStats => ({
+          ...prevStats,
+          bookings: bookingsCount,
+        }));
+      }
+
+      // TODO: Fetch orders and messages count when those APIs are available
+
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      // Don't show error to user for stats, just keep default values
+    }
+  };
+
   // Handle refresh
   const onRefresh = async () => {
     setRefreshing(true);
-    // TODO: Refresh user data and stats
-    setTimeout(() => setRefreshing(false), 1000);
+    await fetchStats();
+    setRefreshing(false);
   };
+
+  useEffect(() => {
+    fetchStats();
+  }, []);
 
   // Handle logout with confirmation
   const handleLogout = () => {

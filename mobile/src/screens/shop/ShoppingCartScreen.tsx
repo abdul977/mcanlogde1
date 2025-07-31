@@ -204,6 +204,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: SPACING.LG,
     paddingVertical: SPACING.MD,
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
   },
   backButton: {
     padding: SPACING.SM,
@@ -360,12 +362,12 @@ const styles = StyleSheet.create({
     color: COLORS.PRIMARY,
   },
   bottomSpacing: {
-    height: 100,
+    height: 80, // Reduced bottom spacing
   },
   checkoutContainer: {
     backgroundColor: COLORS.WHITE,
     padding: SPACING.LG,
-    paddingBottom: SPACING.LG + 20,
+    paddingBottom: SPACING.LG + 30, // Increased safe area space to prevent cutoff
     borderTopWidth: 1,
     borderTopColor: COLORS.GRAY_200,
     ...SHADOWS.LG,

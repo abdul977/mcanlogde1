@@ -38,9 +38,8 @@
     },
     "extra": {
       "eas": {
-        "projectId": "mcan-mobile"
+        "projectId": "0e500bbd-3502-4dd8-9164-7c1e5e264747"
       }
-    },
-    "owner": "mcan"
+    }
   }
 }
