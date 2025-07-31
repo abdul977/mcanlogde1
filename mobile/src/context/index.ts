@@ -18,5 +18,8 @@ export { MessagingProvider, useMessaging } from './MessagingContext';
 // Socket Context
 export { SocketProvider, useSocket } from './SocketContext';
 
+// Profile Stats Context
+export { ProfileStatsProvider, useProfileStats } from './ProfileStatsContext';
+
 // Settings Context (will be implemented later)
 // export { SettingsProvider, useSettings } from './SettingsContext';

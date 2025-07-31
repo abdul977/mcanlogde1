@@ -8,7 +8,7 @@ const axios = require('axios');
 
 // Configuration - matches mobile app constants
 const CONFIG = {
-  BASE_URL: 'http://localhost:3000', // Local server for testing
+  BASE_URL: 'https://mcanlogde1.onrender.com', // Render server for testing
   TEST_USER: {
     email: 'fatima.ibrahim@mcanenugu.org.ng',
     password: 'Fatima456!'

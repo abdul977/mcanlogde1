@@ -41,7 +41,7 @@ const Product = () => {
   const [loading, setLoading] = useState(true);
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [loadingRelated, setLoadingRelated] = useState(false);
-  const [cart, setCart] = useCart();
+  const { items: cart, addItem } = useCart();
   const navigate = useNavigate();
   const [auth] = useAuth();
   const [selectedImage, setSelectedImage] = useState(null);
@@ -203,8 +203,7 @@ const Product = () => {
 
   const handleAddToCart = () => {
     if (postDetails?.isAvailable) {
-      setCart([...cart, postDetails]);
-      localStorage.setItem("cart", JSON.stringify([...cart, postDetails]));
+      addItem(postDetails, 1);
       toast.success("Item Added to wishlist");
     }
   };

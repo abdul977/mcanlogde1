@@ -1,8 +1,8 @@
 /**
- * Shop Listing Screen - Display Islamic products
+ * Shop Listing Screen - Display Mcan products
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,118 +11,116 @@ import {
   TouchableOpacity,
   FlatList,
   RefreshControl,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS } from '../../constants';
+import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, API_CONFIG, ENDPOINTS } from '../../constants';
 import { SafeAreaScreen } from '../../components';
+import { Product } from '../../types';
+import { useCart } from '../../context/CartContext';
+import { isProductAvailable, formatProductPrice, calculateDiscountPercentage } from '../../utils/productUtils';
 
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  originalPrice?: number;
-  category: string;
-  rating: number;
-  reviews: number;
-  image?: string;
-  inStock: boolean;
-  description: string;
-}
+
 
 const ShopListingScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { addItem, totalItems } = useCart();
   const [refreshing, setRefreshing] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [cartItemCount, setCartItemCount] = useState(2);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState([
+    { id: 'all', name: 'All', icon: 'grid-outline' }
+  ]);
 
-  const categories = [
-    { id: 'all', name: 'All', icon: 'grid-outline' },
-    { id: 'books', name: 'Books', icon: 'book-outline' },
-    { id: 'prayer', name: 'Prayer', icon: 'moon-outline' },
-    { id: 'clothing', name: 'Clothing', icon: 'shirt-outline' },
-    { id: 'accessories', name: 'Accessories', icon: 'watch-outline' },
-  ];
+  // Fetch products from API
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_CONFIG.BASE_URL}${ENDPOINTS.PRODUCTS}`);
+      const data = await response.json();
 
-  const products: Product[] = [
-    {
-      id: '1',
-      name: 'Holy Quran with English Translation',
-      price: 7000,
-      originalPrice: 8500,
-      category: 'books',
-      rating: 4.8,
-      reviews: 45,
-      inStock: true,
-      description: 'Complete Quran with English translation and commentary',
-    },
-    {
-      id: '2',
-      name: 'Islamic Prayer Mat',
-      price: 8000,
-      category: 'prayer',
-      rating: 4.6,
-      reviews: 32,
-      inStock: true,
-      description: 'High-quality prayer mat with beautiful Islamic patterns',
-    },
-    {
-      id: '3',
-      name: 'Tasbih Beads (99 Count)',
-      price: 3000,
-      originalPrice: 3500,
-      category: 'accessories',
-      rating: 4.7,
-      reviews: 28,
-      inStock: true,
-      description: 'Traditional wooden tasbih beads for dhikr',
-    },
-    {
-      id: '4',
-      name: 'Islamic Wall Art',
-      price: 12000,
-      category: 'accessories',
-      rating: 4.9,
-      reviews: 18,
-      inStock: false,
-      description: 'Beautiful Islamic calligraphy wall art',
-    },
-  ];
+      if (data.success && data.products) {
+        setProducts(data.products);
+      } else {
+        Alert.alert('Error', 'Failed to fetch products');
+      }
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      Alert.alert('Error', 'Failed to connect to server');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const filteredProducts = products.filter(product => 
-    selectedCategory === 'all' || product.category === selectedCategory
+  // Fetch categories from API
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_CONFIG.BASE_URL}${ENDPOINTS.PRODUCT_CATEGORIES}`);
+      const data = await response.json();
+
+      if (data.success && data.categories) {
+        const apiCategories = data.categories.map((cat: any) => ({
+          id: cat._id,
+          name: cat.name,
+          icon: 'storefront-outline'
+        }));
+        setCategories([
+          { id: 'all', name: 'All', icon: 'grid-outline' },
+          ...apiCategories
+        ]);
+      }
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchProducts();
+    fetchCategories();
+  }, []);
+
+  const filteredProducts = products.filter(product =>
+    selectedCategory === 'all' || product.category?._id === selectedCategory
   );
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // TODO: Fetch products from API
-    setTimeout(() => setRefreshing(false), 1000);
+    await fetchProducts();
+    setRefreshing(false);
   };
 
-  const addToCart = (product: Product) => {
-    setCartItemCount(prev => prev + 1);
-    // TODO: Add to cart logic
+  const handleAddToCart = (product: Product) => {
+    try {
+      addItem(product, 1);
+      Alert.alert('Success', `${product.name} added to cart!`);
+    } catch (error) {
+      Alert.alert('Error', 'Failed to add item to cart');
+    }
   };
 
   const renderProductCard = ({ item }: { item: Product }) => (
     <TouchableOpacity
       style={styles.productCard}
-      onPress={() => navigation.navigate('ProductDetails' as never, { id: item.id } as never)}
+      onPress={() => navigation.navigate('ProductDetails' as never, { product: item } as never)}
     >
       <View style={styles.imageContainer}>
         <View style={styles.placeholderImage}>
           <Ionicons name="cube-outline" size={32} color={COLORS.GRAY_400} />
         </View>
-        {!item.inStock && (
+        {!isProductAvailable(item) && (
           <View style={styles.outOfStockBadge}>
             <Text style={styles.outOfStockText}>Out of Stock</Text>
           </View>
         )}
-        {item.originalPrice && (
+        {item.comparePrice && (
           <View style={styles.discountBadge}>
             <Text style={styles.discountText}>
-              {Math.round(((item.originalPrice - item.price) / item.originalPrice) * 100)}% OFF
+              {Math.round(((item.comparePrice - item.price) / item.comparePrice) * 100)}% OFF
             </Text>
           </View>
         )}
@@ -134,26 +132,26 @@ const ShopListingScreen: React.FC = () => {
         
         <View style={styles.ratingRow}>
           <Ionicons name="star" size={14} color={COLORS.WARNING} />
-          <Text style={styles.ratingText}>{item.rating}</Text>
-          <Text style={styles.reviewsText}>({item.reviews})</Text>
+          <Text style={styles.ratingText}>4.5</Text>
+          <Text style={styles.reviewsText}>(0)</Text>
         </View>
 
         <View style={styles.priceRow}>
           <View style={styles.priceContainer}>
             <Text style={styles.price}>₦{item.price.toLocaleString()}</Text>
-            {item.originalPrice && (
-              <Text style={styles.originalPrice}>₦{item.originalPrice.toLocaleString()}</Text>
+            {item.comparePrice && (
+              <Text style={styles.originalPrice}>₦{item.comparePrice.toLocaleString()}</Text>
             )}
           </View>
           <TouchableOpacity
-            style={[styles.addButton, !item.inStock && styles.addButtonDisabled]}
-            onPress={() => addToCart(item)}
-            disabled={!item.inStock}
+            style={[styles.addButton, !item.isActive && styles.addButtonDisabled]}
+            onPress={() => handleAddToCart(item)}
+            disabled={!item.isActive}
           >
-            <Ionicons 
-              name={item.inStock ? "add" : "close"} 
-              size={16} 
-              color={item.inStock ? COLORS.WHITE : COLORS.GRAY_500} 
+            <Ionicons
+              name={item.isActive ? "add" : "close"}
+              size={16}
+              color={item.isActive ? COLORS.WHITE : COLORS.GRAY_500}
             />
           </TouchableOpacity>
         </View>
@@ -165,15 +163,15 @@ const ShopListingScreen: React.FC = () => {
     <SafeAreaScreen style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Islamic Shop</Text>
+        <Text style={styles.headerTitle}>Mcan Shop</Text>
         <TouchableOpacity
           style={styles.cartButton}
           onPress={() => navigation.navigate('ShoppingCart' as never)}
         >
           <Ionicons name="bag-outline" size={24} color={COLORS.WHITE} />
-          {cartItemCount > 0 && (
+          {totalItems > 0 && (
             <View style={styles.cartBadge}>
-              <Text style={styles.cartBadgeText}>{cartItemCount}</Text>
+              <Text style={styles.cartBadgeText}>{totalItems}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -208,25 +206,32 @@ const ShopListingScreen: React.FC = () => {
       </View>
 
       {/* Products Grid */}
-      <FlatList
-        data={filteredProducts}
-        renderItem={renderProductCard}
-        keyExtractor={(item) => item.id}
-        numColumns={2}
-        contentContainerStyle={styles.listContainer}
-        columnWrapperStyle={styles.row}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        showsVerticalScrollIndicator={false}
-        ListEmptyComponent={
-          <View style={styles.emptyState}>
-            <Ionicons name="storefront-outline" size={64} color={COLORS.GRAY_400} />
-            <Text style={styles.emptyTitle}>No Products Found</Text>
-            <Text style={styles.emptySubtitle}>
-              Try selecting a different category
-            </Text>
-          </View>
-        }
-      />
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.PRIMARY} />
+          <Text style={styles.loadingText}>Loading products...</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={filteredProducts}
+          renderItem={renderProductCard}
+          keyExtractor={(item) => item._id}
+          numColumns={2}
+          contentContainerStyle={styles.listContainer}
+          columnWrapperStyle={styles.row}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          showsVerticalScrollIndicator={false}
+          ListEmptyComponent={
+            <View style={styles.emptyState}>
+              <Ionicons name="storefront-outline" size={64} color={COLORS.GRAY_400} />
+              <Text style={styles.emptyTitle}>No Products Found</Text>
+              <Text style={styles.emptySubtitle}>
+                Try selecting a different category
+              </Text>
+            </View>
+          }
+        />
+      )}
     </SafeAreaScreen>
   );
 };
@@ -430,6 +435,17 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
     color: COLORS.TEXT_SECONDARY,
     textAlign: 'center',
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: SPACING.XL,
+  },
+  loadingText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: SPACING.MD,
   },
 });
 

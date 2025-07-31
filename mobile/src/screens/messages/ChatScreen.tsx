@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, memo } from 'react';
 import {
   View,
   FlatList,
@@ -294,8 +294,9 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
     }
   };
 
-  const renderMessage = ({ item, index }: { item: Message; index: number }) => {
-    const isCurrentUser = item.sender._id === user?._id;
+  // Memoized message item for better performance
+  const MessageItem = memo(({ item, index, currentUserId }: { item: Message; index: number; currentUserId: string }) => {
+    const isCurrentUser = item.sender._id === currentUserId;
     const previousMessage = index > 0 ? messages[index - 1] : null;
     const showTimestamp = !previousMessage ||
       new Date(item.createdAt).getTime() - new Date(previousMessage.createdAt).getTime() > 300000; // 5 minutes
@@ -305,6 +306,16 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
         message={item}
         isCurrentUser={isCurrentUser}
         showTimestamp={showTimestamp}
+      />
+    );
+  });
+
+  const renderMessage = ({ item, index }: { item: Message; index: number }) => {
+    return (
+      <MessageItem
+        item={item}
+        index={index}
+        currentUserId={user?._id || ''}
       />
     );
   };
@@ -372,6 +383,13 @@ const ChatScreen: React.FC<ChatScreenProps> = ({ navigation, route }) => {
         ListFooterComponent={renderTypingIndicator}
         contentContainerStyle={[styles.messagesList, { paddingBottom: totalBottomSpace + 100 }]}
         style={styles.messagesContainer}
+        // Performance optimizations
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={10}
+        updateCellsBatchingPeriod={50}
+        initialNumToRender={20}
+        windowSize={10}
+        getItemLayout={undefined} // Let FlatList calculate automatically for variable heights
       />
 
       <View style={[styles.inputWrapper, { bottom: totalBottomSpace }]}>

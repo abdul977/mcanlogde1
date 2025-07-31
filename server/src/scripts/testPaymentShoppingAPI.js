@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 // Load environment variables
 dotenv.config({ path: '../../../.env' });
 
-const BASE_URL = process.env.BACKEND_URL || "http://localhost:3000";
+const BASE_URL = process.env.BACKEND_URL || "https://mcanlogde1.onrender.com";
 
 async function testPaymentShoppingAPI() {
   try {
@@ -14,8 +14,8 @@ async function testPaymentShoppingAPI() {
     // Step 1: Test login to get a valid token
     console.log("\n1️⃣ Testing login...");
     const loginResponse = await axios.post(`${BASE_URL}/auth/api/login`, {
-      email: "ahmed.hassan@mcanenugu.org.ng", // Using the admin user from seedUsers.js
-      password: "Ahmed123!" // Password from seedUsers.js
+      email: "fatima.ibrahim@mcanenugu.org.ng", // Using Fatima from seedUsers.js
+      password: "Fatima456!" // Password from seedUsers.js
     });
 
     if (!loginResponse.data.success) {

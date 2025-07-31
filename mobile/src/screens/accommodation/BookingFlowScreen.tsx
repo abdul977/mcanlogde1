@@ -27,7 +27,7 @@ import { ValidationConfig } from '../../utils/validation';
 const BookingFlowScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { token } = useAuth();
+  const { user, token } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -177,9 +177,9 @@ const BookingFlowScreen: React.FC = () => {
     handleSubmit,
   } = useFormValidation({
     initialValues: {
-      fullName: '',
-      phone: '',
-      stateCode: '',
+      fullName: user?.name || '',
+      phone: user?.phone || '',
+      stateCode: user?.stateCode || '',
       checkInDate: '',
       checkOutDate: '',
       numberOfGuests: '1',
@@ -193,6 +193,15 @@ const BookingFlowScreen: React.FC = () => {
     validateOnChange: false,
     validateOnBlur: true,
   });
+
+  // Update form data when user data changes
+  useEffect(() => {
+    if (user) {
+      setValue('fullName', user.name || '');
+      setValue('phone', user.phone || '');
+      setValue('stateCode', user.stateCode || '');
+    }
+  }, [user, setValue]);
 
   const handleNext = async () => {
     try {
@@ -429,6 +438,14 @@ const BookingFlowScreen: React.FC = () => {
             <Text style={styles.stepDescription}>
               Please provide your personal information for the booking
             </Text>
+            {(user?.name || user?.phone || user?.stateCode) && (
+              <View style={styles.profileInfoBanner}>
+                <Ionicons name="checkmark-circle" size={16} color={COLORS.SUCCESS} />
+                <Text style={styles.profileInfoText}>
+                  Some fields are pre-filled from your profile
+                </Text>
+              </View>
+            )}
 
             <ValidatedInput
               label="Full Name"
@@ -1316,6 +1333,22 @@ const styles = StyleSheet.create({
   nextButtonContainer: {
     flex: 1,
     marginLeft: SPACING.LG,
+  },
+  profileInfoBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.SUCCESS + '10',
+    borderRadius: 8,
+    padding: SPACING.SM,
+    marginBottom: SPACING.MD,
+    borderWidth: 1,
+    borderColor: COLORS.SUCCESS + '30',
+  },
+  profileInfoText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    color: COLORS.SUCCESS,
+    marginLeft: SPACING.XS,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
   },
 });
 

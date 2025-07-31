@@ -2,7 +2,7 @@
  * Order History Screen - Display user's shop orders
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,12 +11,15 @@ import {
   TouchableOpacity,
   RefreshControl,
   Image,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS } from '../../constants';
+import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, API_CONFIG, ENDPOINTS } from '../../constants';
 import { SafeAreaScreen } from '../../components';
+import { useAuth } from '../../context';
 
 interface OrderItem {
   id: string;
@@ -27,48 +30,62 @@ interface OrderItem {
 }
 
 interface Order {
-  id: string;
+  _id: string;
   orderNumber: string;
-  date: string;
+  createdAt: string;
   status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  total: number;
+  totalAmount: number;
   items: OrderItem[];
   trackingNumber?: string;
+  paymentStatus?: string;
+  shippingAddress?: any;
 }
 
 const OrderHistoryScreen: React.FC = () => {
   const navigation = useNavigation();
+  const { token } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
-  const [orders, setOrders] = useState<Order[]>([
-    {
-      id: '1',
-      orderNumber: 'ORD-2024-001',
-      date: '2024-07-15',
-      status: 'delivered',
-      total: 15000,
-      items: [
-        { id: '1', name: 'Islamic Prayer Mat', quantity: 1, price: 8000 },
-        { id: '2', name: 'Quran with Translation', quantity: 1, price: 7000 },
-      ],
-      trackingNumber: 'TRK123456789',
-    },
-    {
-      id: '2',
-      orderNumber: 'ORD-2024-002',
-      date: '2024-07-20',
-      status: 'shipped',
-      total: 12000,
-      items: [
-        { id: '3', name: 'Tasbih Beads', quantity: 2, price: 6000 },
-      ],
-      trackingNumber: 'TRK987654321',
-    },
-  ]);
+  const [loading, setLoading] = useState(true);
+  const [orders, setOrders] = useState<Order[]>([]);
+
+  // Fetch orders from API
+  const fetchOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${API_CONFIG.BASE_URL}${ENDPOINTS.MY_ORDERS}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.orders) {
+        setOrders(data.orders);
+      } else {
+        Alert.alert('Error', 'Failed to fetch orders');
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      Alert.alert('Error', 'Failed to connect to server');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Load orders on component mount
+  useEffect(() => {
+    if (token) {
+      fetchOrders();
+    }
+  }, [token]);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // TODO: Fetch orders from API
-    setTimeout(() => setRefreshing(false), 1000);
+    await fetchOrders();
+    setRefreshing(false);
   };
 
   const getStatusColor = (status: string) => {
@@ -93,6 +110,55 @@ const OrderHistoryScreen: React.FC = () => {
     }
   };
 
+  // Get order tracking steps
+  const getOrderSteps = (currentStatus: string) => {
+    const allSteps = [
+      { key: 'pending', label: 'Order Placed', icon: 'receipt-outline' },
+      { key: 'processing', label: 'Processing', icon: 'time-outline' },
+      { key: 'shipped', label: 'Shipped', icon: 'car-outline' },
+      { key: 'delivered', label: 'Delivered', icon: 'checkmark-circle-outline' },
+    ];
+
+    const statusOrder = ['pending', 'processing', 'shipped', 'delivered'];
+    const currentIndex = statusOrder.indexOf(currentStatus);
+
+    return allSteps.map((step, index) => ({
+      ...step,
+      completed: index <= currentIndex && currentStatus !== 'cancelled'
+    }));
+  };
+
+  // Handle order actions
+  const showOrderDetails = (order: Order) => {
+    Alert.alert(
+      'Order Details',
+      `Order: ${order.orderNumber}\nStatus: ${order.status.toUpperCase()}\nTotal: ₦${order.totalAmount.toLocaleString()}\nDate: ${new Date(order.createdAt).toLocaleDateString()}`,
+      [{ text: 'OK' }]
+    );
+  };
+
+  const reorderItems = (order: Order) => {
+    Alert.alert(
+      'Reorder Items',
+      'Add these items to your cart again?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Add to Cart', onPress: () => {
+          // TODO: Implement reorder functionality
+          Alert.alert('Success', 'Items added to cart!');
+        }}
+      ]
+    );
+  };
+
+  const trackOrder = (order: Order) => {
+    Alert.alert(
+      'Track Order',
+      `Tracking Number: ${order.trackingNumber}\n\nYour order is currently: ${order.status.toUpperCase()}`,
+      [{ text: 'OK' }]
+    );
+  };
+
   return (
     <SafeAreaScreen style={styles.container}>
       {/* Header */}
@@ -107,36 +173,44 @@ const OrderHistoryScreen: React.FC = () => {
         <View style={styles.headerRight} />
       </View>
 
-      <ScrollView
-        style={styles.scrollView}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        showsVerticalScrollIndicator={false}
-      >
-        {orders.length === 0 ? (
-          <View style={styles.emptyState}>
-            <Ionicons name="bag-outline" size={64} color={COLORS.GRAY_400} />
-            <Text style={styles.emptyTitle}>No Orders Yet</Text>
-            <Text style={styles.emptySubtitle}>
-              Start shopping for Islamic products
-            </Text>
-            <TouchableOpacity style={styles.shopButton}>
-              <Text style={styles.shopButtonText}>Browse Shop</Text>
-            </TouchableOpacity>
-          </View>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={COLORS.PRIMARY} />
+          <Text style={styles.loadingText}>Loading orders...</Text>
+        </View>
+      ) : (
+        <ScrollView
+          style={styles.scrollView}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+          showsVerticalScrollIndicator={false}
+        >
+          {orders.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Ionicons name="bag-outline" size={64} color={COLORS.GRAY_400} />
+              <Text style={styles.emptyTitle}>No Orders Yet</Text>
+              <Text style={styles.emptySubtitle}>
+                Start shopping for Islamic products
+              </Text>
+              <TouchableOpacity style={styles.shopButton}>
+                <Text style={styles.shopButtonText}>Browse Shop</Text>
+              </TouchableOpacity>
+            </View>
         ) : (
           <View style={styles.ordersList}>
             {orders.map((order) => (
-              <View key={order.id} style={styles.orderCard}>
+              <View key={order._id} style={styles.orderCard}>
                 <View style={styles.orderHeader}>
                   <View style={styles.orderInfo}>
                     <Text style={styles.orderNumber}>{order.orderNumber}</Text>
-                    <Text style={styles.orderDate}>{order.date}</Text>
+                    <Text style={styles.orderDate}>
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </Text>
                   </View>
                   <View style={[styles.statusBadge, { backgroundColor: getStatusColor(order.status) + '20' }]}>
-                    <Ionicons 
-                      name={getStatusIcon(order.status) as any} 
-                      size={14} 
-                      color={getStatusColor(order.status)} 
+                    <Ionicons
+                      name={getStatusIcon(order.status) as any}
+                      size={14}
+                      color={getStatusColor(order.status)}
                     />
                     <Text style={[styles.statusText, { color: getStatusColor(order.status) }]}>
                       {order.status.toUpperCase()}
@@ -146,15 +220,17 @@ const OrderHistoryScreen: React.FC = () => {
 
                 <View style={styles.orderItems}>
                   {order.items.map((item, index) => (
-                    <View key={item.id} style={styles.orderItem}>
+                    <View key={`${order._id}-${index}`} style={styles.orderItem}>
                       <View style={styles.itemImage}>
                         <Ionicons name="cube-outline" size={20} color={COLORS.GRAY_400} />
                       </View>
                       <View style={styles.itemDetails}>
-                        <Text style={styles.itemName}>{item.name}</Text>
+                        <Text style={styles.itemName}>
+                          {item.productSnapshot?.name || item.product?.name || 'Product'}
+                        </Text>
                         <Text style={styles.itemQuantity}>Qty: {item.quantity}</Text>
                       </View>
-                      <Text style={styles.itemPrice}>₦{item.price.toLocaleString()}</Text>
+                      <Text style={styles.itemPrice}>₦{(item.price * item.quantity).toLocaleString()}</Text>
                     </View>
                   ))}
                 </View>
@@ -162,7 +238,7 @@ const OrderHistoryScreen: React.FC = () => {
                 <View style={styles.orderFooter}>
                   <View style={styles.orderTotal}>
                     <Text style={styles.totalLabel}>Total: </Text>
-                    <Text style={styles.totalAmount}>₦{order.total.toLocaleString()}</Text>
+                    <Text style={styles.totalAmount}>₦{order.totalAmount.toLocaleString()}</Text>
                   </View>
                   
                   {order.trackingNumber && (
@@ -173,21 +249,62 @@ const OrderHistoryScreen: React.FC = () => {
                   )}
                 </View>
 
+                {/* Order Progress Tracker */}
+                <View style={styles.progressTracker}>
+                  <View style={styles.progressSteps}>
+                    {getOrderSteps(order.status).map((step, index) => (
+                      <View key={step.key} style={styles.progressStep}>
+                        <View style={[
+                          styles.stepIndicator,
+                          { backgroundColor: step.completed ? getStatusColor(order.status) : COLORS.GRAY_300 }
+                        ]}>
+                          <Ionicons
+                            name={step.icon}
+                            size={12}
+                            color={step.completed ? COLORS.WHITE : COLORS.GRAY_500}
+                          />
+                        </View>
+                        <Text style={[
+                          styles.stepLabel,
+                          { color: step.completed ? COLORS.TEXT_PRIMARY : COLORS.GRAY_500 }
+                        ]}>
+                          {step.label}
+                        </Text>
+                        {index < getOrderSteps(order.status).length - 1 && (
+                          <View style={[
+                            styles.stepConnector,
+                            { backgroundColor: step.completed ? getStatusColor(order.status) : COLORS.GRAY_300 }
+                          ]} />
+                        )}
+                      </View>
+                    ))}
+                  </View>
+                </View>
+
                 <View style={styles.orderActions}>
-                  <TouchableOpacity style={styles.actionButton}>
+                  <TouchableOpacity
+                    style={styles.actionButton}
+                    onPress={() => showOrderDetails(order)}
+                  >
                     <Ionicons name="eye-outline" size={16} color={COLORS.PRIMARY} />
                     <Text style={styles.actionButtonText}>View Details</Text>
                   </TouchableOpacity>
-                  
+
                   {order.status === 'delivered' && (
-                    <TouchableOpacity style={styles.actionButton}>
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => reorderItems(order)}
+                    >
                       <Ionicons name="refresh-outline" size={16} color={COLORS.SUCCESS} />
                       <Text style={[styles.actionButtonText, { color: COLORS.SUCCESS }]}>Reorder</Text>
                     </TouchableOpacity>
                   )}
-                  
+
                   {order.trackingNumber && (
-                    <TouchableOpacity style={styles.actionButton}>
+                    <TouchableOpacity
+                      style={styles.actionButton}
+                      onPress={() => trackOrder(order)}
+                    >
                       <Ionicons name="location-outline" size={16} color={COLORS.INFO} />
                       <Text style={[styles.actionButtonText, { color: COLORS.INFO }]}>Track</Text>
                     </TouchableOpacity>
@@ -198,8 +315,9 @@ const OrderHistoryScreen: React.FC = () => {
           </View>
         )}
 
-        <View style={styles.bottomSpacing} />
-      </ScrollView>
+          <View style={styles.bottomSpacing} />
+        </ScrollView>
+      )}
     </SafeAreaScreen>
   );
 };
@@ -387,6 +505,55 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 100,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: SPACING.XL,
+  },
+  loadingText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
+    color: COLORS.TEXT_SECONDARY,
+    marginTop: SPACING.MD,
+  },
+  // Progress Tracker Styles
+  progressTracker: {
+    marginTop: SPACING.MD,
+    paddingVertical: SPACING.MD,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.GRAY_200,
+  },
+  progressSteps: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  progressStep: {
+    flex: 1,
+    alignItems: 'center',
+    position: 'relative',
+  },
+  stepIndicator: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: SPACING.XS,
+  },
+  stepLabel: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.XS,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
+    textAlign: 'center',
+  },
+  stepConnector: {
+    position: 'absolute',
+    top: 12,
+    left: '50%',
+    right: '-50%',
+    height: 2,
+    zIndex: -1,
   },
 });
 

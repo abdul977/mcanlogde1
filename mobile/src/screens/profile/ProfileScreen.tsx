@@ -8,7 +8,7 @@
  * - Account management options
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -17,72 +17,39 @@ import {
   TouchableOpacity,
   Alert,
   RefreshControl,
-  Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
 
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, API_CONFIG, ENDPOINTS } from '../../constants';
+import { COLORS, TYPOGRAPHY, SPACING, SHADOWS } from '../../constants';
 import { useAuth, useMessaging } from '../../context';
+import { useProfileStats } from '../../context/ProfileStatsContext';
 import { SafeAreaScreen } from '../../components';
+import type { ProfileStackParamList } from '../../navigation/types';
+
+type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
 
 const ProfileScreen: React.FC = () => {
   console.log('👤 ProfileScreen rendering...');
-  const navigation = useNavigation();
+  const navigation = useNavigation<ProfileScreenNavigationProp>();
   const { user, token, logout } = useAuth();
   const { unreadCount } = useMessaging();
+  const { stats, refreshStats } = useProfileStats();
   const [refreshing, setRefreshing] = useState(false);
-  const [stats, setStats] = useState({
-    bookings: 0,
-    orders: 0,
-    messages: 0,
-  });
 
-  // Fetch user statistics
-  const fetchStats = async () => {
-    try {
-      // Only fetch stats if user is authenticated
-      if (!token) {
-        return;
-      }
-
-      // Fetch bookings count
-      const bookingsResponse = await fetch(`${API_CONFIG.BASE_URL}${ENDPOINTS.MY_BOOKINGS}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-      });
-
-      if (bookingsResponse.ok) {
-        const bookingsData = await bookingsResponse.json();
-        const bookingsCount = bookingsData.bookings ? bookingsData.bookings.length : (Array.isArray(bookingsData) ? bookingsData.length : 0);
-
-        setStats(prevStats => ({
-          ...prevStats,
-          bookings: bookingsCount,
-        }));
-      }
-
-      // TODO: Fetch orders and messages count when those APIs are available
-
-    } catch (error) {
-      console.error('Error fetching stats:', error);
-      // Don't show error to user for stats, just keep default values
-    }
-  };
-
-  // Handle refresh
-  const onRefresh = async () => {
+  // Handle refresh - now uses ProfileStatsContext
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchStats();
+    await refreshStats();
     setRefreshing(false);
-  };
+  }, [refreshStats]);
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    if (token) {
+      refreshStats();
+    }
+  }, [token, refreshStats]); // Include refreshStats in dependencies
 
   // Handle logout with confirmation
   const handleLogout = () => {
@@ -134,7 +101,7 @@ const ProfileScreen: React.FC = () => {
       subtitle: 'View shop orders',
       icon: 'receipt-outline',
       color: COLORS.SUCCESS,
-      onPress: () => navigation.navigate('OrderHistory' as never),
+      onPress: () => navigation.navigate('OrderHistory'),
     },
     {
       id: 'messages',

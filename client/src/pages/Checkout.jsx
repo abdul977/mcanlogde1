@@ -8,7 +8,7 @@ import { useAuth } from "../context/UserContext";
 
 const Checkout = () => {
   const [auth] = useAuth();
-  const [cart, setCart] = useCart();
+  const { items: cart, clearCart, addItem } = useCart();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
@@ -130,11 +130,14 @@ const Checkout = () => {
       );
 
       if (data?.success) {
-        // Remove products from cart
-        const updatedCart = cart.filter(item => item.type !== 'product');
-        setCart(updatedCart);
-        localStorage.setItem("cart", JSON.stringify(updatedCart));
-        
+        // Remove products from cart (keep accommodations)
+        const accommodations = cart.filter(item => item.type !== 'product');
+        clearCart();
+        // Re-add accommodations if any
+        if (accommodations.length > 0) {
+          accommodations.forEach(item => addItem(item, item.quantity || 1));
+        }
+
         toast.success("Order placed successfully!");
         navigate(`/order-confirmation/${data.order.orderNumber}`);
       } else {

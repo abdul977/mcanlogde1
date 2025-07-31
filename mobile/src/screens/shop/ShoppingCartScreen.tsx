@@ -2,7 +2,7 @@
  * Shopping Cart Screen - Cart management
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -16,62 +16,41 @@ import { useNavigation } from '@react-navigation/native';
 
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS } from '../../constants';
 import { SafeAreaScreen, AnimatedButton } from '../../components';
-
-interface CartItem {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-  image?: string;
-}
+import { useCart } from '../../context/CartContext';
+import { formatPrice, calculateShipping, getShippingMessage } from '../../utils/priceUtils';
 
 const ShoppingCartScreen: React.FC = () => {
   const navigation = useNavigation();
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: '1',
-      name: 'Holy Quran with English Translation',
-      price: 7000,
-      quantity: 1,
-    },
-    {
-      id: '2',
-      name: 'Islamic Prayer Mat',
-      price: 8000,
-      quantity: 2,
-    },
-  ]);
+  const { items: cartItems, removeItem, updateQuantity, totalAmount, totalItems, isLoading } = useCart();
 
-  const updateQuantity = (id: string, newQuantity: number) => {
+  const handleUpdateQuantity = (productId: string, newQuantity: number) => {
     if (newQuantity === 0) {
-      removeItem(id);
+      handleRemoveItem(productId);
       return;
     }
-    setCartItems(prev => prev.map(item => 
-      item.id === id ? { ...item, quantity: newQuantity } : item
-    ));
+    updateQuantity(productId, newQuantity);
   };
 
-  const removeItem = (id: string) => {
+  const handleRemoveItem = (productId: string) => {
     Alert.alert(
       'Remove Item',
       'Are you sure you want to remove this item from your cart?',
       [
         { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Remove', 
+        {
+          text: 'Remove',
           style: 'destructive',
-          onPress: () => setCartItems(prev => prev.filter(item => item.id !== id))
+          onPress: () => removeItem(productId)
         },
       ]
     );
   };
 
   const getSubtotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return totalAmount;
   };
 
-  const getShipping = () => 2000; // Fixed shipping cost
+  const getShipping = () => calculateShipping(totalAmount);
   const getTotal = () => getSubtotal() + getShipping();
 
   const proceedToCheckout = () => {
@@ -110,39 +89,39 @@ const ShoppingCartScreen: React.FC = () => {
             {/* Cart Items */}
             <View style={styles.itemsContainer}>
               {cartItems.map((item) => (
-                <View key={item.id} style={styles.cartItem}>
+                <View key={item.product._id} style={styles.cartItem}>
                   <View style={styles.itemImage}>
                     <Ionicons name="cube-outline" size={24} color={COLORS.GRAY_400} />
                   </View>
-                  
+
                   <View style={styles.itemDetails}>
-                    <Text style={styles.itemName}>{item.name}</Text>
-                    <Text style={styles.itemPrice}>₦{item.price.toLocaleString()}</Text>
-                    
+                    <Text style={styles.itemName}>{item.product.name}</Text>
+                    <Text style={styles.itemPrice}>{formatPrice(item.product.price)}</Text>
+
                     <View style={styles.quantityContainer}>
                       <TouchableOpacity
                         style={styles.quantityButton}
-                        onPress={() => updateQuantity(item.id, item.quantity - 1)}
+                        onPress={() => handleUpdateQuantity(item.product._id, item.quantity - 1)}
                       >
                         <Ionicons name="remove" size={16} color={COLORS.PRIMARY} />
                       </TouchableOpacity>
                       <Text style={styles.quantityText}>{item.quantity}</Text>
                       <TouchableOpacity
                         style={styles.quantityButton}
-                        onPress={() => updateQuantity(item.id, item.quantity + 1)}
+                        onPress={() => handleUpdateQuantity(item.product._id, item.quantity + 1)}
                       >
                         <Ionicons name="add" size={16} color={COLORS.PRIMARY} />
                       </TouchableOpacity>
                     </View>
                   </View>
-                  
+
                   <View style={styles.itemActions}>
                     <Text style={styles.itemTotal}>
-                      ₦{(item.price * item.quantity).toLocaleString()}
+                      {formatPrice(item.product.price * item.quantity)}
                     </Text>
                     <TouchableOpacity
                       style={styles.removeButton}
-                      onPress={() => removeItem(item.id)}
+                      onPress={() => handleRemoveItem(item.product._id)}
                     >
                       <Ionicons name="trash-outline" size={20} color={COLORS.ERROR} />
                     </TouchableOpacity>
@@ -157,19 +136,24 @@ const ShoppingCartScreen: React.FC = () => {
               
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Subtotal:</Text>
-                <Text style={styles.summaryValue}>₦{getSubtotal().toLocaleString()}</Text>
+                <Text style={styles.summaryValue}>{formatPrice(getSubtotal())}</Text>
               </View>
-              
+
               <View style={styles.summaryRow}>
                 <Text style={styles.summaryLabel}>Shipping:</Text>
-                <Text style={styles.summaryValue}>₦{getShipping().toLocaleString()}</Text>
+                <Text style={styles.summaryValue}>{formatPrice(getShipping())}</Text>
               </View>
-              
+
+              {/* Free shipping message */}
+              {getShipping() === 0 && (
+                <Text style={styles.freeShippingText}>🎉 Free shipping applied!</Text>
+              )}
+
               <View style={styles.divider} />
-              
+
               <View style={styles.summaryRow}>
                 <Text style={styles.totalLabel}>Total:</Text>
-                <Text style={styles.totalValue}>₦{getTotal().toLocaleString()}</Text>
+                <Text style={styles.totalValue}>{formatPrice(getTotal())}</Text>
               </View>
             </View>
 
@@ -179,7 +163,7 @@ const ShoppingCartScreen: React.FC = () => {
           {/* Fixed Checkout Button */}
           <View style={styles.checkoutContainer}>
             <AnimatedButton
-              title={`Proceed to Checkout (₦${getTotal().toLocaleString()})`}
+              title={`Proceed to Checkout (${formatPrice(getTotal())})`}
               onPress={proceedToCheckout}
               variant="primary"
               size="large"
@@ -345,6 +329,14 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
     fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
     color: COLORS.TEXT_PRIMARY,
+  },
+  freeShippingText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
+    color: COLORS.SUCCESS,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
+    textAlign: 'center',
+    marginTop: SPACING.XS,
+    marginBottom: SPACING.SM,
   },
   divider: {
     height: 1,

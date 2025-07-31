@@ -9,46 +9,63 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS } from '../../constants';
 import { SafeAreaScreen, AnimatedButton } from '../../components';
+import { useCart } from '../../context/CartContext';
+import { Product } from '../../types';
+import { isProductAvailable, getStockStatusText } from '../../utils/productUtils';
+
+interface ProductDetailsRouteParams {
+  product: Product;
+}
 
 const ProductDetailsScreen: React.FC = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [selectedTab, setSelectedTab] = useState('description');
 
-  // Mock product data
-  const product = {
-    id: '1',
-    name: 'Holy Quran with English Translation',
-    price: 7000,
-    originalPrice: 8500,
-    rating: 4.8,
-    reviews: 45,
-    inStock: true,
-    description: 'Complete Quran with English translation and commentary. Perfect for daily reading and study.',
-    features: [
-      'High-quality paper and binding',
-      'Clear Arabic text with English translation',
-      'Comprehensive commentary',
-      'Compact and portable design',
-    ],
-    specifications: {
-      'Language': 'Arabic & English',
-      'Pages': '604',
-      'Publisher': 'Islamic Publications',
-      'Binding': 'Hardcover',
-      'Dimensions': '15cm x 21cm',
-    },
+  // Get product from route params or use default
+  const { product } = (route.params as ProductDetailsRouteParams) || {
+    product: {
+      _id: '1',
+      name: 'Sample Product',
+      price: 0,
+      description: 'Product description not available',
+      status: 'active' as const,
+      isVisible: true,
+      sku: 'SAMPLE-001',
+      category: { _id: '', name: '' },
+      images: [],
+      inventory: { quantity: 0, trackQuantity: true },
+      currency: 'NGN',
+      isFeatured: false,
+      tags: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    }
   };
 
   const addToCart = () => {
-    // TODO: Add to cart logic
-    navigation.navigate('ShoppingCart' as never);
+    try {
+      addItem(product, quantity);
+      Alert.alert(
+        'Added to Cart',
+        `${product.name} has been added to your cart.`,
+        [
+          { text: 'Continue Shopping', style: 'cancel' },
+          { text: 'View Cart', onPress: () => navigation.navigate('ShoppingCart' as never) }
+        ]
+      );
+    } catch (error) {
+      Alert.alert('Error', 'Failed to add item to cart. Please try again.');
+    }
   };
 
   const tabs = [
@@ -67,23 +84,35 @@ const ProductDetailsScreen: React.FC = () => {
       case 'features':
         return (
           <View style={styles.featuresList}>
-            {product.features.map((feature, index) => (
-              <View key={index} style={styles.featureItem}>
-                <Ionicons name="checkmark-circle" size={16} color={COLORS.SUCCESS} />
-                <Text style={styles.featureText}>{feature}</Text>
-              </View>
-            ))}
+            <View style={styles.featureItem}>
+              <Ionicons name="checkmark-circle" size={16} color={COLORS.SUCCESS} />
+              <Text style={styles.featureText}>High-quality product</Text>
+            </View>
+            <View style={styles.featureItem}>
+              <Ionicons name="checkmark-circle" size={16} color={COLORS.SUCCESS} />
+              <Text style={styles.featureText}>Fast shipping</Text>
+            </View>
+            <View style={styles.featureItem}>
+              <Ionicons name="checkmark-circle" size={16} color={COLORS.SUCCESS} />
+              <Text style={styles.featureText}>Satisfaction guaranteed</Text>
+            </View>
           </View>
         );
       case 'specs':
         return (
           <View style={styles.specsList}>
-            {Object.entries(product.specifications).map(([key, value]) => (
-              <View key={key} style={styles.specItem}>
-                <Text style={styles.specKey}>{key}:</Text>
-                <Text style={styles.specValue}>{value}</Text>
-              </View>
-            ))}
+            <View style={styles.specItem}>
+              <Text style={styles.specKey}>SKU:</Text>
+              <Text style={styles.specValue}>{product.sku}</Text>
+            </View>
+            <View style={styles.specItem}>
+              <Text style={styles.specKey}>Category:</Text>
+              <Text style={styles.specValue}>{product.category?.name || 'N/A'}</Text>
+            </View>
+            <View style={styles.specItem}>
+              <Text style={styles.specKey}>Currency:</Text>
+              <Text style={styles.specValue}>{product.currency || 'NGN'}</Text>
+            </View>
           </View>
         );
       case 'reviews':
@@ -124,10 +153,10 @@ const ProductDetailsScreen: React.FC = () => {
           <View style={styles.placeholderImage}>
             <Ionicons name="book-outline" size={64} color={COLORS.GRAY_400} />
           </View>
-          {product.originalPrice && (
+          {product.comparePrice && (
             <View style={styles.discountBadge}>
               <Text style={styles.discountText}>
-                {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+                {Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)}% OFF
               </Text>
             </View>
           )}
@@ -140,20 +169,20 @@ const ProductDetailsScreen: React.FC = () => {
           <View style={styles.ratingRow}>
             <View style={styles.ratingContainer}>
               <Ionicons name="star" size={16} color={COLORS.WARNING} />
-              <Text style={styles.ratingText}>{product.rating}</Text>
-              <Text style={styles.reviewsText}>({product.reviews} reviews)</Text>
+              <Text style={styles.ratingText}>4.5</Text>
+              <Text style={styles.reviewsText}>(0 reviews)</Text>
             </View>
             <View style={styles.stockStatus}>
-              <Ionicons 
-                name={product.inStock ? "checkmark-circle" : "close-circle"} 
-                size={16} 
-                color={product.inStock ? COLORS.SUCCESS : COLORS.ERROR} 
+              <Ionicons
+                name={isProductAvailable(product) ? "checkmark-circle" : "close-circle"}
+                size={16}
+                color={isProductAvailable(product) ? COLORS.SUCCESS : COLORS.ERROR}
               />
               <Text style={[
                 styles.stockText,
-                { color: product.inStock ? COLORS.SUCCESS : COLORS.ERROR }
+                { color: isProductAvailable(product) ? COLORS.SUCCESS : COLORS.ERROR }
               ]}>
-                {product.inStock ? 'In Stock' : 'Out of Stock'}
+                {getStockStatusText(product)}
               </Text>
             </View>
           </View>
@@ -161,8 +190,8 @@ const ProductDetailsScreen: React.FC = () => {
           <View style={styles.priceRow}>
             <View style={styles.priceContainer}>
               <Text style={styles.price}>₦{product.price.toLocaleString()}</Text>
-              {product.originalPrice && (
-                <Text style={styles.originalPrice}>₦{product.originalPrice.toLocaleString()}</Text>
+              {product.comparePrice && (
+                <Text style={styles.originalPrice}>₦{product.comparePrice.toLocaleString()}</Text>
               )}
             </View>
           </View>
@@ -229,7 +258,7 @@ const ProductDetailsScreen: React.FC = () => {
           variant="primary"
           size="large"
           leftIcon="bag-add-outline"
-          disabled={!product.inStock}
+          disabled={!isProductAvailable(product)}
           style={styles.addToCartButton}
         />
       </View>

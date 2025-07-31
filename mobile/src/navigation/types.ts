@@ -45,11 +45,15 @@ export type AccommodationStackParamList = {
 
 // Shop Stack
 export type ShopStackParamList = {
-  Shop: { categoryId?: string };
-  ProductDetails: { id: string };
-  Cart: undefined;
-  Checkout: undefined;
-  OrderConfirmation: { orderId: string };
+  ShopListing: undefined;
+  ProductDetails: { product: any };
+  ShoppingCart: undefined;
+  CheckoutFlow: undefined;
+  PaymentUpload: {
+    orderId: string;
+    orderNumber: string;
+    totalAmount: number;
+  };
 };
 
 // Community Stack

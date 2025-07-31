@@ -22,7 +22,7 @@ const ProductDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
   const [auth] = useAuth();
-  const [cart, setCart] = useCart();
+  const { items: cart, addItem, updateQuantity } = useCart();
   
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
@@ -94,28 +94,13 @@ const ProductDetail = () => {
       return;
     }
 
-    const existingItemIndex = cart.findIndex(item => 
-      item._id === product._id && 
-      JSON.stringify(item.selectedVariants) === JSON.stringify(selectedVariants)
-    );
+    const cartItem = {
+      ...product,
+      selectedVariants,
+      type: 'product'
+    };
 
-    if (existingItemIndex >= 0) {
-      const updatedCart = [...cart];
-      updatedCart[existingItemIndex].quantity += quantity;
-      setCart(updatedCart);
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-    } else {
-      const cartItem = {
-        ...product,
-        quantity,
-        selectedVariants,
-        type: 'product'
-      };
-      const updatedCart = [...cart, cartItem];
-      setCart(updatedCart);
-      localStorage.setItem("cart", JSON.stringify(updatedCart));
-    }
-
+    addItem(cartItem, quantity);
     toast.success("Product added to cart");
   };
 

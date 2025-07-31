@@ -1,5 +1,6 @@
 import PaymentVerification from "../models/PaymentVerification.js";
 import Booking from "../models/Booking.js";
+import Order from "../models/Order.js";
 import Notification from "../models/Notification.js";
 import User from "../models/User.js";
 import PaymentNotificationService from "../services/PaymentNotificationService.js";
@@ -28,6 +29,7 @@ export const submitPaymentProof = async (req, res) => {
     }
     const {
       bookingId,
+      orderId,
       monthNumber,
       amount,
       paymentMethod,
@@ -38,11 +40,27 @@ export const submitPaymentProof = async (req, res) => {
 
     const userId = req.user._id || req.user.id;
 
-    // Validate required fields
-    if (!bookingId || !monthNumber || !amount || !paymentMethod || !paymentDate) {
+    // Determine payment type and validate required fields
+    const paymentType = bookingId ? 'booking' : 'order';
+
+    if (paymentType === 'booking') {
+      if (!bookingId || !monthNumber || !amount || !paymentMethod || !paymentDate) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields for booking payment"
+        });
+      }
+    } else if (paymentType === 'order') {
+      if (!orderId || !amount || !paymentMethod || !paymentDate) {
+        return res.status(400).json({
+          success: false,
+          message: "Missing required fields for order payment"
+        });
+      }
+    } else {
       return res.status(400).json({
         success: false,
-        message: "Missing required fields"
+        message: "Either bookingId or orderId must be provided"
       });
     }
 
@@ -88,31 +106,61 @@ export const submitPaymentProof = async (req, res) => {
 
     // File validation is already done above, so we can skip this step
 
-    // Verify booking exists and belongs to user
-    const booking = await Booking.findOne({
-      _id: bookingId,
-      user: userId
-    }).populate('accommodation', 'title price');
+    // Verify booking or order exists and belongs to user
+    let booking = null;
+    let order = null;
 
-    if (!booking) {
-      return res.status(404).json({
-        success: false,
-        message: "Booking not found or access denied"
+    if (paymentType === 'booking') {
+      booking = await Booking.findOne({
+        _id: bookingId,
+        user: userId
+      }).populate('accommodation', 'title price');
+
+      if (!booking) {
+        return res.status(404).json({
+          success: false,
+          message: "Booking not found or access denied"
+        });
+      }
+
+      // Check if payment verification already exists for this month
+      const existingVerification = await PaymentVerification.findOne({
+        booking: bookingId,
+        monthNumber: parseInt(monthNumber),
+        verificationStatus: { $in: ['pending', 'approved'] }
       });
-    }
 
-    // Check if payment verification already exists for this month
-    const existingVerification = await PaymentVerification.findOne({
-      booking: bookingId,
-      monthNumber: parseInt(monthNumber),
-      verificationStatus: { $in: ['pending', 'approved'] }
-    });
+      if (existingVerification) {
+        return res.status(400).json({
+          success: false,
+          message: "Payment verification already exists for this month"
+        });
+      }
+    } else if (paymentType === 'order') {
+      order = await Order.findOne({
+        _id: orderId,
+        user: userId
+      }).populate('items.product', 'name price');
 
-    if (existingVerification) {
-      return res.status(400).json({
-        success: false,
-        message: "Payment verification already exists for this month"
+      if (!order) {
+        return res.status(404).json({
+          success: false,
+          message: "Order not found or access denied"
+        });
+      }
+
+      // Check if payment verification already exists for this order
+      const existingVerification = await PaymentVerification.findOne({
+        order: orderId,
+        verificationStatus: { $in: ['pending', 'approved'] }
       });
+
+      if (existingVerification) {
+        return res.status(400).json({
+          success: false,
+          message: "Payment verification already exists for this order"
+        });
+      }
     }
 
     // Upload file to Supabase Storage
@@ -134,10 +182,9 @@ export const submitPaymentProof = async (req, res) => {
     console.log(`File uploaded successfully to Supabase: ${uploadResult.data.secure_url}`);
 
     // Create payment verification record
-    const paymentVerification = new PaymentVerification({
-      booking: bookingId,
+    const paymentVerificationData = {
+      paymentType,
       user: userId,
-      monthNumber: parseInt(monthNumber),
       amount: parseFloat(amount),
       paymentProof: {
         url: uploadResult.data.secure_url,
@@ -159,15 +206,38 @@ export const submitPaymentProof = async (req, res) => {
       paymentDate: new Date(paymentDate),
       userNotes: userNotes || undefined,
       verificationStatus: 'pending'
-    });
+    };
+
+    // Add type-specific fields
+    if (paymentType === 'booking') {
+      paymentVerificationData.booking = bookingId;
+      paymentVerificationData.monthNumber = parseInt(monthNumber);
+    } else if (paymentType === 'order') {
+      paymentVerificationData.order = orderId;
+    }
+
+    const paymentVerification = new PaymentVerification(paymentVerificationData);
 
     await paymentVerification.save();
 
-    // Populate the response
-    await paymentVerification.populate([
-      { path: 'user', select: 'name email' },
-      { path: 'booking', select: 'accommodation checkInDate', populate: { path: 'accommodation', select: 'title' } }
-    ]);
+    // Populate the response based on payment type
+    const populateOptions = [{ path: 'user', select: 'name email' }];
+
+    if (paymentType === 'booking') {
+      populateOptions.push({
+        path: 'booking',
+        select: 'accommodation checkInDate',
+        populate: { path: 'accommodation', select: 'title' }
+      });
+    } else if (paymentType === 'order') {
+      populateOptions.push({
+        path: 'order',
+        select: 'orderNumber totalAmount items',
+        populate: { path: 'items.product', select: 'name price' }
+      });
+    }
+
+    await paymentVerification.populate(populateOptions);
 
     // Create notification for admins using notification service
     try {
@@ -223,6 +293,14 @@ export const getPaymentVerifications = async (req, res) => {
           select: 'title location'
         }
       })
+      .populate({
+        path: 'order',
+        select: 'orderNumber totalAmount items orderStatus',
+        populate: {
+          path: 'items.product',
+          select: 'name price'
+        }
+      })
       .sort({ submittedAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
@@ -263,7 +341,8 @@ export const verifyPayment = async (req, res) => {
     }
 
     const payment = await PaymentVerification.findById(paymentId)
-      .populate('booking');
+      .populate('booking')
+      .populate('order');
 
     if (!payment) {
       return res.status(404).json({
@@ -330,6 +409,29 @@ export const verifyPayment = async (req, res) => {
       }
     }
 
+    // Update order status if this is an order payment
+    if (payment.order) {
+      const order = payment.order;
+
+      if (action === 'approve') {
+        // Update order status to paid and confirmed
+        order.paymentStatus = 'paid';
+        order.orderStatus = 'confirmed';
+        order.paidAt = payment.paymentDate;
+        order.paymentVerificationId = payment._id;
+
+        console.log(`Updated order ${order.orderNumber} status to confirmed after payment approval`);
+      } else if (action === 'reject') {
+        // Keep order as pending payment
+        order.paymentStatus = 'pending';
+        order.orderStatus = 'pending_payment';
+
+        console.log(`Order ${order.orderNumber} payment rejected, status remains pending`);
+      }
+
+      await order.save();
+    }
+
     // Generate receipt for approved payments
     if (action === 'approve') {
       try {
@@ -355,17 +457,27 @@ export const verifyPayment = async (req, res) => {
     // Emit real-time notification to user via websocket
     try {
       const isApproved = action === 'approve';
-      const notificationData = {
+      let notificationData = {
         type: isApproved ? 'payment_approved' : 'payment_rejected',
         title: isApproved ? 'Payment Approved' : 'Payment Rejected',
-        message: isApproved
-          ? `Your payment for ${payment.booking.accommodation.title} - Month ${payment.monthNumber} has been approved.`
-          : `Your payment for ${payment.booking.accommodation.title} - Month ${payment.monthNumber} has been rejected.`,
         paymentId: payment._id,
-        bookingId: payment.booking._id,
-        monthNumber: payment.monthNumber,
         refreshRequired: true // Signal that payment data should be refreshed
       };
+
+      // Customize message based on payment type
+      if (payment.booking) {
+        notificationData.message = isApproved
+          ? `Your payment for ${payment.booking.accommodation.title} - Month ${payment.monthNumber} has been approved.`
+          : `Your payment for ${payment.booking.accommodation.title} - Month ${payment.monthNumber} has been rejected.`;
+        notificationData.bookingId = payment.booking._id;
+        notificationData.monthNumber = payment.monthNumber;
+      } else if (payment.order) {
+        notificationData.message = isApproved
+          ? `Your payment for order #${payment.order.orderNumber} has been approved. Your order is now confirmed!`
+          : `Your payment for order #${payment.order.orderNumber} has been rejected. Please try again or contact support.`;
+        notificationData.orderId = payment.order._id;
+        notificationData.orderNumber = payment.order.orderNumber;
+      }
 
       await socketUtils.emitNotification(payment.user, notificationData);
       console.log(`Emitted real-time payment ${action} notification to user ${payment.user}`);

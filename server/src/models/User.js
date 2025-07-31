@@ -56,6 +56,41 @@ const userModel = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  // Profile image/avatar
+  profileImage: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(v) {
+        // Allow empty string or valid URL
+        if (!v) return true;
+        try {
+          new URL(v);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      message: 'Profile image must be a valid URL'
+    }
+  },
+  avatar: {
+    type: String,
+    trim: true,
+    validate: {
+      validator: function(v) {
+        // Allow empty string or valid URL
+        if (!v) return true;
+        try {
+          new URL(v);
+          return true;
+        } catch {
+          return false;
+        }
+      },
+      message: 'Avatar must be a valid URL'
+    }
+  },
   // Profile completion tracking
   profileCompleted: {
     type: Boolean,
@@ -95,6 +130,24 @@ userModel.virtual('nyscDetails').get(function() {
     callUpNumber: this.callUpNumber,
     isComplete: this.profileCompleted
   };
+});
+
+// Virtual for display avatar with fallback logic
+userModel.virtual('displayAvatar').get(function() {
+  // Priority: avatar -> profileImage -> null (will use initials fallback in frontend)
+  return this.avatar || this.profileImage || null;
+});
+
+// Virtual for user initials
+userModel.virtual('initials').get(function() {
+  if (!this.name) return '?';
+
+  const names = this.name.trim().split(' ');
+  if (names.length === 1) {
+    return names[0].charAt(0).toUpperCase();
+  }
+
+  return (names[0].charAt(0) + names[names.length - 1].charAt(0)).toUpperCase();
 });
 
 // Ensure virtual fields are serialized

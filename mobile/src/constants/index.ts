@@ -193,6 +193,7 @@ export const ENDPOINTS = {
   // Orders
   ORDERS: '/api/orders',
   CREATE_ORDER: '/api/orders/create',
+  MY_ORDERS: '/api/orders/my-orders',
   
   // Events
   EVENTS: '/api/events',

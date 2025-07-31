@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/UserContext";
-import { FaPrayingHands, FaMosque, FaUserCircle, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaIdCard, FaStream, FaEdit, FaSpinner } from "react-icons/fa";
+import { FaPrayingHands, FaMosque, FaUserCircle, FaCalendarAlt, FaMapMarkerAlt, FaUser, FaIdCard, FaStream, FaEdit, FaSpinner, FaBed, FaShoppingBag, FaEnvelope, FaChartBar } from "react-icons/fa";
 import { GiPathDistance } from "react-icons/gi";
 import mcanLogo from "../../assets/mcan-logo.png";
 import MobileLayout, { MobilePageHeader } from "../../components/Mobile/MobileLayout";
@@ -10,6 +10,7 @@ import DynamicPrayerTimes from "../../components/DynamicPrayerTimes";
 import Navbar from "./Navbar";
 import { getUserProfile, formatNyscDetails, validateProfileCompletion } from "../../services/userService";
 import { toast } from "react-toastify";
+import axios from "axios";
 import ProfileEditModal from "../../components/ProfileEditModal";
 
 // Fallback logo URL
@@ -21,6 +22,11 @@ const UserDetails = () => {
   const [loading, setLoading] = useState(true);
   const [profileValidation, setProfileValidation] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [stats, setStats] = useState({
+    bookings: 0,
+    orders: 0,
+    messages: 0,
+  });
 
   // Fetch user profile data
   useEffect(() => {
@@ -49,10 +55,62 @@ const UserDetails = () => {
 
     if (auth?.user && auth?.token) {
       fetchUserProfile();
+      fetchStats();
     } else {
       setLoading(false);
     }
   }, [auth]);
+
+  // Fetch user statistics
+  const fetchStats = async () => {
+    try {
+      if (!auth?.token) return;
+
+      const token = auth.token;
+
+      // Fetch bookings count
+      const bookingsResponse = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/bookings/my-bookings`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (bookingsResponse.data.success) {
+        const bookingsCount = bookingsResponse.data.bookings ? bookingsResponse.data.bookings.length : 0;
+        setStats(prevStats => ({
+          ...prevStats,
+          bookings: bookingsCount,
+        }));
+      }
+
+      // Fetch orders count
+      const ordersResponse = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/orders/my-orders`,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (ordersResponse.data.success) {
+        const ordersCount = ordersResponse.data.orders ? ordersResponse.data.orders.length : 0;
+        setStats(prevStats => ({
+          ...prevStats,
+          orders: ordersCount,
+        }));
+      }
+
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+      // Don't show error to user for stats, just keep default values
+    }
+  };
 
   // Format user data for display
   const user = userProfile ? formatNyscDetails(userProfile) : {
@@ -140,6 +198,48 @@ const UserDetails = () => {
             <FaSpinner className="animate-spin text-mcan-primary text-2xl mr-3" />
             <span className="text-gray-600">Loading profile data...</span>
           </div>
+        )}
+
+        {/* Quick Stats Section */}
+        {!loading && (
+          <FormSection
+            title="Quick Stats"
+            icon={FaChartBar}
+            columns={1}
+            className="mb-6"
+          >
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg p-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-blue-100 text-sm">Bookings</p>
+                    <p className="text-2xl font-bold">{stats.bookings}</p>
+                  </div>
+                  <FaBed className="text-2xl text-blue-200" />
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-green-500 to-green-600 rounded-lg p-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-green-100 text-sm">Orders</p>
+                    <p className="text-2xl font-bold">{stats.orders}</p>
+                  </div>
+                  <FaShoppingBag className="text-2xl text-green-200" />
+                </div>
+              </div>
+
+              <div className="bg-gradient-to-r from-purple-500 to-purple-600 rounded-lg p-4 text-white">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-purple-100 text-sm">Messages</p>
+                    <p className="text-2xl font-bold">{stats.messages}</p>
+                  </div>
+                  <FaEnvelope className="text-2xl text-purple-200" />
+                </div>
+              </div>
+            </div>
+          </FormSection>
         )}
 
         {/* User Information Section */}

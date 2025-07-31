@@ -18,7 +18,7 @@ import OrderConfirmationModal from "../components/OrderConfirmationModal";
 
 const Shop = () => {
   const [auth] = useAuth();
-  const [cart, setCart] = useCart();
+  const { items: cart, addItem, isInCart } = useCart();
   const [searchParams, setSearchParams] = useSearchParams();
   
   const [products, setProducts] = useState([]);
@@ -144,20 +144,17 @@ const Shop = () => {
   };
 
   const handleAddToCart = (product) => {
-    const existingItem = cart.find(item => item._id === product._id);
-    if (existingItem) {
+    if (isInCart(product._id)) {
       toast.info("Product already in cart");
       return;
     }
 
     const cartItem = {
       ...product,
-      quantity: 1,
       type: 'product'
     };
 
-    setCart([...cart, cartItem]);
-    localStorage.setItem("cart", JSON.stringify([...cart, cartItem]));
+    addItem(cartItem, 1);
     toast.success("Product added to cart");
   };
 

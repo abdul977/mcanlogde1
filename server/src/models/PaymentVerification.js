@@ -1,11 +1,27 @@
 import { Schema, model } from "mongoose";
 
 const paymentVerificationSchema = new Schema({
-  // Reference to the booking
+  // Payment type - determines which reference is used
+  paymentType: {
+    type: String,
+    enum: ["booking", "order"],
+    required: [true, "Payment type is required"]
+  },
+  // Reference to the booking (for accommodation payments)
   booking: {
     type: Schema.Types.ObjectId,
     ref: "Booking",
-    required: [true, "Booking reference is required"]
+    required: function() {
+      return this.paymentType === 'booking';
+    }
+  },
+  // Reference to the order (for shop payments)
+  order: {
+    type: Schema.Types.ObjectId,
+    ref: "Order",
+    required: function() {
+      return this.paymentType === 'order';
+    }
   },
   // Reference to the user who made the payment
   user: {
@@ -16,7 +32,9 @@ const paymentVerificationSchema = new Schema({
   // Payment details
   monthNumber: {
     type: Number,
-    required: [true, "Month number is required"],
+    required: function() {
+      return this.paymentType === 'booking';
+    },
     min: 1,
     max: 12
   },

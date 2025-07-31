@@ -4,6 +4,7 @@ import { format, isToday, isYesterday } from 'date-fns';
 import { COLORS, TYPOGRAPHY, SPACING } from '../../constants';
 import { Message } from '../../services/api/messagingService';
 import type { CommunityMessage } from '../../types';
+import MessageAvatar from './MessageAvatar';
 
 interface MessageBubbleProps {
   message: Message | CommunityMessage;
@@ -69,19 +70,54 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
     return isCommunityMessage ? (message as CommunityMessage).createdAt : (message as Message).createdAt;
   };
 
+  const getSenderInfo = () => {
+    if (isCommunityMessage) {
+      const communityMsg = message as CommunityMessage;
+      return {
+        name: communityMsg.sender?.name || 'Unknown User',
+        avatar: communityMsg.sender?.displayAvatar || communityMsg.sender?.avatar || communityMsg.sender?.profileImage,
+        initials: communityMsg.sender?.initials
+      };
+    } else {
+      const directMsg = message as Message;
+      return {
+        name: directMsg.sender?.name || 'Unknown User',
+        avatar: directMsg.sender?.displayAvatar || directMsg.sender?.avatar || directMsg.sender?.profileImage,
+        initials: directMsg.sender?.initials
+      };
+    }
+  };
+
+  const senderInfo = getSenderInfo();
+
   return (
     <View style={[styles.container, isOwn ? styles.sentContainer : styles.receivedContainer]}>
-      {/* Sender name for community messages */}
-      {showSender && getSenderName() && (
-        <Text style={styles.senderName}>{getSenderName()}</Text>
-      )}
+      <View style={[styles.messageRow, isOwn ? styles.sentMessageRow : styles.receivedMessageRow]}>
+        {/* Avatar for received messages (left side) */}
+        {!isOwn && (
+          <View style={styles.avatarContainer}>
+            <MessageAvatar
+              source={senderInfo.avatar}
+              name={senderInfo.name}
+              size={32}
+              backgroundColor={COLORS.PRIMARY}
+              textColor={COLORS.WHITE}
+            />
+          </View>
+        )}
 
-      <TouchableOpacity
-        style={getBubbleStyle()}
-        onPress={onPress}
-        onLongPress={onLongPress}
-        activeOpacity={0.8}
-      >
+        <View style={styles.messageContent}>
+          {/* Sender name for community messages */}
+          {showSender && getSenderName() && (
+            <Text style={styles.senderName}>{getSenderName()}</Text>
+          )}
+
+          <TouchableOpacity
+            style={getBubbleStyle()}
+            onPress={onPress}
+            onLongPress={onLongPress}
+            activeOpacity={0.8}
+          >
         {/* Reply preview */}
         {replyToMessage && (
           <View style={styles.replyContainer}>
@@ -121,7 +157,22 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
             )}
           </View>
         )}
-      </TouchableOpacity>
+          </TouchableOpacity>
+        </View>
+
+        {/* Avatar for sent messages (right side) */}
+        {isOwn && (
+          <View style={styles.avatarContainer}>
+            <MessageAvatar
+              source={senderInfo.avatar}
+              name={senderInfo.name}
+              size={32}
+              backgroundColor={COLORS.PRIMARY}
+              textColor={COLORS.WHITE}
+            />
+          </View>
+        )}
+      </View>
     </View>
   );
 };
@@ -135,12 +186,31 @@ const styles = StyleSheet.create({
   sentContainer: {
     alignItems: 'flex-end',
     alignSelf: 'flex-end',
-    marginLeft: '20%', // Ensure sent messages don't take full width
+    marginLeft: '15%', // Reduced to account for avatar space
   },
   receivedContainer: {
     alignItems: 'flex-start',
     alignSelf: 'flex-start',
-    marginRight: '20%', // Ensure received messages don't take full width
+    marginRight: '15%', // Reduced to account for avatar space
+  },
+  messageRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    maxWidth: '100%',
+  },
+  sentMessageRow: {
+    justifyContent: 'flex-end',
+  },
+  receivedMessageRow: {
+    justifyContent: 'flex-start',
+  },
+  messageContent: {
+    flex: 1,
+    maxWidth: '85%', // Leave space for avatar
+  },
+  avatarContainer: {
+    marginHorizontal: SPACING.XS,
+    alignSelf: 'flex-end',
   },
   bubble: {
     maxWidth: '100%',

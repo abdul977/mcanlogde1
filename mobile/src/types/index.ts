@@ -7,6 +7,9 @@ export interface User {
   email: string;
   role: 'admin' | 'user';
   avatar?: string;
+  profileImage?: string;
+  displayAvatar?: string;
+  initials?: string;
   phone?: string;
   // NYSC-specific fields
   gender?: 'male' | 'female';
@@ -81,7 +84,12 @@ export interface Product {
   _id: string;
   name: string;
   description: string;
-  images: string[];
+  images: Array<{
+    url: string;
+    alt?: string;
+    isPrimary?: boolean;
+    sortOrder?: number;
+  }>;
   price: number;
   comparePrice?: number;
   currency: string;
@@ -90,12 +98,22 @@ export interface Product {
     _id: string;
     name: string;
   };
-  stock: number;
-  isActive: boolean;
+  inventory: {
+    quantity: number;
+    trackQuantity: boolean;
+    lowStockThreshold?: number;
+    allowBackorder?: boolean;
+    reservedQuantity?: number;
+  };
+  status: 'draft' | 'active' | 'inactive' | 'archived';
+  isVisible: boolean;
   isFeatured: boolean;
   tags: string[];
   createdAt: string;
   updatedAt: string;
+  // Legacy fields for backward compatibility
+  stock?: number;
+  isActive?: boolean;
 }
 
 export interface CartItem {

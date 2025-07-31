@@ -8,7 +8,7 @@ import OrderConfirmationModal from "../components/OrderConfirmationModal";
 
 const CartPage = () => {
   const [auth] = useAuth();
-  const [cart, setCart] = useCart();
+  const { items: cart, totalItems, totalAmount, removeItem, updateQuantity, clearCart } = useCart();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
   const [showOrderConfirmation, setShowOrderConfirmation] = useState(false);
@@ -48,26 +48,8 @@ const CartPage = () => {
 
   const handleRemove = (id, selectedVariants = null) => {
     try {
-      let myCart = [...cart];
-      let index;
-
-      if (selectedVariants) {
-        // For products with variants, match both ID and variants
-        index = myCart.findIndex((item) =>
-          item._id === id &&
-          JSON.stringify(item.selectedVariants) === JSON.stringify(selectedVariants)
-        );
-      } else {
-        // For accommodations or products without variants
-        index = myCart.findIndex((item) => item._id === id);
-      }
-
-      if (index !== -1) {
-        myCart.splice(index, 1);
-        setCart(myCart);
-        localStorage.setItem("cart", JSON.stringify(myCart));
-        toast.success("Item removed from cart");
-      }
+      removeItem(id, selectedVariants);
+      toast.success("Item removed from cart");
     } catch (error) {
       console.log(error);
       toast.error("Failed to remove item");
@@ -78,17 +60,7 @@ const CartPage = () => {
     if (newQuantity < 1) return;
 
     try {
-      let myCart = [...cart];
-      let index = myCart.findIndex((item) =>
-        item._id === id &&
-        JSON.stringify(item.selectedVariants) === JSON.stringify(selectedVariants)
-      );
-
-      if (index !== -1) {
-        myCart[index].quantity = newQuantity;
-        setCart(myCart);
-        localStorage.setItem("cart", JSON.stringify(myCart));
-      }
+      updateQuantity(id, newQuantity, selectedVariants);
     } catch (error) {
       console.log(error);
       toast.error("Failed to update quantity");
@@ -97,15 +69,7 @@ const CartPage = () => {
 
   const totalPrice = () => {
     try {
-      const total = cart.reduce((total, item) => {
-        if (item.type === 'product') {
-          return total + (item.price * (item.quantity || 1));
-        } else {
-          return total + item.price;
-        }
-      }, 0);
-
-      return total.toLocaleString("en-NG", {
+      return totalAmount.toLocaleString("en-NG", {
         style: "currency",
         currency: "NGN",
       });

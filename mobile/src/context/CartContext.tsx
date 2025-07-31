@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useCallback, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { Product, CartItem } from '../types';
 import { STORAGE_KEYS } from '../constants';
+import { calculateItemTotal, validatePrice } from '../utils/priceUtils';
 
 // Cart actions
 type CartAction =
@@ -39,10 +40,13 @@ const initialState: CartState = {
   totalAmount: 0,
 };
 
-// Calculate totals helper
+// Calculate totals helper with improved price validation
 const calculateTotals = (items: CartItem[]) => {
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalAmount = items.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+  const totalAmount = items.reduce((sum, item) => {
+    const itemTotal = calculateItemTotal(item.product.price, item.quantity);
+    return sum + itemTotal;
+  }, 0);
   return { totalItems, totalAmount };
 };
 
@@ -154,19 +158,7 @@ interface CartProviderProps {
 export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
   const [state, dispatch] = useReducer(cartReducer, initialState);
 
-  // Load cart from storage on app start
-  useEffect(() => {
-    loadCart();
-  }, []);
-
-  // Save cart to storage whenever it changes
-  useEffect(() => {
-    if (!state.isLoading) {
-      saveCart();
-    }
-  }, [state.items, state.isLoading]);
-
-  const loadCart = async () => {
+  const loadCart = useCallback(async () => {
     try {
       const cartData = await AsyncStorage.getItem(STORAGE_KEYS.CART_ITEMS);
       if (cartData) {
@@ -179,31 +171,43 @@ export const CartProvider: React.FC<CartProviderProps> = ({ children }) => {
       console.error('Error loading cart:', error);
       dispatch({ type: 'SET_LOADING', payload: false });
     }
-  };
+  }, []);
 
-  const saveCart = async () => {
+  const saveCart = useCallback(async () => {
     try {
       await AsyncStorage.setItem(STORAGE_KEYS.CART_ITEMS, JSON.stringify(state.items));
     } catch (error) {
       console.error('Error saving cart:', error);
     }
-  };
+  }, [state.items]);
 
-  const addItem = (product: Product, quantity: number = 1) => {
+  // Load cart from storage on app start
+  useEffect(() => {
+    loadCart();
+  }, [loadCart]);
+
+  // Save cart to storage whenever it changes
+  useEffect(() => {
+    if (!state.isLoading) {
+      saveCart();
+    }
+  }, [state.isLoading, saveCart]);
+
+  const addItem = useCallback((product: Product, quantity: number = 1) => {
     dispatch({ type: 'ADD_ITEM', payload: { product, quantity } });
-  };
+  }, []);
 
-  const removeItem = (productId: string) => {
+  const removeItem = useCallback((productId: string) => {
     dispatch({ type: 'REMOVE_ITEM', payload: productId });
-  };
+  }, []);
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = useCallback((productId: string, quantity: number) => {
     dispatch({ type: 'UPDATE_QUANTITY', payload: { productId, quantity } });
-  };
+  }, []);
 
-  const clearCart = () => {
+  const clearCart = useCallback(() => {
     dispatch({ type: 'CLEAR_CART' });
-  };
+  }, []);
 
   const getItemQuantity = (productId: string): number => {
     const item = state.items.find(item => item.product._id === productId);
