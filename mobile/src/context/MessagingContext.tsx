@@ -70,23 +70,49 @@ export const MessagingProvider: React.FC<MessagingProviderProps> = ({ children }
   // Refresh unread count
   const refreshUnreadCount = useCallback(async () => {
     try {
+      console.log('🔄 Refreshing unread count...');
       const response = await messagingService.getUnreadCount();
+      console.log('📊 Unread count response:', response);
+
       if (response.success) {
-        setUnreadCount(response.unreadCount || response.data?.count || 0);
+        const count = response.unreadCount || 0;
+        console.log('📊 Setting unread count to:', count);
+        setUnreadCount(count);
+      } else {
+        console.warn('❌ Failed to fetch unread count:', response);
+        setUnreadCount(0);
       }
     } catch (error) {
-      console.error('Error fetching unread count:', error);
+      console.error('❌ Error fetching unread count:', error);
+      setUnreadCount(0);
     }
   }, []);
 
   // Auto-connect when authenticated
   useEffect(() => {
+    console.log('🔄 MessagingContext auth state changed:', {
+      isAuthenticated,
+      hasToken: !!token,
+      isConnected,
+      userId: user?._id
+    });
+
     if (isAuthenticated && token && !isConnected) {
+      console.log('🔌 Attempting to connect messaging service...');
       connect();
     } else if (!isAuthenticated && isConnected) {
+      console.log('🔌 Disconnecting messaging service...');
       disconnect();
     }
   }, [isAuthenticated, token, isConnected, connect, disconnect]);
+
+  // Fetch unread count when user becomes available
+  useEffect(() => {
+    if (isAuthenticated && token && user?._id) {
+      console.log('👤 User available, fetching unread count...');
+      refreshUnreadCount();
+    }
+  }, [isAuthenticated, token, user?._id, refreshUnreadCount]);
 
   // Listen for socket connection status changes
   useEffect(() => {

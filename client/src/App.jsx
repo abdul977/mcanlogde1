@@ -54,6 +54,7 @@ import EditResource from "./pages/Admin/EditResource";
 import AdminCreateCommunity from "./pages/Admin/CreateCommunity";
 import AllCommunity from "./pages/Admin/AllCommunity";
 import EditCommunity from "./pages/Admin/EditCommunity";
+import AllChatCommunities from "./pages/Admin/AllChatCommunities";
 import CreateDonation from "./pages/Admin/CreateDonation";
 import AllDonations from "./pages/Admin/AllDonations";
 import EditDonation from "./pages/Admin/EditDonation";
@@ -173,6 +174,7 @@ function App() {
             <Route path="create-community" element={<AdminCreateCommunity />} />
             <Route path="community" element={<AllCommunity />} />
             <Route path="edit-community/:id" element={<EditCommunity />} />
+            <Route path="chat-communities" element={<AllChatCommunities />} />
             <Route path="create-donation" element={<CreateDonation />} />
             <Route path="donations" element={<AllDonations />} />
             <Route path="edit-donation/:id" element={<EditDonation />} />

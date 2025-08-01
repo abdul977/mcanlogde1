@@ -37,12 +37,15 @@ const navbarMenu = [
   { id: 17, name: "Create Community", link: "/admin/create-community", icon: <FaUsers /> },
   { id: 18, name: "All Community", link: "/admin/community", icon: <FaUsers /> },
 
+  // Chat Communities
+  { id: 19, name: "Chat Communities", link: "/admin/chat-communities", icon: <FaComments /> },
+
   // Donations
-  { id: 19, name: "Create Donation", link: "/admin/create-donation", icon: <FaDonate /> },
-  { id: 20, name: "All Donations", link: "/admin/donations", icon: <FaDonate /> },
+  { id: 20, name: "Create Donation", link: "/admin/create-donation", icon: <FaDonate /> },
+  { id: 21, name: "All Donations", link: "/admin/donations", icon: <FaDonate /> },
 
   // Bookings & Messages
-  { id: 21, name: "All Bookings", link: "/admin/bookings", icon: <FaClipboardList /> },
+  { id: 22, name: "All Bookings", link: "/admin/bookings", icon: <FaClipboardList /> },
   { id: 22, name: "Messages", link: "/admin/messages", icon: <FaComments /> },
 
   // Payment Management

@@ -30,19 +30,47 @@ class ProfileService {
       // Create FormData for file upload
       const formData = new FormData();
 
-      // Add the image file
-      const filename = imageUri.split('/').pop() || 'profile.jpg';
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      // Extract filename and ensure proper extension
+      let filename = imageUri.split('/').pop() || 'profile.jpg';
 
-      console.log('📁 File details:', { filename, type });
+      // Ensure filename has proper extension
+      if (!filename.includes('.')) {
+        filename = `profile_${Date.now()}.jpg`;
+      }
+
+      // Determine MIME type based on file extension
+      const extension = filename.split('.').pop()?.toLowerCase();
+      let mimeType = 'image/jpeg'; // default
+
+      switch (extension) {
+        case 'png':
+          mimeType = 'image/png';
+          break;
+        case 'jpg':
+        case 'jpeg':
+          mimeType = 'image/jpeg';
+          break;
+        case 'gif':
+          mimeType = 'image/gif';
+          break;
+        case 'webp':
+          mimeType = 'image/webp';
+          break;
+        default:
+          mimeType = 'image/jpeg';
+      }
+
+      console.log('📁 File details:', { filename, mimeType, extension });
 
       // React Native FormData format for file uploads
+      // Use the correct MIME type and ensure proper file structure
       formData.append('profileImage', {
         uri: imageUri,
         name: filename,
-        type: type,
+        type: mimeType,
       } as any);
+
+      console.log('📤 Uploading to endpoint:', `${ENDPOINTS.UPDATE_PROFILE}/picture`);
 
       const response = await apiClient.put<ProfilePictureUploadResponse>(
         `${ENDPOINTS.UPDATE_PROFILE}/picture`,
@@ -59,7 +87,14 @@ class ProfileService {
       return response.data;
     } catch (error: any) {
       console.error('❌ Profile picture upload error:', error);
-      
+
+      // Log more detailed error information
+      if (error.response) {
+        console.error('❌ Response status:', error.response.status);
+        console.error('❌ Response data:', error.response.data);
+        console.error('❌ Response headers:', error.response.headers);
+      }
+
       if (error.response?.data) {
         throw new Error(error.response.data.message || 'Upload failed');
       } else if (error.message) {

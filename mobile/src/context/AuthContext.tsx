@@ -127,7 +127,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
       if (token && userData) {
         const user = JSON.parse(userData);
-        console.log('✅ Auto-login successful for user:', user.email);
+        console.log('✅ Auto-login successful for user:', {
+          email: user.email,
+          name: user.name,
+          id: user.id || user._id,
+          role: user.role
+        });
         dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token } });
       } else {
         console.log('❌ No stored auth data, showing auth screens');

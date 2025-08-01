@@ -41,6 +41,20 @@ const ProfileScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const [uploadingProfilePicture, setUploadingProfilePicture] = useState(false);
 
+  // Debug user data
+  console.log('👤 ProfileScreen user data:', {
+    user: user ? {
+      id: user.id || user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      profileImage: user.profileImage,
+      avatar: user.avatar,
+      displayAvatar: user.displayAvatar
+    } : null,
+    hasToken: !!token
+  });
+
   // Handle refresh - now uses ProfileStatsContext
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -51,8 +65,28 @@ const ProfileScreen: React.FC = () => {
   useEffect(() => {
     if (token) {
       refreshStats();
+      // Also refresh user profile data to ensure we have the latest information
+      refreshUserProfile();
     }
   }, [token, refreshStats]); // Include refreshStats in dependencies
+
+  // Function to refresh user profile data
+  const refreshUserProfile = useCallback(async () => {
+    try {
+      const response = await profileService.getProfile();
+      console.log('🔄 Profile service response:', response);
+
+      if (response.success && response.user) {
+        console.log('✅ Refreshed user profile:', response.user);
+        // For now, just log the data. We might need to add a refresh method to AuthContext
+      } else if (response.user) {
+        // Sometimes the response might not have success flag but still have user data
+        console.log('✅ Got user profile data:', response.user);
+      }
+    } catch (error) {
+      console.error('❌ Error refreshing user profile:', error);
+    }
+  }, []);
 
   // Handle profile picture upload
   const handleProfilePictureUpload = useCallback(async () => {
@@ -223,8 +257,12 @@ const ProfileScreen: React.FC = () => {
                 />
               </View>
               <View style={styles.userInfo}>
-                <Text style={styles.userName}>{user?.name || 'User Name'}</Text>
-                <Text style={styles.userEmail}>{user?.email || 'user@email.com'}</Text>
+                <Text style={styles.userName}>
+                  {user?.name && user.name.trim() ? user.name : 'User Name'}
+                </Text>
+                <Text style={styles.userEmail}>
+                  {user?.email && user.email.trim() ? user.email : 'user@email.com'}
+                </Text>
                 <View style={styles.roleContainer}>
                   <View style={[styles.roleBadge, user?.role === 'admin' && styles.adminBadge]}>
                     <Text style={[styles.roleText, user?.role === 'admin' && styles.adminText]}>
@@ -480,7 +518,7 @@ const styles = StyleSheet.create({
   },
   section: {
     paddingHorizontal: SPACING.LG,
-    paddingVertical: SPACING.LG,
+    paddingVertical: SPACING.MD, // Reduce vertical padding for better spacing
   },
   sectionTitle: {
     fontSize: TYPOGRAPHY.FONT_SIZES.LG,
@@ -491,14 +529,17 @@ const styles = StyleSheet.create({
   statsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: SPACING.MD,
+    alignItems: 'stretch', // Ensure all cards have the same height
+    gap: SPACING.SM, // Reduce gap slightly for better spacing
   },
   statCard: {
     flex: 1,
     backgroundColor: COLORS.WHITE,
-    padding: SPACING.LG,
+    padding: SPACING.MD, // Reduce padding slightly for better proportions
     borderRadius: 12,
     alignItems: 'center',
+    justifyContent: 'center', // Center content vertically
+    minHeight: 100, // Ensure minimum height for consistency
     ...SHADOWS.SM,
   },
   statNumber: {

@@ -58,9 +58,9 @@ router.put("/:id",
 );
 
 // Admin routes (require admin role)
-router.get("/admin/all", requireAdmin, getAllCommunitiesAdminController);
-router.put("/admin/:id/approve", requireAdmin, approveCommunityController);
-router.put("/admin/:id/reject", requireAdmin, rejectCommunityController);
-router.put("/admin/:id/suspend", requireAdmin, suspendCommunityController);
+router.get("/admin/all", requireAuth, requireAdmin, getAllCommunitiesAdminController);
+router.put("/admin/:id/approve", requireAuth, requireAdmin, approveCommunityController);
+router.put("/admin/:id/reject", requireAuth, requireAdmin, rejectCommunityController);
+router.put("/admin/:id/suspend", requireAuth, requireAdmin, suspendCommunityController);
 
 export default router;

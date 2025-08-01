@@ -80,11 +80,15 @@ class ImagePickerService {
       return false;
     }
 
-    // Check if it's an image
-    if (!asset.type || !asset.type.startsWith('image/')) {
+    // Check if it's an image - be more lenient with type checking
+    // Sometimes the type might not be set properly by the image picker
+    const hasImageExtension = asset.uri && /\.(jpg|jpeg|png|gif|webp)$/i.test(asset.uri);
+    const hasImageType = asset.type && asset.type.startsWith('image/');
+
+    if (!hasImageType && !hasImageExtension) {
       Alert.alert(
         'Invalid File Type',
-        'Please select an image file.',
+        'Please select an image file (JPG, PNG, GIF, or WebP).',
         [{ text: 'OK' }]
       );
       return false;
@@ -121,9 +125,37 @@ class ImagePickerService {
         return null;
       }
 
-      const filename = asset.uri.split('/').pop() || `photo_${Date.now()}.jpg`;
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      // Generate proper filename and type
+      let filename = asset.uri.split('/').pop() || `photo_${Date.now()}.jpg`;
+
+      // Ensure filename has proper extension
+      if (!filename.includes('.')) {
+        filename = `photo_${Date.now()}.jpg`;
+      }
+
+      // Determine MIME type - prefer asset.type if available, otherwise infer from extension
+      let type = asset.type || 'image/jpeg';
+
+      if (!type || !type.startsWith('image/')) {
+        const extension = filename.split('.').pop()?.toLowerCase();
+        switch (extension) {
+          case 'png':
+            type = 'image/png';
+            break;
+          case 'jpg':
+          case 'jpeg':
+            type = 'image/jpeg';
+            break;
+          case 'gif':
+            type = 'image/gif';
+            break;
+          case 'webp':
+            type = 'image/webp';
+            break;
+          default:
+            type = 'image/jpeg';
+        }
+      }
 
       return {
         uri: asset.uri,
@@ -166,9 +198,37 @@ class ImagePickerService {
         return null;
       }
 
-      const filename = asset.uri.split('/').pop() || `image_${Date.now()}.jpg`;
-      const match = /\.(\w+)$/.exec(filename);
-      const type = match ? `image/${match[1]}` : 'image/jpeg';
+      // Generate proper filename and type
+      let filename = asset.uri.split('/').pop() || `image_${Date.now()}.jpg`;
+
+      // Ensure filename has proper extension
+      if (!filename.includes('.')) {
+        filename = `image_${Date.now()}.jpg`;
+      }
+
+      // Determine MIME type - prefer asset.type if available, otherwise infer from extension
+      let type = asset.type || 'image/jpeg';
+
+      if (!type || !type.startsWith('image/')) {
+        const extension = filename.split('.').pop()?.toLowerCase();
+        switch (extension) {
+          case 'png':
+            type = 'image/png';
+            break;
+          case 'jpg':
+          case 'jpeg':
+            type = 'image/jpeg';
+            break;
+          case 'gif':
+            type = 'image/gif';
+            break;
+          case 'webp':
+            type = 'image/webp';
+            break;
+          default:
+            type = 'image/jpeg';
+        }
+      }
 
       return {
         uri: asset.uri,
