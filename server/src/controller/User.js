@@ -380,17 +380,19 @@ export const updateProfilePictureController = async (req, res) => {
     console.log('🔍 [DEBUG] updateProfilePictureController called');
     const userId = req.user.id || req.user._id;
     console.log('🔍 [DEBUG] User ID:', userId);
-    console.log('🔍 [DEBUG] File received:', !!req.file);
-    console.log('🔍 [DEBUG] File details:', req.file ? {
-      originalname: req.file.originalname,
-      filename: req.file.filename,
-      path: req.file.path,
-      mimetype: req.file.mimetype,
-      size: req.file.size,
-      destination: req.file.destination
-    } : 'No file');
+    console.log('🔍 [DEBUG] Files received:', !!req.files);
+    console.log('🔍 [DEBUG] Files object:', req.files);
 
-    if (!req.file) {
+    // Check for profileImage in req.files (express-fileupload format)
+    const profileImageFile = req.files?.profileImage;
+    console.log('🔍 [DEBUG] Profile image file:', profileImageFile ? {
+      name: profileImageFile.name,
+      tempFilePath: profileImageFile.tempFilePath,
+      mimetype: profileImageFile.mimetype,
+      size: profileImageFile.size
+    } : 'No profile image file');
+
+    if (!profileImageFile) {
       console.error('❌ [DEBUG] No image file provided');
       return res.status(400).json({
         success: false,
@@ -398,10 +400,19 @@ export const updateProfilePictureController = async (req, res) => {
       });
     }
 
+    // Validate file type
+    if (!profileImageFile.mimetype.startsWith('image/')) {
+      console.error('❌ [DEBUG] Invalid file type:', profileImageFile.mimetype);
+      return res.status(400).json({
+        success: false,
+        message: "Only image files are allowed"
+      });
+    }
+
     // Upload image to Supabase Storage
     console.log('🔍 [DEBUG] Attempting to upload to Supabase...');
     const uploadResult = await supabaseStorage.uploadFromTempFile(
-      req.file,
+      profileImageFile,
       'mcan-users', // Now using the properly configured mcan-users bucket
       'profile-pictures' // folder
     );

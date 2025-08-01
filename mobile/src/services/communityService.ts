@@ -70,7 +70,8 @@ class CommunityService {
       } catch (byIdError) {
         console.log('⚠️ [DEBUG] by-id endpoint failed, trying fallback...');
 
-        // If by-id endpoint fails (not deployed yet), try to get from user communities
+        // If by-id endpoint fails, try to get from user communities
+        // Note: getUserCommunities() already extracts the nested community data
         const userCommunities = await this.getUserCommunities();
         const community = userCommunities.find(c => c._id === communityId);
 

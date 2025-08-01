@@ -171,7 +171,7 @@ communityMemberSchema.statics.isMember = function(communityId, userId) {
 // Static method to get user's communities
 communityMemberSchema.statics.getUserCommunities = function(userId, status = 'active') {
   return this.find({ user: userId, status })
-    .populate('community', 'name description avatar memberCount lastActivity')
+    .populate('community', '_id name description category avatar banner memberCount lastActivity status creator tags isPrivate createdAt updatedAt')
     .sort({ lastSeen: -1 });
 };
 
