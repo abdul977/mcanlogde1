@@ -54,14 +54,16 @@ const CommunitySettingsScreen: React.FC = () => {
       setLoading(true);
       const communityData = await communityService.getCommunityById(communityId);
       setCommunity(communityData);
-      
-      // Check user role in community
-      const userRole = communityData.members?.find(
-        (member: any) => member.user._id === user?._id
-      )?.role;
-      
-      setIsAdmin(userRole === 'admin' || communityData.creator._id === user?._id);
-      setIsModerator(userRole === 'moderator' || userRole === 'admin');
+
+      // Check if user is the creator
+      const isCreator = communityData.creator?._id === user?._id;
+
+      // Get user's role in the community from the memberRole field
+      const userRole = communityData.memberRole;
+
+      // Set permissions based on role and creator status
+      setIsAdmin(isCreator || userRole === 'admin' || userRole === 'creator');
+      setIsModerator(isCreator || userRole === 'admin' || userRole === 'moderator' || userRole === 'creator');
     } catch (error) {
       console.error('Error loading community:', error);
       Alert.alert('Error', 'Failed to load community settings');
@@ -73,10 +75,16 @@ const CommunitySettingsScreen: React.FC = () => {
 
   const handleToggleSetting = async (settingKey: string, value: boolean) => {
     try {
+      // Check if user has permission to modify settings
+      if (!isAdmin) {
+        Alert.alert('Permission Denied', 'Only community administrators can modify these settings');
+        return;
+      }
+
       await communityService.updateCommunitySettings(communityId, {
         [settingKey]: value
       });
-      
+
       setCommunity(prev => prev ? {
         ...prev,
         settings: {
@@ -84,9 +92,11 @@ const CommunitySettingsScreen: React.FC = () => {
           [settingKey]: value
         }
       } : null);
+
+      Alert.alert('Success', 'Setting updated successfully');
     } catch (error) {
       console.error('Error updating setting:', error);
-      Alert.alert('Error', 'Failed to update setting');
+      Alert.alert('Error', 'Failed to update setting. Please try again.');
     }
   };
 
@@ -146,7 +156,14 @@ const CommunitySettingsScreen: React.FC = () => {
         subtitle: `${community?.memberCount || 0} members`,
         icon: 'people-outline',
         type: 'navigation',
-        onPress: () => navigation.navigate('CommunityMembers', { communityId }),
+        onPress: () => {
+          try {
+            navigation.navigate('CommunityMembers', { communityId });
+          } catch (error) {
+            console.error('Navigation error:', error);
+            Alert.alert('Error', 'Unable to navigate to members screen');
+          }
+        },
       },
     ];
 
@@ -158,7 +175,14 @@ const CommunitySettingsScreen: React.FC = () => {
           subtitle: 'Manage reports and violations',
           icon: 'shield-outline',
           type: 'navigation',
-          onPress: () => navigation.navigate('CommunityModeration', { communityId }),
+          onPress: () => {
+            try {
+              navigation.navigate('CommunityModeration', { communityId });
+            } catch (error) {
+              console.error('Navigation error:', error);
+              Alert.alert('Error', 'Unable to navigate to moderation screen');
+            }
+          },
         }
       );
     }
@@ -293,7 +317,12 @@ const CommunitySettingsScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header title="Community Settings" showBackButton />
+      <Header
+        title="Community Settings"
+        showBackButton
+        backgroundColor={COLORS.PRIMARY}
+        titleColor={COLORS.WHITE}
+      />
       
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Community Info */}

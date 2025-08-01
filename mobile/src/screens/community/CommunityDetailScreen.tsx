@@ -313,17 +313,19 @@ const CommunityDetailScreen: React.FC = () => {
       <Header
         title={communityName}
         showBackButton
+        backgroundColor={COLORS.PRIMARY}
+        titleColor={COLORS.WHITE}
         rightComponent={
           <TouchableOpacity onPress={handleCommunitySettings}>
-            <Ionicons name="settings-outline" size={24} color={COLORS.PRIMARY} />
+            <Ionicons name="settings-outline" size={24} color={COLORS.WHITE} />
           </TouchableOpacity>
         }
       />
 
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         style={styles.chatContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 140 : 20}
       >
         {loading ? (
           <LoadingSpinner />
@@ -335,9 +337,15 @@ const CommunityDetailScreen: React.FC = () => {
               renderItem={renderMessage}
               keyExtractor={(item) => item._id}
               style={styles.messagesList}
-              contentContainerStyle={styles.messagesContainer}
+              contentContainerStyle={[styles.messagesContainer, { paddingBottom: 100 }]}
               onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
+              onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
               showsVerticalScrollIndicator={false}
+              removeClippedSubviews={true}
+              maxToRenderPerBatch={10}
+              updateCellsBatchingPeriod={50}
+              initialNumToRender={20}
+              windowSize={10}
             />
 
             {/* Typing Indicator */}
@@ -345,32 +353,35 @@ const CommunityDetailScreen: React.FC = () => {
               <TypingIndicator userIds={typingUsers} />
             )}
 
-            {/* Reply Preview */}
-            {replyToMessage && (
-              <View style={styles.replyPreview}>
-                <View style={styles.replyContent}>
-                  <Text style={styles.replyLabel}>
-                    Replying to {replyToMessage.sender.name}
-                  </Text>
-                  <Text style={styles.replyText} numberOfLines={1}>
-                    {replyToMessage.content}
-                  </Text>
+            {/* Reply Preview and Message Input Container */}
+            <View style={styles.inputWrapper}>
+              {/* Reply Preview */}
+              {replyToMessage && (
+                <View style={styles.replyPreview}>
+                  <View style={styles.replyContent}>
+                    <Text style={styles.replyLabel}>
+                      Replying to {replyToMessage.sender.name}
+                    </Text>
+                    <Text style={styles.replyText} numberOfLines={1}>
+                      {replyToMessage.content}
+                    </Text>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => setReplyToMessage(null)}
+                    style={styles.replyClose}
+                  >
+                    <Ionicons name="close" size={20} color={COLORS.GRAY_500} />
+                  </TouchableOpacity>
                 </View>
-                <TouchableOpacity
-                  onPress={() => setReplyToMessage(null)}
-                  style={styles.replyClose}
-                >
-                  <Ionicons name="close" size={20} color={COLORS.GRAY_500} />
-                </TouchableOpacity>
-              </View>
-            )}
+              )}
 
-            <MessageInput
-              onSendMessage={handleSendMessage}
-              onTyping={handleTyping}
-              sending={sending}
-              placeholder={`Message ${communityName}...`}
-            />
+              <MessageInput
+                onSendMessage={handleSendMessage}
+                onTyping={handleTyping}
+                sending={sending}
+                placeholder={`Message ${communityName}...`}
+              />
+            </View>
           </>
         )}
       </KeyboardAvoidingView>
@@ -392,6 +403,10 @@ const styles = StyleSheet.create({
   messagesContainer: {
     padding: SPACING.SM,
     paddingBottom: SPACING.MD,
+    flexGrow: 1,
+  },
+  inputWrapper: {
+    backgroundColor: COLORS.WHITE,
   },
   replyPreview: {
     flexDirection: 'row',

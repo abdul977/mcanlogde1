@@ -60,11 +60,14 @@ const CommunityMembersScreen: React.FC = () => {
     try {
       setLoading(true);
       const membersData = await communityService.getCommunityMembers(communityId);
-      setMembers(membersData);
-      
+
+      // Filter out members with null user objects
+      const validMembers = membersData.filter((member: CommunityMember) => member.user && member.user._id);
+      setMembers(validMembers);
+
       // Find current user's role
-      const currentUserMember = membersData.find(
-        (member: CommunityMember) => member.user._id === user?._id
+      const currentUserMember = validMembers.find(
+        (member: CommunityMember) => member.user?._id === user?._id
       );
       if (currentUserMember) {
         setUserRole(currentUserMember.role);
@@ -180,52 +183,59 @@ const CommunityMembersScreen: React.FC = () => {
     );
   };
 
-  const renderMemberItem = ({ item }: { item: CommunityMember }) => (
-    <TouchableOpacity
-      style={styles.memberItem}
-      onPress={() => canManageMember(item.role) ? handleMemberAction(item) : undefined}
-      disabled={!canManageMember(item.role)}
-    >
-      <Avatar
-        source={item.user.profileImage}
-        name={item.user.name}
-        size={50}
-      />
-      
-      <View style={styles.memberInfo}>
-        <View style={styles.memberHeader}>
-          <Text style={styles.memberName}>{item.user.name}</Text>
-          <View style={[styles.roleBadge, { backgroundColor: ROLE_COLORS[item.role] }]}>
-            <Text style={styles.roleText}>{ROLE_LABELS[item.role]}</Text>
+  const renderMemberItem = ({ item }: { item: CommunityMember }) => {
+    // Safety check for null user
+    if (!item.user || !item.user._id) {
+      return null;
+    }
+
+    return (
+      <TouchableOpacity
+        style={styles.memberItem}
+        onPress={() => canManageMember(item.role) ? handleMemberAction(item) : undefined}
+        disabled={!canManageMember(item.role)}
+      >
+        <Avatar
+          source={item.user.profileImage}
+          name={item.user.name}
+          size={50}
+        />
+
+        <View style={styles.memberInfo}>
+          <View style={styles.memberHeader}>
+            <Text style={styles.memberName}>{item.user.name || 'Unknown User'}</Text>
+            <View style={[styles.roleBadge, { backgroundColor: ROLE_COLORS[item.role] }]}>
+              <Text style={styles.roleText}>{ROLE_LABELS[item.role]}</Text>
+            </View>
+          </View>
+
+          <Text style={styles.memberEmail}>{item.user.email || 'No email'}</Text>
+
+          <View style={styles.memberMeta}>
+            <Text style={styles.metaText}>
+              Joined {new Date(item.joinedAt).toLocaleDateString()}
+            </Text>
+            {item.lastActive && (
+              <>
+                <Text style={styles.metaText}> • </Text>
+                <Text style={styles.metaText}>
+                  Active {new Date(item.lastActive).toLocaleDateString()}
+                </Text>
+              </>
+            )}
           </View>
         </View>
-        
-        <Text style={styles.memberEmail}>{item.user.email}</Text>
-        
-        <View style={styles.memberMeta}>
-          <Text style={styles.metaText}>
-            Joined {new Date(item.joinedAt).toLocaleDateString()}
-          </Text>
-          {item.lastActive && (
-            <>
-              <Text style={styles.metaText}> • </Text>
-              <Text style={styles.metaText}>
-                Active {new Date(item.lastActive).toLocaleDateString()}
-              </Text>
-            </>
-          )}
-        </View>
-      </View>
 
-      {canManageMember(item.role) && (
-        <Ionicons
-          name="ellipsis-vertical"
-          size={20}
-          color={COLORS.GRAY_400}
-        />
-      )}
-    </TouchableOpacity>
-  );
+        {canManageMember(item.role) && (
+          <Ionicons
+            name="ellipsis-vertical"
+            size={20}
+            color={COLORS.GRAY_400}
+          />
+        )}
+      </TouchableOpacity>
+    );
+  };
 
   const renderEmptyState = () => (
     <View style={styles.emptyState}>
@@ -240,7 +250,12 @@ const CommunityMembersScreen: React.FC = () => {
   if (loading) {
     return (
       <SafeAreaView style={styles.container}>
-        <Header title="Members" showBackButton />
+        <Header
+          title="Members"
+          showBackButton
+          backgroundColor={COLORS.PRIMARY}
+          titleColor={COLORS.WHITE}
+        />
         <LoadingSpinner />
       </SafeAreaView>
     );
@@ -248,9 +263,11 @@ const CommunityMembersScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Header 
-        title={`Members (${members.length})`} 
-        showBackButton 
+      <Header
+        title={`Members (${members.length})`}
+        showBackButton
+        backgroundColor={COLORS.PRIMARY}
+        titleColor={COLORS.WHITE}
       />
 
       {/* Search Bar */}
@@ -279,7 +296,7 @@ const CommunityMembersScreen: React.FC = () => {
       <FlatList
         data={filteredMembers}
         renderItem={renderMemberItem}
-        keyExtractor={(item) => item.user._id}
+        keyExtractor={(item) => item.user?._id || item._id || `member-${Math.random()}`}
         contentContainerStyle={styles.listContainer}
         refreshControl={
           <RefreshControl

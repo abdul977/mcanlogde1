@@ -213,35 +213,48 @@ class CommunityService {
     attachments?: any[]
   ): Promise<CommunityMessage> {
     try {
-      const formData = new FormData();
-      
-      // Add message data
-      formData.append('content', messageData.content);
-      if (messageData.messageType) {
-        formData.append('messageType', messageData.messageType);
-      }
-      if (messageData.replyTo) {
-        formData.append('replyTo', messageData.replyTo);
-      }
-
-      // Add attachments
+      // If there are attachments, use FormData, otherwise use JSON
       if (attachments && attachments.length > 0) {
+        const formData = new FormData();
+
+        // Add message data
+        formData.append('content', messageData.content);
+        if (messageData.messageType) {
+          formData.append('messageType', messageData.messageType);
+        }
+        if (messageData.replyTo) {
+          formData.append('replyTo', messageData.replyTo);
+        }
+
+        // Add attachments
         attachments.forEach((attachment, index) => {
           formData.append('attachments', attachment);
         });
-      }
 
-      const response = await apiClient.post(
-        `/api/community-messages/${communityId}/send`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-      
-      return response.data.data;
+        const response = await apiClient.post(
+          `/api/community-messages/${communityId}/send`,
+          formData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          }
+        );
+
+        return response.data.data;
+      } else {
+        // For text-only messages, use JSON
+        const response = await apiClient.post(
+          `/api/community-messages/${communityId}/send`,
+          {
+            content: messageData.content,
+            messageType: messageData.messageType || 'text',
+            replyTo: messageData.replyTo || null,
+          }
+        );
+
+        return response.data.data;
+      }
     } catch (error) {
       console.error('Error sending message:', error);
       throw error;

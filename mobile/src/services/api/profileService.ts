@@ -73,16 +73,15 @@ class ProfileService {
       console.log('📁 File object:', fileObject);
       formData.append('profileImage', fileObject as any);
 
-      console.log('📤 Uploading to endpoint:', `${ENDPOINTS.UPDATE_PROFILE}/picture`);
+      console.log('📤 Uploading to endpoint:', `/auth/api/profile/picture`);
       console.log('📤 FormData parts:', (formData as any)._parts);
 
       const response = await apiClient.put<ProfilePictureUploadResponse>(
-        `${ENDPOINTS.UPDATE_PROFILE}/picture`,
+        `/auth/api/profile/picture`,
         formData,
         {
           headers: {
-            // Don't set Content-Type manually for FormData - let axios handle it
-            // 'Content-Type': 'multipart/form-data',
+            'Content-Type': 'multipart/form-data',
           },
           timeout: 30000, // 30 second timeout for uploads
         }
