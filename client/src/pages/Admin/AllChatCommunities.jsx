@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
-import { 
-  FaUsers, 
-  FaSync, 
-  FaSearch, 
-  FaCheck, 
-  FaTimes, 
-  FaPause, 
+import {
+  FaUsers,
+  FaSync,
+  FaSearch,
+  FaCheck,
+  FaTimes,
+  FaPause,
   FaEye,
   FaClock,
   FaCheckCircle,
   FaTimesCircle,
   FaBan,
-  FaFilter
+  FaFilter,
+  FaTrash
 } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
@@ -220,6 +221,53 @@ const AllChatCommunities = () => {
     } catch (error) {
       console.error("Error suspending community:", error);
       toast.error("Failed to suspend community. Please try again.", { position: "bottom-left" });
+    } finally {
+      setActionLoading(prev => ({ ...prev, [communityId]: null }));
+    }
+  };
+
+  // Handle community deletion
+  const handleDelete = async (communityId, communityName) => {
+    const reason = prompt(
+      `⚠️ PERMANENT DELETION WARNING ⚠️\n\nYou are about to permanently delete "${communityName}".\n\nThis action will:\n• Delete ALL community messages\n• Remove ALL community members\n• Delete ALL community data\n• CANNOT BE UNDONE\n\nPlease enter a reason for deletion:`,
+      'Community deleted by admin'
+    );
+
+    if (!reason || reason.trim() === "") {
+      return; // User cancelled or no reason provided
+    }
+
+    const confirmDelete = window.confirm(
+      `FINAL CONFIRMATION\n\nAre you absolutely sure you want to permanently delete "${communityName}"?\n\nThis action CANNOT be undone!`
+    );
+
+    if (!confirmDelete) {
+      return;
+    }
+
+    try {
+      setActionLoading(prev => ({ ...prev, [communityId]: 'deleting' }));
+
+      const { data } = await axios.delete(
+        `${import.meta.env.VITE_BASE_URL}/api/chat-communities/admin/${communityId}/delete`,
+        {
+          headers: {
+            Authorization: `Bearer ${auth?.token}`,
+            'Content-Type': 'application/json'
+          },
+          data: { reason }
+        }
+      );
+
+      if (data?.success) {
+        toast.success(`Community "${communityName}" deleted permanently!`, { position: "bottom-left" });
+        fetchCommunities(true);
+      } else {
+        toast.error(data?.message || "Error deleting community", { position: "bottom-left" });
+      }
+    } catch (error) {
+      console.error("Error deleting community:", error);
+      toast.error("Failed to delete community. Please try again.", { position: "bottom-left" });
     } finally {
       setActionLoading(prev => ({ ...prev, [communityId]: null }));
     }
@@ -487,6 +535,16 @@ const AllChatCommunities = () => {
                     >
                       <FaEye className="mr-1" />
                       View
+                    </button>
+
+                    {/* Delete button - available for all statuses */}
+                    <button
+                      onClick={() => handleDelete(community._id, community.name)}
+                      disabled={actionLoading[community._id]}
+                      className="flex items-center px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                    >
+                      <FaTrash className="mr-1" />
+                      {actionLoading[community._id] === 'deleting' ? 'Deleting...' : 'Delete'}
                     </button>
                   </div>
                 </div>

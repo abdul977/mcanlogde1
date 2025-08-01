@@ -73,10 +73,14 @@ export const sendMessageController = async (req, res) => {
       }
     }
 
-    // Handle file attachments
+    // Handle file attachments (express-fileupload format)
     let attachments = [];
-    if (req.files && req.files.length > 0) {
-      for (const file of req.files) {
+    if (req.files && req.files.attachments) {
+      const fileList = Array.isArray(req.files.attachments)
+        ? req.files.attachments
+        : [req.files.attachments];
+
+      for (const file of fileList) {
         try {
           const result = await supabaseStorage.uploadFromTempFile(
             file,
@@ -86,7 +90,7 @@ export const sendMessageController = async (req, res) => {
 
           if (result.success) {
             attachments.push({
-              filename: file.originalname,
+              filename: file.name,
               url: result.data.secure_url,
               fileType: file.mimetype.startsWith('image/') ? 'image' : 'document',
               fileSize: file.size,

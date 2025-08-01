@@ -38,15 +38,16 @@ const navbarMenu = [
   { id: 18, name: "All Community", link: "/admin/community", icon: <FaUsers /> },
 
   // Chat Communities
-  { id: 19, name: "Chat Communities", link: "/admin/chat-communities", icon: <FaComments /> },
+  { id: 19, name: "Create Chat Community", link: "/admin/create-chat-community", icon: <FaComments /> },
+  { id: 20, name: "All Chat Communities", link: "/admin/chat-communities", icon: <FaComments /> },
 
   // Donations
-  { id: 20, name: "Create Donation", link: "/admin/create-donation", icon: <FaDonate /> },
-  { id: 21, name: "All Donations", link: "/admin/donations", icon: <FaDonate /> },
+  { id: 21, name: "Create Donation", link: "/admin/create-donation", icon: <FaDonate /> },
+  { id: 22, name: "All Donations", link: "/admin/donations", icon: <FaDonate /> },
 
   // Bookings & Messages
-  { id: 22, name: "All Bookings", link: "/admin/bookings", icon: <FaClipboardList /> },
-  { id: 22, name: "Messages", link: "/admin/messages", icon: <FaComments /> },
+  { id: 23, name: "All Bookings", link: "/admin/bookings", icon: <FaClipboardList /> },
+  { id: 24, name: "Messages", link: "/admin/messages", icon: <FaComments /> },
 
   // Payment Management
   { id: 23, name: "Payment Settings", link: "/admin/payment-settings", icon: <FaCog /> },

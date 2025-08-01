@@ -9,7 +9,7 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 
@@ -36,16 +36,22 @@ const CommunityDetailScreen: React.FC = () => {
   const { communityId, communityName } = route.params as RouteParams;
   const { user } = useAuth();
   const { socket, isConnected } = useSocket();
-  
+  const insets = useSafeAreaInsets();
+
   const [messages, setMessages] = useState<CommunityMessage[]>([]);
-  const [community, setCommunity] = useState<Community | null>(null);
+  const [community, setCommunity] = useState<(Community & { userRole?: string; isMember?: boolean }) | null>(null);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [typingUsers, setTypingUsers] = useState<string[]>([]);
   const [replyToMessage, setReplyToMessage] = useState<CommunityMessage | null>(null);
-  
+
   const flatListRef = useRef<FlatList>(null);
-  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  // Fix: Provide null as initial value for useRef with generic type
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Calculate bottom space for tab bar (same calculation as MainNavigator)
+  const tabBarHeight = 60 + Math.max(insets.bottom - 8, 0);
+  const totalBottomSpace = tabBarHeight;
 
   useEffect(() => {
     loadCommunityData();
@@ -64,8 +70,13 @@ const CommunityDetailScreen: React.FC = () => {
     } catch (error) {
       console.error('Error loading community:', error);
 
+      // Type guard for error handling in strict mode
+      const isAxiosError = (err: unknown): err is { response?: { status: number }; message?: string } => {
+        return typeof err === 'object' && err !== null;
+      };
+
       // Check if it's a 404 error (community not found)
-      if (error.response?.status === 404 || error.message?.includes('not found')) {
+      if (isAxiosError(error) && (error.response?.status === 404 || error.message?.includes('not found'))) {
         Alert.alert(
           'Community Not Found',
           'This community no longer exists or has been removed.',
@@ -91,8 +102,13 @@ const CommunityDetailScreen: React.FC = () => {
     } catch (error) {
       console.error('Error loading messages:', error);
 
+      // Type guard for error handling in strict mode
+      const isAxiosError = (err: unknown): err is { response?: { status: number }; message?: string } => {
+        return typeof err === 'object' && err !== null;
+      };
+
       // Check if it's a 404 error (community not found)
-      if (error.response?.status === 404 || error.message?.includes('not found')) {
+      if (isAxiosError(error) && (error.response?.status === 404 || error.message?.includes('not found'))) {
         // Community doesn't exist, navigate back
         Alert.alert(
           'Community Not Found',
@@ -114,30 +130,50 @@ const CommunityDetailScreen: React.FC = () => {
   };
 
   const setupSocketListeners = () => {
-    if (!socket || !isConnected) return;
+    if (!socket || !isConnected) {
+      console.log('⚠️ Cannot setup community socket listeners - socket:', !!socket, 'isConnected:', isConnected);
+      return;
+    }
+
+    console.log('🔌 Setting up community socket listeners for community:', communityId);
 
     // Join community room
     socket.emit('join_community', { communityId });
+    console.log('📥 Joining community room:', communityId);
 
     // Listen for new messages
     socket.on('new_community_message', handleNewMessage);
-    
+
     // Listen for message deletions
     socket.on('community_message_deleted', handleMessageDeleted);
-    
+
     // Listen for typing indicators
     socket.on('member_typing_start', handleTypingStart);
     socket.on('member_typing_stop', handleTypingStop);
-    
+
     // Listen for member actions
     socket.on('community_member_joined', handleMemberJoined);
     socket.on('community_member_left', handleMemberLeft);
     socket.on('community_member_kicked', handleMemberKicked);
     socket.on('community_member_banned', handleMemberBanned);
+
+    // Listen for community join confirmation
+    socket.on('community_joined', (data: any) => {
+      console.log('✅ Successfully joined community:', data.communityId);
+    });
+
+    // Listen for errors
+    socket.on('error', (error: any) => {
+      console.error('❌ Community socket error:', error);
+    });
+
+    console.log('✅ Community socket listeners setup complete');
   };
 
   const cleanupSocketListeners = () => {
     if (!socket) return;
+
+    console.log('🧹 Cleaning up community socket listeners for community:', communityId);
 
     socket.emit('leave_community', { communityId });
     socket.off('new_community_message');
@@ -148,14 +184,38 @@ const CommunityDetailScreen: React.FC = () => {
     socket.off('community_member_left');
     socket.off('community_member_kicked');
     socket.off('community_member_banned');
+    socket.off('community_joined');
+    socket.off('error');
+
+    console.log('✅ Community socket listeners cleanup complete');
   };
 
   const handleNewMessage = (data: { message: CommunityMessage }) => {
-    setMessages(prev => [...prev, data.message]);
-    // Auto-scroll to bottom for new messages
-    setTimeout(() => {
-      flatListRef.current?.scrollToEnd({ animated: true });
-    }, 100);
+    console.log('📨 New community message received via socket:', data.message);
+    setMessages(prevMessages => {
+      // Check if message already exists to prevent duplicates
+      const messageExists = prevMessages.some(msg =>
+        msg._id === data.message._id ||
+        (msg.content === data.message.content &&
+         msg.sender._id === data.message.sender._id &&
+         Math.abs(new Date(msg.createdAt).getTime() - new Date(data.message.createdAt).getTime()) < 5000)
+      );
+
+      if (messageExists) {
+        console.log('⚠️ Duplicate community message detected, skipping socket message');
+        return prevMessages;
+      }
+
+      console.log('✅ Adding new community message to state');
+      const newMessages = [...prevMessages, data.message];
+
+      // Auto-scroll to bottom for new messages
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+
+      return newMessages;
+    });
   };
 
   const handleMessageDeleted = (data: { messageId: string }) => {
@@ -302,90 +362,97 @@ const CommunityDetailScreen: React.FC = () => {
   };
 
   const handleCommunitySettings = () => {
-    navigation.navigate('CommunitySettings', { 
+    (navigation as any).navigate('CommunitySettings', {
       communityId,
-      community 
+      community
     });
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Header
-        title={communityName}
-        showBackButton
-        backgroundColor={COLORS.PRIMARY}
-        titleColor={COLORS.WHITE}
-        rightComponent={
-          <TouchableOpacity onPress={handleCommunitySettings}>
-            <Ionicons name="settings-outline" size={24} color={COLORS.WHITE} />
-          </TouchableOpacity>
-        }
-      />
+    <KeyboardAvoidingView
+      style={styles.container}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 140 : 20}
+    >
+      <SafeAreaView style={styles.safeArea}>
+        <Header
+          title={communityName}
+          showBackButton
+          backgroundColor={COLORS.PRIMARY}
+          titleColor={COLORS.WHITE}
+          rightComponent={
+            <TouchableOpacity onPress={handleCommunitySettings}>
+              <Ionicons name="settings-outline" size={24} color={COLORS.WHITE} />
+            </TouchableOpacity>
+          }
+        />
 
-      <KeyboardAvoidingView
-        style={styles.chatContainer}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 140 : 20}
-      >
         {loading ? (
-          <LoadingSpinner />
+          <View style={styles.loadingContainer}>
+            <LoadingSpinner />
+          </View>
         ) : (
-          <>
-            <FlatList
-              ref={flatListRef}
-              data={messages}
-              renderItem={renderMessage}
-              keyExtractor={(item) => item._id}
-              style={styles.messagesList}
-              contentContainerStyle={[styles.messagesContainer, { paddingBottom: 100 }]}
-              onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
-              onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
-              showsVerticalScrollIndicator={false}
-              removeClippedSubviews={true}
-              maxToRenderPerBatch={10}
-              updateCellsBatchingPeriod={50}
-              initialNumToRender={20}
-              windowSize={10}
+          <View style={styles.chatContainer}>
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={renderMessage}
+            keyExtractor={(item) => item._id}
+            style={styles.messagesList}
+            contentContainerStyle={[styles.messagesContainer, { paddingBottom: totalBottomSpace + 80 }]}
+            onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
+            onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
+            showsVerticalScrollIndicator={false}
+            removeClippedSubviews={true}
+            maxToRenderPerBatch={10}
+            updateCellsBatchingPeriod={50}
+            initialNumToRender={20}
+            windowSize={10}
+          />
+
+          {/* Typing Indicator */}
+          {typingUsers.length > 0 && (
+            <TypingIndicator
+              isVisible={typingUsers.length > 0}
+              userName={typingUsers.length === 1 ? 'Someone' : `${typingUsers.length} people`}
             />
+          )}
 
-            {/* Typing Indicator */}
-            {typingUsers.length > 0 && (
-              <TypingIndicator userIds={typingUsers} />
-            )}
-
-            {/* Reply Preview and Message Input Container */}
-            <View style={styles.inputWrapper}>
-              {/* Reply Preview */}
-              {replyToMessage && (
-                <View style={styles.replyPreview}>
-                  <View style={styles.replyContent}>
-                    <Text style={styles.replyLabel}>
-                      Replying to {replyToMessage.sender.name}
-                    </Text>
-                    <Text style={styles.replyText} numberOfLines={1}>
-                      {replyToMessage.content}
-                    </Text>
-                  </View>
-                  <TouchableOpacity
-                    onPress={() => setReplyToMessage(null)}
-                    style={styles.replyClose}
-                  >
-                    <Ionicons name="close" size={20} color={COLORS.GRAY_500} />
-                  </TouchableOpacity>
-                </View>
-              )}
-
-              <MessageInput
-                onSendMessage={handleSendMessage}
-                onTyping={handleTyping}
-                sending={sending}
-                placeholder={`Message ${communityName}...`}
-              />
+          {/* Reply Preview */}
+          {replyToMessage && (
+            <View style={styles.replyPreview}>
+              <View style={styles.replyContent}>
+                <Text style={styles.replyLabel}>
+                  Replying to {replyToMessage.sender.name}
+                </Text>
+                <Text style={styles.replyText} numberOfLines={1}>
+                  {replyToMessage.content}
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setReplyToMessage(null)}
+                style={styles.replyClose}
+              >
+                <Ionicons name="close" size={20} color={COLORS.GRAY_500} />
+              </TouchableOpacity>
             </View>
-          </>
+          )}
+
+          {/* Message Input */}
+          <View style={styles.inputWrapper}>
+            <MessageInput
+              onSendMessage={handleSendMessage}
+              onTypingStart={() => handleTyping(true)}
+              onTypingStop={() => handleTyping(false)}
+              sending={sending}
+              disabled={false}
+              placeholder={`Message ${communityName}...`}
+            />
+          </View>
+          </View>
         )}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -394,19 +461,39 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.WHITE,
   },
+  safeArea: {
+    flex: 1,
+    backgroundColor: COLORS.WHITE,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: COLORS.WHITE,
+  },
   chatContainer: {
     flex: 1,
+    backgroundColor: '#E5DDD5', // WhatsApp-like background
   },
   messagesList: {
     flex: 1,
   },
   messagesContainer: {
     padding: SPACING.SM,
-    paddingBottom: SPACING.MD,
+    paddingBottom: 20,
     flexGrow: 1,
   },
   inputWrapper: {
     backgroundColor: COLORS.WHITE,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.GRAY_200,
+    paddingBottom: SPACING.MD,
+    minHeight: 60,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    zIndex: 1000,
   },
   replyPreview: {
     flexDirection: 'row',
@@ -422,7 +509,7 @@ const styles = StyleSheet.create({
   },
   replyLabel: {
     fontSize: TYPOGRAPHY.FONT_SIZES.XS,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
     color: COLORS.PRIMARY,
     marginBottom: 2,
   },
@@ -436,3 +523,4 @@ const styles = StyleSheet.create({
 });
 
 export default CommunityDetailScreen;
+

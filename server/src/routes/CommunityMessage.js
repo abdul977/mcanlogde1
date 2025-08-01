@@ -1,6 +1,5 @@
 import express from "express";
-import multer from "multer";
-import { 
+import {
   sendMessageController,
   getCommunityMessagesController,
   deleteMessageController,
@@ -10,38 +9,68 @@ import { requireAuth } from "../middlewares/Auth.js";
 
 const router = express.Router();
 
-// Configure multer for file uploads
-const upload = multer({
-  dest: 'src/uploads/temp/',
-  limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit per file
-    files: 5 // Max 5 files per message
-  },
-  fileFilter: (req, file, cb) => {
-    // Allow images and common document types
-    const allowedTypes = [
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'image/webp',
-      'application/pdf',
-      'application/msword',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain'
-    ];
-    
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error('File type not allowed'), false);
+// Middleware to validate message attachments (works with express-fileupload)
+const validateMessageAttachments = (req, res, next) => {
+  try {
+    // Check if files exist and validate them
+    if (req.files && req.files.attachments) {
+      const attachments = Array.isArray(req.files.attachments)
+        ? req.files.attachments
+        : [req.files.attachments];
+
+      // Validate each attachment
+      for (const file of attachments) {
+        // Check file type
+        const allowedTypes = [
+          'image/jpeg',
+          'image/png',
+          'image/gif',
+          'image/webp',
+          'application/pdf',
+          'application/msword',
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+          'text/plain'
+        ];
+
+        if (!allowedTypes.includes(file.mimetype)) {
+          return res.status(400).json({
+            success: false,
+            message: `File type ${file.mimetype} is not allowed`
+          });
+        }
+
+        // Check file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+          return res.status(400).json({
+            success: false,
+            message: 'File size must be less than 10MB'
+          });
+        }
+      }
+
+      // Check total number of files (max 5)
+      if (attachments.length > 5) {
+        return res.status(400).json({
+          success: false,
+          message: 'Maximum 5 files allowed per message'
+        });
+      }
     }
+
+    next();
+  } catch (error) {
+    console.error('Attachment validation error:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Error validating uploaded attachments'
+    });
   }
-});
+};
 
 // Community message routes (all require authentication)
-router.post("/:communityId/send", 
-  requireAuth, 
-  upload.array('attachments', 5), 
+router.post("/:communityId/send",
+  requireAuth,
+  validateMessageAttachments,
   sendMessageController
 );
 

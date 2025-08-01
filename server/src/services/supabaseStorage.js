@@ -63,7 +63,9 @@ class SupabaseStorageService {
       thumbnails: 'mcan-thumbnails',
       products: 'mcan-products',
       categories: 'mcan-categories',
-      users: 'mcan-users' // Add missing users bucket
+      users: 'mcan-users',
+      communities: 'mcan-communities', // For community avatars and banners
+      communityMessages: 'mcan-community-messages' // For community message attachments
     };
   }
 

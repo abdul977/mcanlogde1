@@ -72,6 +72,18 @@ const buckets = [
     public: true,
     allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     fileSizeLimit: 2097152 // 2MB for category images
+  },
+  {
+    name: 'mcan-communities',
+    public: true,
+    allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    fileSizeLimit: 5242880 // 5MB for community avatars and banners
+  },
+  {
+    name: 'mcan-community-messages',
+    public: true,
+    allowedMimeTypes: ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'],
+    fileSizeLimit: 10485760 // 10MB for community message attachments
   }
 ];
 

@@ -1,5 +1,6 @@
 import ChatCommunity from "../models/ChatCommunity.js";
 import CommunityMember from "../models/CommunityMember.js";
+import CommunityMessage from "../models/CommunityMessage.js";
 import ModerationLog from "../models/ModerationLog.js";
 import supabaseStorage from "../services/supabaseStorage.js";
 
@@ -787,6 +788,171 @@ export const suspendCommunityController = async (req, res) => {
   }
 };
 
+// Get moderation logs for a community
+export const getModerationLogsController = async (req, res) => {
+  try {
+    const { id: communityId } = req.params;
+    const userId = req.user._id;
+    const { limit = 50, skip = 0, action, severity } = req.query;
+
+    // Check if community exists
+    const community = await ChatCommunity.findById(communityId);
+    if (!community) {
+      return res.status(404).json({
+        success: false,
+        message: "Community not found"
+      });
+    }
+
+    // Check if user has permission to view moderation logs
+    const member = await CommunityMember.findOne({
+      community: communityId,
+      user: userId,
+      status: { $in: ['active', 'muted'] }
+    });
+
+    const isCreator = community.isCreator(userId);
+    const isModerator = member && (member.role === 'moderator' || member.role === 'admin');
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isCreator && !isModerator && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: "Only moderators and above can view moderation logs"
+      });
+    }
+
+    // Build query options
+    const options = {
+      limit: parseInt(limit),
+      skip: parseInt(skip)
+    };
+
+    if (action) options.action = action;
+    if (severity) options.severity = severity;
+
+    // Get moderation logs
+    const logs = await ModerationLog.getCommunityHistory(communityId, options);
+
+    res.status(200).json({
+      success: true,
+      logs,
+      pagination: {
+        limit: parseInt(limit),
+        skip: parseInt(skip),
+        total: logs.length
+      }
+    });
+  } catch (error) {
+    console.error("Error fetching moderation logs:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching moderation logs",
+      error: error.message
+    });
+  }
+};
+
+// Update community settings
+export const updateCommunitySettingsController = async (req, res) => {
+  try {
+    const { id: communityId } = req.params;
+    const userId = req.user._id;
+    const settings = req.body;
+
+    // Check if community exists
+    const community = await ChatCommunity.findById(communityId);
+    if (!community) {
+      return res.status(404).json({
+        success: false,
+        message: "Community not found"
+      });
+    }
+
+    // Check permissions - only creator or admin can update settings
+    const isCreator = community.isCreator(userId);
+    const isAdmin = req.user.role === 'admin';
+
+    if (!isCreator && !isAdmin) {
+      return res.status(403).json({
+        success: false,
+        message: "Only community creator or admin can update settings"
+      });
+    }
+
+    // Update settings
+    community.settings = {
+      ...community.settings,
+      ...settings
+    };
+
+    await community.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Community settings updated successfully",
+      settings: community.settings
+    });
+  } catch (error) {
+    console.error("Error updating community settings:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating community settings",
+      error: error.message
+    });
+  }
+};
+
+// Delete community (admin only)
+export const deleteCommunityController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { reason = "Community deleted by admin" } = req.body;
+    const adminId = req.user._id;
+
+    // Find the community
+    const community = await ChatCommunity.findById(id);
+    if (!community) {
+      return res.status(404).json({
+        success: false,
+        message: "Community not found"
+      });
+    }
+
+    // Delete all related data
+    // 1. Delete all community messages
+    await CommunityMessage.deleteMany({ community: id });
+
+    // 2. Delete all community members
+    await CommunityMember.deleteMany({ community: id });
+
+    // 3. Delete the community itself
+    await ChatCommunity.findByIdAndDelete(id);
+
+    // Log the deletion
+    console.log(`Community "${community.name}" (${id}) deleted by admin ${adminId}. Reason: ${reason}`);
+
+    res.status(200).json({
+      success: true,
+      message: "Community and all related data deleted successfully",
+      deletedCommunity: {
+        id: community._id,
+        name: community.name,
+        deletedBy: adminId,
+        deletedAt: new Date(),
+        reason
+      }
+    });
+  } catch (error) {
+    console.error("Error deleting community:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting community",
+      error: error.message
+    });
+  }
+};
+
 export default {
   createCommunityController,
   getAllCommunitiesController,
@@ -796,5 +962,6 @@ export default {
   getAllCommunitiesAdminController,
   approveCommunityController,
   rejectCommunityController,
-  suspendCommunityController
+  suspendCommunityController,
+  deleteCommunityController
 };
