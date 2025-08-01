@@ -42,7 +42,7 @@ const HomeScreen: React.FC = () => {
   console.log('🏠 HomeScreen rendering...');
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { navigateToTab } = useEnhancedNavigation();
-  const { user, logout } = useAuth();
+  const { user, logout, refreshProfile } = useAuth();
   const [refreshing, setRefreshing] = useState(false);
   const [featuredBlogs, setFeaturedBlogs] = useState<BlogPost[]>([]);
   const [blogsLoading, setBlogsLoading] = useState(false);
@@ -90,9 +90,15 @@ const HomeScreen: React.FC = () => {
 
   // Handle refresh
   const onRefresh = async () => {
+    if (refreshing) return; // Prevent multiple simultaneous refreshes
+
     setRefreshing(true);
     try {
-      await fetchFeaturedBlogs();
+      // Run both refreshes in parallel to speed up the process
+      await Promise.all([
+        fetchFeaturedBlogs(),
+        refreshProfile()
+      ]);
     } catch (error) {
       console.error('❌ Error refreshing data:', error);
     } finally {

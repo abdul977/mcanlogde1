@@ -382,10 +382,12 @@ export const updateProfilePictureController = async (req, res) => {
     console.log('🔍 [DEBUG] User ID:', userId);
     console.log('🔍 [DEBUG] File received:', !!req.file);
     console.log('🔍 [DEBUG] File details:', req.file ? {
-      name: req.file.name,
+      originalname: req.file.originalname,
+      filename: req.file.filename,
+      path: req.file.path,
       mimetype: req.file.mimetype,
       size: req.file.size,
-      tempFilePath: req.file.tempFilePath
+      destination: req.file.destination
     } : 'No file');
 
     if (!req.file) {

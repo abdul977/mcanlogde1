@@ -1,9 +1,10 @@
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import * as SecureStore from 'expo-secure-store';
 
 import { API_CONFIG, STORAGE_KEYS, ERROR_MESSAGES } from '../../constants';
 import { ApiResponse } from '../../types';
 
+// Diagnostic logs for debugging API configuration
 console.log('🔍 [DEBUG] API_CONFIG:', API_CONFIG);
 console.log('🔍 [DEBUG] Creating apiClient with baseURL:', API_CONFIG.BASE_URL);
 
@@ -27,7 +28,7 @@ console.log('🔍 [DEBUG] apiClient methods available:', {
 
 // Request interceptor to add auth token
 apiClient.interceptors.request.use(
-  async (config: AxiosRequestConfig) => {
+  async (config: InternalAxiosRequestConfig) => {
     try {
       // Get auth token from secure storage
       const token = await SecureStore.getItemAsync(STORAGE_KEYS.AUTH_TOKEN);
@@ -143,12 +144,13 @@ apiClient.interceptors.response.use(
   }
 );
 
-// API helper functions
+// API helper functions with proper type constraints
 export const apiHelpers = {
   // GET request
   get: async <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
     const response = await apiClient.get<ApiResponse<T>>(url, config);
-    return response.data.data || response.data;
+    // Type assertion to ensure compatibility - the API should return T or ApiResponse<T>
+    return (response.data.data || response.data) as T;
   },
 
   // POST request
@@ -158,7 +160,8 @@ export const apiHelpers = {
     config?: AxiosRequestConfig
   ): Promise<T> => {
     const response = await apiClient.post<ApiResponse<T>>(url, data, config);
-    return response.data.data || response.data;
+    // Type assertion to ensure compatibility - the API should return T or ApiResponse<T>
+    return (response.data.data || response.data) as T;
   },
 
   // PUT request
@@ -168,13 +171,15 @@ export const apiHelpers = {
     config?: AxiosRequestConfig
   ): Promise<T> => {
     const response = await apiClient.put<ApiResponse<T>>(url, data, config);
-    return response.data.data || response.data;
+    // Type assertion to ensure compatibility - the API should return T or ApiResponse<T>
+    return (response.data.data || response.data) as T;
   },
 
   // DELETE request
   delete: async <T = any>(url: string, config?: AxiosRequestConfig): Promise<T> => {
     const response = await apiClient.delete<ApiResponse<T>>(url, config);
-    return response.data.data || response.data;
+    // Type assertion to ensure compatibility - the API should return T or ApiResponse<T>
+    return (response.data.data || response.data) as T;
   },
 
   // PATCH request
@@ -184,7 +189,8 @@ export const apiHelpers = {
     config?: AxiosRequestConfig
   ): Promise<T> => {
     const response = await apiClient.patch<ApiResponse<T>>(url, data, config);
-    return response.data.data || response.data;
+    // Type assertion to ensure compatibility - the API should return T or ApiResponse<T>
+    return (response.data.data || response.data) as T;
   },
 
   // Upload file
@@ -199,7 +205,8 @@ export const apiHelpers = {
       },
       onUploadProgress,
     });
-    return response.data.data || response.data;
+    // Type assertion to ensure compatibility - the API should return T or ApiResponse<T>
+    return (response.data.data || response.data) as T;
   },
 };
 

@@ -112,6 +112,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  const refreshProfile = async () => {
+    try {
+      setError(null);
+      console.log('🔄 Refreshing user profile from server...');
+
+      const response = await authService.getProfile();
+      console.log('✅ Profile refresh response:', response);
+
+      if (response.success && response.user) {
+        const refreshedUser = response.user;
+        console.log('✅ Profile refreshed successfully:', {
+          name: refreshedUser.name,
+          email: refreshedUser.email,
+          id: refreshedUser.id || refreshedUser._id
+        });
+
+        // Update stored user data
+        await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(refreshedUser));
+
+        // Update context state
+        dispatch({ type: 'UPDATE_USER', payload: refreshedUser });
+      } else if (response.user) {
+        // Handle case where response doesn't have success flag but has user data
+        const refreshedUser = response.user;
+        console.log('✅ Profile data received:', refreshedUser);
+
+        await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(refreshedUser));
+        dispatch({ type: 'UPDATE_USER', payload: refreshedUser });
+      } else {
+        console.log('⚠️ Profile refresh returned unexpected format:', response);
+      }
+    } catch (error: any) {
+      console.error('❌ Error refreshing profile:', error);
+      setError(error.message || 'Failed to refresh profile');
+      // Don't throw error to avoid breaking the app
+    }
+  };
+
   const initializeAuth = async () => {
     try {
       console.log('🔄 Initializing auth...');
@@ -127,14 +165,37 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       console.log('👤 User data exists:', !!userData);
 
       if (token && userData) {
-        const user = JSON.parse(userData);
-        console.log('✅ Auto-login successful for user:', {
-          email: user.email,
-          name: user.name,
-          id: user.id || user._id,
-          role: user.role
-        });
-        dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token } });
+        try {
+          const user = JSON.parse(userData);
+          console.log('✅ Auto-login successful for user:', {
+            email: user.email,
+            name: user.name,
+            id: user.id || user._id,
+            role: user.role,
+            hasName: !!(user.name && user.name.trim()),
+            hasEmail: !!(user.email && user.email.trim())
+          });
+
+          // Always set the user first, then refresh if needed
+          dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token } });
+
+          // Check if user data is complete and refresh if needed
+          if (!user.name || !user.name.trim() || !user.email || !user.email.trim()) {
+            console.log('⚠️ Stored user data is incomplete, refreshing from server...');
+            // Refresh profile data in the background to get complete user info
+            setTimeout(() => {
+              refreshProfile();
+            }, 500); // Give a bit more time for the context to settle
+          } else {
+            console.log('✅ User data is complete, no refresh needed');
+          }
+        } catch (parseError) {
+          console.error('❌ Error parsing stored user data:', parseError);
+          console.log('🧹 Clearing corrupted user data...');
+          await SecureStore.deleteItemAsync(STORAGE_KEYS.AUTH_TOKEN);
+          await SecureStore.deleteItemAsync(STORAGE_KEYS.USER_DATA);
+          dispatch({ type: 'SET_LOADING', payload: false });
+        }
       } else {
         console.log('❌ No stored auth data, showing auth screens');
         dispatch({ type: 'SET_LOADING', payload: false });
@@ -211,12 +272,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const updateProfile = async (userData: Partial<User>) => {
     try {
       setError(null);
-      
+
       const updatedUser = await authService.updateProfile(userData);
-      
+
       // Update stored user data
       await SecureStore.setItemAsync(STORAGE_KEYS.USER_DATA, JSON.stringify(updatedUser));
-      
+
       dispatch({ type: 'UPDATE_USER', payload: updatedUser });
     } catch (error: any) {
       setError(error.message || 'Profile update failed');
@@ -234,6 +295,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     updateProfile,
+    refreshProfile,
     clearError,
     error,
   };

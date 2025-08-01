@@ -222,17 +222,19 @@ class SupabaseStorageService {
    */
   async uploadFromTempFile(file, bucketName, folder, options = {}) {
     try {
-      const filePath = this.generateFilePath(folder, file.name);
+      // Use originalname for multer files, fallback to name for other file objects
+      const fileName = file.originalname || file.name;
+      const filePath = this.generateFilePath(folder, fileName);
 
       // Determine the correct MIME type
       let mimeType = file.mimetype;
 
       // If MIME type is application/octet-stream or missing, try to detect from file extension
       if (!mimeType || mimeType === 'application/octet-stream') {
-        const detectedMimeType = getMimeTypeFromExtension(file.name);
+        const detectedMimeType = getMimeTypeFromExtension(fileName);
         if (detectedMimeType) {
           mimeType = detectedMimeType;
-          console.log(`MIME type detected from extension: ${file.name} -> ${mimeType}`);
+          console.log(`MIME type detected from extension: ${fileName} -> ${mimeType}`);
         }
       }
 
@@ -242,10 +244,16 @@ class SupabaseStorageService {
         throw new Error(`File type ${mimeType} is not allowed for bucket ${bucketName}. Allowed types: ${validation.allowedTypes.join(', ')}`);
       }
 
-      console.log(`Uploading file: ${file.name} (${mimeType}) to ${bucketName}/${filePath}`);
+      console.log(`Uploading file: ${fileName} (${mimeType}) to ${bucketName}/${filePath}`);
 
-      // Read file from temp path
-      const fileBuffer = fs.readFileSync(file.tempFilePath);
+      // Read file from temp path (multer uses 'path', not 'tempFilePath')
+      const tempPath = file.tempFilePath || file.path;
+      if (!tempPath) {
+        throw new Error('No temp file path found in file object');
+      }
+
+      console.log(`Reading file from: ${tempPath}`);
+      const fileBuffer = fs.readFileSync(tempPath);
 
       const result = await this.uploadFile(bucketName, filePath, fileBuffer, {
         contentType: mimeType,
@@ -254,7 +262,11 @@ class SupabaseStorageService {
 
       // Clean up temp file
       try {
-        fs.unlinkSync(file.tempFilePath);
+        const tempPath = file.tempFilePath || file.path;
+        if (tempPath) {
+          fs.unlinkSync(tempPath);
+          console.log(`Cleaned up temp file: ${tempPath}`);
+        }
       } catch (cleanupError) {
         console.warn('Failed to cleanup temp file:', cleanupError);
       }

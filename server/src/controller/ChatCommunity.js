@@ -248,15 +248,72 @@ export const getAllCommunitiesController = async (req, res) => {
   }
 };
 
+// Get single community by ID (public) - for mobile app
+export const getCommunityByIdController = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user?._id;
+
+    console.log('🔍 [DEBUG] getCommunityByIdController called with ID:', id);
+    console.log('🔍 [DEBUG] User ID:', userId);
+
+    const community = await ChatCommunity.findOne({
+      _id: id,
+      status: "approved"
+    })
+    .populate('creator', 'name email role')
+    .populate('moderators.user', 'name email role')
+    .select('-approvalInfo');
+
+    if (!community) {
+      console.log('❌ [DEBUG] Community not found for ID:', id);
+      return res.status(404).json({
+        success: false,
+        message: "Community not found"
+      });
+    }
+
+    console.log('✅ [DEBUG] Community found:', community.name);
+
+    // Check if user is a member
+    let memberInfo = null;
+    if (userId) {
+      memberInfo = await CommunityMember.findOne({
+        community: community._id,
+        user: userId,
+        status: 'active'
+      });
+      console.log('🔍 [DEBUG] User membership:', !!memberInfo);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Community retrieved successfully",
+      community: {
+        ...community.toObject(),
+        isMember: !!memberInfo,
+        memberRole: memberInfo?.role || null
+      }
+    });
+  } catch (error) {
+    console.error('❌ [DEBUG] Error in getCommunityByIdController:', error);
+    res.status(500).json({
+      success: false,
+      message: "Error retrieving community",
+      error: error.message
+    });
+  }
+};
+
 // Get single community by slug (public)
 export const getCommunityController = async (req, res) => {
   try {
     const { slug } = req.params;
     const userId = req.user?._id;
 
-    const community = await ChatCommunity.findOne({ 
-      slug, 
-      status: "approved" 
+    const community = await ChatCommunity.findOne({
+      slug,
+      status: "approved"
     })
     .populate('creator', 'name email role')
     .populate('moderators.user', 'name email role')

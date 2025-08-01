@@ -64,20 +64,25 @@ class ProfileService {
 
       // React Native FormData format for file uploads
       // Use the correct MIME type and ensure proper file structure
-      formData.append('profileImage', {
+      const fileObject = {
         uri: imageUri,
         name: filename,
         type: mimeType,
-      } as any);
+      };
+
+      console.log('📁 File object:', fileObject);
+      formData.append('profileImage', fileObject as any);
 
       console.log('📤 Uploading to endpoint:', `${ENDPOINTS.UPDATE_PROFILE}/picture`);
+      console.log('📤 FormData parts:', (formData as any)._parts);
 
       const response = await apiClient.put<ProfilePictureUploadResponse>(
         `${ENDPOINTS.UPDATE_PROFILE}/picture`,
         formData,
         {
           headers: {
-            'Content-Type': 'multipart/form-data',
+            // Don't set Content-Type manually for FormData - let axios handle it
+            // 'Content-Type': 'multipart/form-data',
           },
           timeout: 30000, // 30 second timeout for uploads
         }
@@ -95,8 +100,18 @@ class ProfileService {
         console.error('❌ Response headers:', error.response.headers);
       }
 
-      if (error.response?.data) {
-        throw new Error(error.response.data.message || 'Upload failed');
+      // Handle specific error cases
+      if (error.response?.status === 500) {
+        // Server error - likely FormData parsing issue
+        throw new Error('Server error during upload. Please try again or contact support.');
+      } else if (error.response?.status === 413) {
+        // File too large
+        throw new Error('Image file is too large. Please choose a smaller image.');
+      } else if (error.response?.status === 415) {
+        // Unsupported media type
+        throw new Error('Image format not supported. Please use JPG, PNG, or WebP.');
+      } else if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
       } else if (error.message) {
         throw new Error(error.message);
       } else {

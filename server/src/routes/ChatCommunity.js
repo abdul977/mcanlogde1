@@ -4,6 +4,7 @@ import {
   createCommunityController,
   getAllCommunitiesController,
   getCommunityController,
+  getCommunityByIdController,
   getUserCommunitiesController,
   updateCommunityController,
   getAllCommunitiesAdminController,
@@ -34,6 +35,7 @@ const upload = multer({
 
 // Public routes
 router.get("/", getAllCommunitiesController);
+router.get("/by-id/:id", getCommunityByIdController); // New route for getting by ID
 router.get("/:slug", getCommunityController);
 
 // Protected routes (require authentication)

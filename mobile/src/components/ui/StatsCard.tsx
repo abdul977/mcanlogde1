@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ViewStyle,
+  ColorValue,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -15,7 +16,7 @@ interface StatsCardProps {
   value: number | string;
   label: string;
   color?: string;
-  gradientColors?: string[];
+  gradientColors?: readonly [ColorValue, ColorValue, ...ColorValue[]];
   variant?: 'default' | 'gradient' | 'minimal';
   onPress?: () => void;
   style?: ViewStyle;
@@ -92,14 +93,19 @@ const StatsCard: React.FC<StatsCardProps> = ({
     style,
   ];
 
-  if (variant === 'gradient' && gradientColors) {
+  if (variant === 'gradient' && gradientColors && gradientColors.length >= 2) {
     const CardComponent = onPress ? TouchableOpacity : View;
     const cardProps = onPress ? { onPress, activeOpacity: 0.8 } : {};
+
+    // Ensure we have at least 2 colors for the gradient
+    const validGradientColors = gradientColors.length >= 2
+      ? gradientColors
+      : [gradientColors[0] || COLORS.PRIMARY, COLORS.LIGHT] as const;
 
     return (
       <CardComponent {...cardProps}>
         <LinearGradient
-          colors={gradientColors}
+          colors={validGradientColors}
           style={cardStyle}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}

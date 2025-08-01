@@ -1,1 +1,160 @@
 
+ LOG  🚀 API Request: GET https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11
+ LOG  🔗 Base URL: https://mcanlogde1.onrender.com
+ LOG  🚀 API Request: GET https://mcanlogde1.onrender.com/api/community-messages/6889345b534b99eab87edd11/messages?    
+ LOG  🔗 Base URL: https://mcanlogde1.onrender.com
+ ERROR  ❌ API Error: GET https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11
+ ERROR  Error Details: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/chat-communities/by-id/6889345b534b99eab87edd11</pre>
+</body>
+</html>
+ ERROR  Error Code: ERR_BAD_REQUEST
+ ERROR  Network Error: false
+ ERROR  Full Error: [AxiosError: Request failed with status code 404]
+ ERROR  ❌ [DEBUG] Error fetching community: {"code": "ERR_BAD_REQUEST", "config": {"adapter": ["xhr", "http", "fetch"], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": undefined, "env": {"Blob": [Function Blob], "FormData": [Function FormData]}, "headers": [Object], "maxBodyLength": -1, "maxContentLength": -1, "method": "get", "timeout": 10000, "transformRequest": [[Function transformRequest]], "transformResponse": [[Function transformResponse]], "transitional": {"clarifyTimeoutError": false, "forcedJSONParsing": true, "silentJSONParsing": true}, "url": "/api/chat-communities/by-id/6889345b534b99eab87edd11", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "message": "The requested resource was not found.", "name": "AxiosError", "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": {"accept": "application/json", "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODZhZTE0NzVjZDc5ZjZjZGU5YWQ2MjMiLCJpZCI6IjY4NmFlMTQ3NWNkNzlmNmNkZTlhZDYyMyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzUzOTY5MzIzLCJleHAiOjE3NTQ1NzQxMjN9.5UrlZJiZMmYlNmOFHRPPdbAxRrwGdpFJFuyA0uiMzB0"}, "_incrementalEvents": false, "_lowerCaseResponseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "968750a3ffe6cd91-LHR", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Fri, 01 Aug 2025 18:14:24 GMT", "rndr-id": "2076668d-bd05-422f", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "_method": "GET", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "_performanceLogger": {"_closed": false, "_extras": [Object], "_pointExtras": [Object], "_points": [Object], "_timespans": [Object]}, "_requestId": null, "_response": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/chat-communities/by-id/6889345b534b99eab87edd11</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 50205799.094992, "_subscriptions": [], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "readyState": 4, "responseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "968750a3ffe6cd91-LHR", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Fri, 01 Aug 2025 18:14:24 GMT", "rndr-id": "2076668d-bd05-422f", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "responseURL": "https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "status": 404, "timeout": 10000, "upload": {}, "withCredentials": true}, "response": {"config": {"adapter": [Array], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": undefined, "env": [Object], "headers": [AxiosHeaders$1], "maxBodyLength": -1, "maxContentLength": -1, "method": "get", "timeout": 10000, "transformRequest": [Array], "transformResponse": [Array], "transitional": [Object], "url": "/api/chat-communities/by-id/6889345b534b99eab87edd11", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "data": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/chat-communities/by-id/6889345b534b99eab87edd11</pre>
+</body>
+</html>
+", "headers": [Object], "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": [Object], "_incrementalEvents": false, "_lowerCaseResponseHeaders": [Object], "_method": "GET", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "_performanceLogger": [PerformanceLogger], "_requestId": null, "_response": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/chat-communities/by-id/6889345b534b99eab87edd11</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 50205799.094992, "_subscriptions": [Array], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "readyState": 4, "responseHeaders": [Object], "responseURL": "https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "status": 404, "timeout": 10000, "upload": [XMLHttpRequestEventTarget], "withCredentials": true}, "status": 404, "statusText": undefined}, "status": 404, "statusCode": 404}
+ ERROR  ❌ [DEBUG] Error response: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/chat-communities/by-id/6889345b534b99eab87edd11</pre>
+</body>
+</html>
+ ERROR  Error loading community: {"code": "ERR_BAD_REQUEST", "config": {"adapter": ["xhr", "http", "fetch"], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": undefined, "env": {"Blob": [Function Blob], "FormData": [Function FormData]}, "headers": [Object], "maxBodyLength": -1, "maxContentLength": -1, "method": "get", "timeout": 10000, "transformRequest": [[Function transformRequest]], "transformResponse": [[Function transformResponse]], "transitional": {"clarifyTimeoutError": false, "forcedJSONParsing": true, "silentJSONParsing": true}, "url": "/api/chat-communities/by-id/6889345b534b99eab87edd11", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "message": "The requested resource was not found.", "name": "AxiosError", "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": {"accept": "application/json", "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODZhZTE0NzVjZDc5ZjZjZGU5YWQ2MjMiLCJpZCI6IjY4NmFlMTQ3NWNkNzlmNmNkZTlhZDYyMyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzUzOTY5MzIzLCJleHAiOjE3NTQ1NzQxMjN9.5UrlZJiZMmYlNmOFHRPPdbAxRrwGdpFJFuyA0uiMzB0"}, "_incrementalEvents": false, "_lowerCaseResponseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "968750a3ffe6cd91-LHR", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Fri, 01 Aug 2025 18:14:24 GMT", "rndr-id": "2076668d-bd05-422f", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "_method": "GET", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "_performanceLogger": {"_closed": false, "_extras": [Object], "_pointExtras": [Object], "_points": [Object], "_timespans": [Object]}, "_requestId": null, "_response": "<!DOCTYPE html>     
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/chat-communities/by-id/6889345b534b99eab87edd11</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 50205799.094992, "_subscriptions": [], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "readyState": 4, "responseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "968750a3ffe6cd91-LHR", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Fri, 01 Aug 2025 18:14:24 GMT", "rndr-id": "2076668d-bd05-422f", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "responseURL": "https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "status": 404, "timeout": 10000, "upload": {}, "withCredentials": true}, "response": {"config": {"adapter": [Array], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": undefined, "env": [Object], "headers": [AxiosHeaders$1], "maxBodyLength": -1, "maxContentLength": -1, "method": "get", "timeout": 10000, "transformRequest": [Array], "transformResponse": [Array], "transitional": [Object], "url": "/api/chat-communities/by-id/6889345b534b99eab87edd11", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "data": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/chat-communities/by-id/6889345b534b99eab87edd11</pre>
+</body>
+</html>
+", "headers": [Object], "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": [Object], "_incrementalEvents": false, "_lowerCaseResponseHeaders": [Object], "_method": "GET", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "_performanceLogger": [PerformanceLogger], "_requestId": null, "_response": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/chat-communities/by-id/6889345b534b99eab87edd11</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 50205799.094992, "_subscriptions": [Array], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "readyState": 4, "responseHeaders": [Object], "responseURL": "https://mcanlogde1.onrender.com/api/chat-communities/by-id/6889345b534b99eab87edd11", "status": 404, "timeout": 10000, "upload": [XMLHttpRequestEventTarget], "withCredentials": true}, "status": 404, "statusText": undefined}, "status": 404, "statusCode": 404}
+ LOG  ✅ API Response: GET /api/community-messages/6889345b534b99eab87edd11/messages?
+ LOG  📥 Response Data: {"message": "Messages retrieved successfully", "messages": [], "pagination": {"hasMore": false, "limit": 50, "total": 0}, "success": true}
+ LOG  Navigation state changed: {"index": 0, "key": "stack-hmKCKehRVZC-ewRDoWaAa", "preloadedRoutes": [], "routeNames":   loading to endpoint: /auth/api/profile/picture 
+ LOG  👤 ProfileScreen rendering...
+ LOG  👤 ProfileScreen user data: {"hasToken": true, "user": {"avatar": undefined, "displayAvatar": undefined, "email": undefined, "id": undefined, "name": undefined, "profileImage": undefined, "role": undefined}}
+ LOG  🚀 API Request: PUT https://mcanlogde1.onrender.com/auth/api/profile/picture
+ LOG  🔗 Base URL: https://mcanlogde1.onrender.com
+ LOG  📤 Request Data: {"_parts": [["profileImage", [Object]]]}
+ ERROR  ❌ API Error: PUT https://mcanlogde1.onrender.com/auth/api/profile/picture
+ ERROR  Error Details: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Error: Unexpected end of form<br> &nbsp; &nbsp;at Multipart._final (/opt/render/project/src/server/node_modules/busboy/lib/types/multipart.js:588:17)<br> &nbsp; &nbsp;at prefinish (node:internal/streams/writable:916:14)<br> &nbsp; &nbsp;at finishMaybe (node:internal/streams/writable:930:5)<br> &nbsp; &nbsp;at Writable.end (node:internal/streams/writable:845:5)<br> &nbsp; &nbsp;at onend (node:internal/streams/readable:948:10)<br> &nbsp; &nbsp;at process.processTicksAndRejections (node:internal/process/task_queues:85:11)</pre>
+</body>
+</html>
+ ERROR  Error Code: ERR_BAD_RESPONSE
+ ERROR  Network Error: false
+ ERROR  Full Error: [AxiosError: Request failed with status code 500]
+ ERROR  ❌ Profile picture upload error: {"code": "ERR_BAD_RESPONSE", "config": {"adapter": ["xhr", "http", "fetch"], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": {"_parts": [Array]}, "env": {"Blob": [Function Blob], "FormData": [Function FormData]}, "headers": [Object], "maxBodyLength": -1, "maxContentLength": -1, "method": "put", "timeout": 30000, "transformRequest": [[Function transformRequest]], "transformResponse": [[Function transformResponse]], "transitional": {"clarifyTimeoutError": false, "forcedJSONParsing": true, "silentJSONParsing": true}, "url": "/auth/api/profile/picture", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "message": "Server error. Please try again later.", "name": "AxiosError", "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": {"accept": "application/json", "authorization": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2ODZhZTE0NzVjZDc5ZjZjZGU5YWQ2MjMiLCJpZCI6IjY4NmFlMTQ3NWNkNzlmNmNkZTlhZDYyMyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzUzOTY5MzIzLCJleHAiOjE3NTQ1NzQxMjN9.5UrlZJiZMmYlNmOFHRPPdbAxRrwGdpFJFuyA0uiMzB0", "content-type": "multipart/form-data"}, "_incrementalEvents": false, "_lowerCaseResponseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "968751fb7e87cd91-LHR", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Fri, 01 Aug 2025 18:15:21 GMT", "rndr-id": "3925c01c-067d-485e", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "_method": "PUT", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/auth/api/profile/picture", "_performanceLogger": {"_closed": false, "_extras": [Object], "_pointExtras": [Object], "_points": [Object], "_timespans": [Object]}, "_requestId": null, "_response": "<!DOCTYPE html> 
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Error: Unexpected end of form<br> &nbsp; &nbsp;at Multipart._final (/opt/render/project/src/server/node_modules/busboy/lib/types/multipart.js:588:17)<br> &nbsp; &nbsp;at prefinish (node:internal/streams/writable:916:14)<br> &nbsp; &nbsp;at finishMaybe (node:internal/streams/writable:930:5)<br> &nbsp; &nbsp;at Writable.end (node:internal/streams/writable:845:5)<br> &nbsp; &nbsp;at onend (node:internal/streams/readable:948:10)<br> &nbsp; &nbsp;at process.processTicksAndRejections (node:internal/process/task_queues:85:11)</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 50260749.397149, "_subscriptions": [], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/auth/api/profile/picture", "readyState": 4, "responseHeaders": {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "968751fb7e87cd91-LHR", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Fri, 01 Aug 2025 18:15:21 GMT", "rndr-id": "3925c01c-067d-485e", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}, "responseURL": "https://mcanlogde1.onrender.com/auth/api/profile/picture", "status": 500, "timeout": 30000, "upload": {}, "withCredentials": true}, "response": {"config": {"adapter": [Array], "allowAbsoluteUrls": true, "baseURL": "https://mcanlogde1.onrender.com", "data": [FormData], "env": [Object], "headers": [AxiosHeaders$1], "maxBodyLength": -1, "maxContentLength": -1, "method": "put", "timeout": 30000, "transformRequest": [Array], "transformResponse": [Array], "transitional": [Object], "url": "/auth/api/profile/picture", "validateStatus": [Function validateStatus], "xsrfCookieName": "XSRF-TOKEN", "xsrfHeaderName": "X-XSRF-TOKEN"}, "data": "<!DOCTYPE html>
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Error: Unexpected end of form<br> &nbsp; &nbsp;at Multipart._final (/opt/render/project/src/server/node_modules/busboy/lib/types/multipart.js:588:17)<br> &nbsp; &nbsp;at prefinish (node:internal/streams/writable:916:14)<br> &nbsp; &nbsp;at finishMaybe (node:internal/streams/writable:930:5)<br> &nbsp; &nbsp;at Writable.end (node:internal/streams/writable:845:5)<br> &nbsp; &nbsp;at onend (node:internal/streams/readable:948:10)<br> &nbsp; &nbsp;at process.processTicksAndRejections (node:internal/process/task_queues:85:11)</pre>
+</body>
+</html>
+", "headers": [Object], "request": {"DONE": 4, "HEADERS_RECEIVED": 2, "LOADING": 3, "OPENED": 1, "UNSENT": 0, "_aborted": false, "_cachedResponse": undefined, "_hasError": false, "_headers": [Object], "_incrementalEvents": false, "_lowerCaseResponseHeaders": [Object], "_method": "PUT", "_perfKey": "network_XMLHttpRequest_https://mcanlogde1.onrender.com/auth/api/profile/picture", "_performanceLogger": [PerformanceLogger], "_requestId": null, "_response": "<!DOCTYPE html>  
+<html lang=\"en\">
+<head>
+<meta charset=\"utf-8\">
+<title>Error</title>
+</head>
+<body>
+<pre>Error: Unexpected end of form<br> &nbsp; &nbsp;at Multipart._final (/opt/render/project/src/server/node_modules/busboy/lib/types/multipart.js:588:17)<br> &nbsp; &nbsp;at prefinish (node:internal/streams/writable:916:14)<br> &nbsp; &nbsp;at finishMaybe (node:internal/streams/writable:930:5)<br> &nbsp; &nbsp;at Writable.end (node:internal/streams/writable:845:5)<br> &nbsp; &nbsp;at onend (node:internal/streams/readable:948:10)<br> &nbsp; &nbsp;at process.processTicksAndRejections (node:internal/process/task_queues:85:11)</pre>
+</body>
+</html>
+", "_responseType": "", "_sent": true, "_startTime": 50260749.397149, "_subscriptions": [Array], "_timedOut": false, "_trackingName": null, "_url": "https://mcanlogde1.onrender.com/auth/api/profile/picture", "readyState": 4, "responseHeaders": [Object], "responseURL": "https://mcanlogde1.onrender.com/auth/api/profile/picture", "status": 500, "timeout": 30000, "upload": [XMLHttpRequestEventTarget], "withCredentials": true}, "status": 500, "statusText": undefined}, "status": 500, "statusCode": 500}
+ ERROR  ❌ Response status: 500
+ ERROR  ❌ Response data: <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Error: Unexpected end of form<br> &nbsp; &nbsp;at Multipart._final (/opt/render/project/src/server/node_modules/busboy/lib/types/multipart.js:588:17)<br> &nbsp; &nbsp;at prefinish (node:internal/streams/writable:916:14)<br> &nbsp; &nbsp;at finishMaybe (node:internal/streams/writable:930:5)<br> &nbsp; &nbsp;at Writable.end (node:internal/streams/writable:845:5)<br> &nbsp; &nbsp;at onend (node:internal/streams/readable:948:10)<br> &nbsp; &nbsp;at process.processTicksAndRejections (node:internal/process/task_queues:85:11)</pre>
+</body>
+</html>
+ ERROR  ❌ Response headers: {"access-control-allow-credentials": "true", "alt-svc": "h3=\":443\"; ma=86400", "cf-cache-status": "DYNAMIC", "cf-ray": "968751fb7e87cd91-LHR", "content-security-policy": "default-src 'none'", "content-type": "text/html; charset=utf-8", "date": "Fri, 01 Aug 2025 18:15:21 GMT", "rndr-id": "3925c01c-067d-485e", "server": "cloudflare", "vary": "Origin, Accept-Encoding", "x-content-type-options": "nosniff", "x-powered-by": "Express", "x-render-origin-server": "Render"}
+ ERROR  Profile picture upload error: [Error: Upload failed]
+ LOG  👤 ProfileScreen rendering...
+ LOG  👤 ProfileScreen user data: {"hasToken": true, "user": {"avatar": undefined, "displayAvatar": undefined, "email": undefined, "id": undefined, "name": undefined, "profileImage": undefined, "role": undefined}}
+ 

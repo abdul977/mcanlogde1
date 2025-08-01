@@ -60,11 +60,41 @@ class CommunityService {
   // Get single community by ID
   async getCommunity(communityId: string): Promise<Community> {
     try {
-      const response = await apiClient.get(`/api/chat-communities/${communityId}`);
-      return response.data.community;
+      console.log('🔍 [DEBUG] Fetching community with ID:', communityId);
+
+      // Try the new by-id endpoint first
+      try {
+        const response = await apiClient.get(`/api/chat-communities/by-id/${communityId}`);
+        console.log('✅ [DEBUG] Community response (by-id):', response.data);
+        return response.data.community;
+      } catch (byIdError) {
+        console.log('⚠️ [DEBUG] by-id endpoint failed, trying fallback...');
+
+        // If by-id endpoint fails (not deployed yet), try to get from user communities
+        const userCommunities = await this.getUserCommunities();
+        const community = userCommunities.find(c => c._id === communityId);
+
+        if (community) {
+          console.log('✅ [DEBUG] Found community in user communities');
+          return community;
+        }
+
+        // If not found in user communities, try getting all communities
+        const allCommunities = await this.getAllCommunities({ limit: 100 });
+        const foundCommunity = allCommunities.find(c => c._id === communityId);
+
+        if (foundCommunity) {
+          console.log('✅ [DEBUG] Found community in all communities');
+          return foundCommunity;
+        }
+
+        // If still not found, throw the original error
+        throw byIdError;
+      }
     } catch (error) {
-      console.error('Error fetching community:', error);
-      throw error;
+      console.error('❌ [DEBUG] Error fetching community:', error);
+      console.error('❌ [DEBUG] Error response:', error.response?.data);
+      throw new Error('Community not found or no longer exists');
     }
   }
 

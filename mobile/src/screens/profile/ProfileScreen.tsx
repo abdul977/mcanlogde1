@@ -35,7 +35,7 @@ type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'P
 const ProfileScreen: React.FC = () => {
   console.log('👤 ProfileScreen rendering...');
   const navigation = useNavigation<ProfileScreenNavigationProp>();
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, refreshProfile } = useAuth();
   const { unreadCount } = useMessaging();
   const { stats, refreshStats } = useProfileStats();
   const [refreshing, setRefreshing] = useState(false);
@@ -52,41 +52,50 @@ const ProfileScreen: React.FC = () => {
       avatar: user.avatar,
       displayAvatar: user.displayAvatar
     } : null,
-    hasToken: !!token
+    hasToken: !!token,
+    userKeys: user ? Object.keys(user) : [],
+    userType: typeof user,
+    isUserEmpty: !user || Object.keys(user).length === 0
   });
 
-  // Handle refresh - now uses ProfileStatsContext
+  // Additional debugging for user data issues
+  if (user && (!user.name || !user.email)) {
+    console.log('⚠️ User data is incomplete:', {
+      hasName: !!user.name,
+      hasEmail: !!user.email,
+      nameValue: user.name,
+      emailValue: user.email,
+      fullUser: user
+    });
+  }
+
+  // Handle refresh - now uses ProfileStatsContext and refreshes user profile
   const onRefresh = useCallback(async () => {
+    if (refreshing) return; // Prevent multiple simultaneous refreshes
+
     setRefreshing(true);
-    await refreshStats();
-    setRefreshing(false);
-  }, [refreshStats]);
+    try {
+      // Run both refreshes in parallel to speed up the process
+      await Promise.all([
+        refreshStats(),
+        refreshProfile()
+      ]);
+    } catch (error) {
+      console.error('Error refreshing profile:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refreshing]); // Only depend on refreshing state to avoid recreating function
 
   useEffect(() => {
     if (token) {
       refreshStats();
-      // Also refresh user profile data to ensure we have the latest information
-      refreshUserProfile();
+      // Only refresh profile data once when component mounts or token changes
+      refreshProfile();
     }
-  }, [token, refreshStats]); // Include refreshStats in dependencies
+  }, [token]); // Only depend on token to avoid infinite loops
 
-  // Function to refresh user profile data
-  const refreshUserProfile = useCallback(async () => {
-    try {
-      const response = await profileService.getProfile();
-      console.log('🔄 Profile service response:', response);
 
-      if (response.success && response.user) {
-        console.log('✅ Refreshed user profile:', response.user);
-        // For now, just log the data. We might need to add a refresh method to AuthContext
-      } else if (response.user) {
-        // Sometimes the response might not have success flag but still have user data
-        console.log('✅ Got user profile data:', response.user);
-      }
-    } catch (error) {
-      console.error('❌ Error refreshing user profile:', error);
-    }
-  }, []);
 
   // Handle profile picture upload
   const handleProfilePictureUpload = useCallback(async () => {

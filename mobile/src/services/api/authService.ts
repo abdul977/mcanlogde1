@@ -1,4 +1,4 @@
-import { apiHelpers } from './apiClient';
+import apiClient, { apiHelpers } from './apiClient';
 import { ENDPOINTS } from '../../constants';
 import { User, LoginForm, RegisterForm, ApiResponse } from '../../types';
 
@@ -27,8 +27,11 @@ export const authService = {
   },
 
   // Get user profile
-  getProfile: async (): Promise<User> => {
-    return apiHelpers.get<User>(ENDPOINTS.PROFILE);
+  getProfile: async (): Promise<any> => {
+    // Use direct apiClient call instead of apiHelpers because profile endpoint
+    // returns data in response.data.user, not response.data.data
+    const response = await apiClient.get(ENDPOINTS.PROFILE);
+    return response.data; // Return the full response which contains { success, user, message }
   },
 
   // Update user profile
