@@ -1,6 +1,7 @@
 import User from "../models/User.js";
 import JWT from "jsonwebtoken";
 import bcrypt from "bcryptjs";
+import supabaseStorage from "../services/supabaseStorage.js";
 
 // Register controller
 export const registerController = async (req, res) => {
@@ -150,6 +151,10 @@ export const getUserProfile = async (req, res) => {
         dateOfBirth: user.dateOfBirth,
         institution: user.institution,
         course: user.course,
+        profileImage: user.profileImage,
+        avatar: user.avatar,
+        displayAvatar: user.displayAvatar,
+        initials: user.initials,
         profileCompleted: user.profileCompleted,
         nyscDetails: user.nyscDetails,
         createdAt: user.createdAt,
@@ -325,6 +330,10 @@ export const updateUserProfile = async (req, res) => {
         dateOfBirth: updatedUser.dateOfBirth,
         institution: updatedUser.institution,
         course: updatedUser.course,
+        profileImage: updatedUser.profileImage,
+        avatar: updatedUser.avatar,
+        displayAvatar: updatedUser.displayAvatar,
+        initials: updatedUser.initials,
         profileCompleted: updatedUser.profileCompleted,
         nyscDetails: updatedUser.nyscDetails,
         updatedAt: updatedUser.updatedAt
@@ -332,6 +341,70 @@ export const updateUserProfile = async (req, res) => {
     });
   } catch (error) {
     console.error('Error updating user profile:', error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+      error: error.message
+    });
+  }
+};
+
+// Update profile picture controller
+export const updateProfilePictureController = async (req, res) => {
+  try {
+    const userId = req.user.id || req.user._id;
+
+    if (!req.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No image file provided"
+      });
+    }
+
+    // Upload image to Supabase Storage
+    const uploadResult = await supabaseStorage.uploadFromTempFile(
+      req.file,
+      'mcan-users', // bucket name
+      'profile-pictures' // folder
+    );
+
+    if (!uploadResult.success) {
+      return res.status(400).json({
+        success: false,
+        message: "Failed to upload image",
+        error: uploadResult.error
+      });
+    }
+
+    // Update user's profile image
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      {
+        profileImage: uploadResult.data.secure_url,
+        avatar: uploadResult.data.secure_url // Also update avatar field for consistency
+      },
+      { new: true, runValidators: true }
+    ).select('-password');
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found"
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Profile picture updated successfully",
+      data: {
+        profileImage: updatedUser.profileImage,
+        avatar: updatedUser.avatar,
+        displayAvatar: updatedUser.displayAvatar
+      }
+    });
+
+  } catch (error) {
+    console.error('Error updating profile picture:', error);
     res.status(500).json({
       success: false,
       message: "Server error",

@@ -3,7 +3,7 @@
  * Allows users to upload payment proof for bank transfer orders
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -19,9 +19,11 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, API_CONFIG } from '../../constants';
-import { SafeAreaScreen, ValidatedInput, AnimatedButton } from '../../components';
+import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, API_CONFIG, ENDPOINTS } from '../../constants';
+import { SafeAreaScreen, ValidatedInput, AnimatedButton, BankTransferDetails } from '../../components';
 import { useAuth } from '../../context';
+import { paymentConfigService, PaymentConfiguration } from '../../services/api';
+import apiClient from '../../services/api/apiClient';
 
 interface PaymentUploadRouteParams {
   orderId: string;
@@ -51,6 +53,7 @@ const PaymentUploadScreen: React.FC = () => {
     size: number;
   } | null>(null);
 
+
   const requestPermissions = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -70,7 +73,7 @@ const PaymentUploadScreen: React.FC = () => {
 
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -144,10 +147,30 @@ const PaymentUploadScreen: React.FC = () => {
       return;
     }
 
-    if (!formData.transactionReference.trim()) {
-      Alert.alert('Error', 'Please enter the transaction reference');
+    // Validate file size (10MB limit)
+    const maxFileSize = 10 * 1024 * 1024; // 10MB
+    if (selectedImage.size && selectedImage.size > maxFileSize) {
+      Alert.alert(
+        'File Too Large',
+        'File size must be less than 10MB. Please select a smaller image.',
+        [{ text: 'OK' }]
+      );
       return;
     }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (selectedImage.type && !allowedTypes.includes(selectedImage.type)) {
+      Alert.alert(
+        'Invalid File Type',
+        'Please select an image file (JPEG, PNG, or GIF).',
+        [{ text: 'OK' }]
+      );
+      return;
+    }
+
+
+    // Transaction reference is now optional - no validation required
 
     try {
       setIsLoading(true);
@@ -162,25 +185,31 @@ const PaymentUploadScreen: React.FC = () => {
       formDataToSend.append('paymentDate', formData.paymentDate);
       formDataToSend.append('userNotes', formData.userNotes);
       
-      // Append the image file
+      // Append the image file with proper format for React Native
       formDataToSend.append('paymentScreenshot', {
         uri: selectedImage.uri,
         type: selectedImage.type,
         name: selectedImage.name,
       } as any);
 
-      const response = await fetch(`${API_CONFIG.BASE_URL}/api/payments/submit-proof`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-        body: formDataToSend,
-      });
+      const result = await apiClient.post(
+        '/api/payments/submit-proof',
+        formDataToSend,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          timeout: 30000, // 30 second timeout for file uploads
+          onUploadProgress: (progressEvent: any) => {
+            if (progressEvent.total) {
+              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              setUploadProgress(progress);
+            }
+          },
+        }
+      );
 
-      const result = await response.json();
-
-      if (result.success) {
+      if (result.data?.success) {
         Alert.alert(
           'Success',
           'Payment proof uploaded successfully! We will verify your payment and update your order status.',
@@ -192,11 +221,75 @@ const PaymentUploadScreen: React.FC = () => {
           ]
         );
       } else {
-        Alert.alert('Error', result.message || 'Failed to upload payment proof');
+        Alert.alert('Error', result.data?.message || 'Failed to upload payment proof');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error uploading payment proof:', error);
-      Alert.alert('Error', 'Failed to upload payment proof. Please try again.');
+
+      let errorMessage = 'Failed to upload payment proof. Please try again.';
+      let errorTitle = 'Upload Error';
+
+      // Handle specific error types
+      if (error.response) {
+        // Server responded with error status
+        const { status, data } = error.response;
+
+        switch (status) {
+          case 400:
+            errorTitle = 'Invalid Request';
+            if (data?.message) {
+              if (data.message.includes('file size')) {
+                errorMessage = 'File size too large. Please select a smaller image (max 10MB).';
+              } else if (data.message.includes('file type') || data.message.includes('Only image files')) {
+                errorMessage = 'Invalid file type. Please select an image file (JPEG, PNG, GIF) or PDF.';
+              } else if (data.message.includes('Missing required fields')) {
+                errorMessage = 'Please fill in all required fields and try again.';
+              } else if (data.message.includes('already exists')) {
+                errorMessage = 'Payment verification already exists for this order.';
+              } else {
+                errorMessage = data.message;
+              }
+            }
+            break;
+          case 401:
+            errorTitle = 'Authentication Error';
+            errorMessage = 'Your session has expired. Please log in again.';
+            break;
+          case 404:
+            errorTitle = 'Order Not Found';
+            errorMessage = 'Order not found or access denied. Please check your order details.';
+            break;
+          case 413:
+            errorTitle = 'File Too Large';
+            errorMessage = 'File size too large. Please select a smaller image (max 10MB).';
+            break;
+          case 500:
+            errorTitle = 'Server Error';
+            if (data?.message?.includes('Upload failed')) {
+              errorMessage = 'File upload failed. Please check your internet connection and try again.';
+            } else {
+              errorMessage = 'Server error occurred. Please try again later.';
+            }
+            break;
+          default:
+            errorMessage = data?.message || `Server error (${status}). Please try again.`;
+        }
+      } else if (error.request) {
+        // Network error
+        errorTitle = 'Network Error';
+        errorMessage = 'Unable to connect to server. Please check your internet connection and try again.';
+      } else if (error.code === 'ECONNABORTED') {
+        // Timeout error
+        errorTitle = 'Upload Timeout';
+        errorMessage = 'Upload is taking too long. Please check your internet connection and try again.';
+      } else if (error.message) {
+        // Other errors with message
+        errorMessage = error.message;
+      }
+
+      Alert.alert(errorTitle, errorMessage, [
+        { text: 'OK', style: 'default' }
+      ]);
     } finally {
       setIsLoading(false);
       setUploadProgress(0);
@@ -225,22 +318,20 @@ const PaymentUploadScreen: React.FC = () => {
           <Text style={styles.orderInfoText}>Amount: ₦{totalAmount?.toLocaleString()}</Text>
         </View>
 
-        {/* Bank Details */}
-        <View style={styles.bankDetails}>
-          <Text style={styles.sectionTitle}>Bank Transfer Details</Text>
-          <View style={styles.bankInfo}>
-            <Text style={styles.bankLabel}>Bank Name:</Text>
-            <Text style={styles.bankValue}>First Bank Nigeria</Text>
-          </View>
-          <View style={styles.bankInfo}>
-            <Text style={styles.bankLabel}>Account Name:</Text>
-            <Text style={styles.bankValue}>MCAN Nigeria</Text>
-          </View>
-          <View style={styles.bankInfo}>
-            <Text style={styles.bankLabel}>Account Number:</Text>
-            <Text style={styles.bankValue}>2034567890</Text>
-          </View>
-        </View>
+        {/* Dynamic Bank Transfer Details */}
+        <BankTransferDetails
+          showCopyButtons={true}
+          showInstructions={false}
+          containerStyle={styles.bankTransferContainer}
+          onError={(error) => {
+            console.error('Bank details error:', error);
+            Alert.alert(
+              'Configuration Error',
+              'Failed to load payment details. Please try again later.',
+              [{ text: 'OK' }]
+            );
+          }}
+        />
 
         {/* Payment Screenshot Upload */}
         <View style={styles.uploadSection}>
@@ -270,11 +361,10 @@ const PaymentUploadScreen: React.FC = () => {
         {/* Transaction Details */}
         <View style={styles.formSection}>
           <ValidatedInput
-            label="Transaction Reference"
+            label="Transaction Reference (Optional)"
             value={formData.transactionReference}
             onChangeText={(text) => setFormData(prev => ({ ...prev, transactionReference: text }))}
-            placeholder="Enter transaction reference number"
-            required
+            placeholder="Enter transaction reference number (optional)"
           />
 
           <ValidatedInput
@@ -297,9 +387,28 @@ const PaymentUploadScreen: React.FC = () => {
 
         {/* Upload Progress */}
         {isLoading && (
-          <View style={styles.progressContainer}>
-            <ActivityIndicator size="small" color={COLORS.PRIMARY} />
-            <Text style={styles.progressText}>Uploading payment proof...</Text>
+          <View style={styles.progressSection}>
+            <View style={styles.progressContainer}>
+              <ActivityIndicator size="small" color={COLORS.PRIMARY} />
+              <Text style={styles.progressText}>
+                {uploadProgress > 0
+                  ? `Uploading payment proof... ${uploadProgress}%`
+                  : 'Preparing upload...'
+                }
+              </Text>
+            </View>
+            {uploadProgress > 0 && (
+              <View style={styles.progressBarContainer}>
+                <View style={styles.progressBarBackground}>
+                  <View
+                    style={[
+                      styles.progressBarFill,
+                      { width: `${uploadProgress}%` }
+                    ]}
+                  />
+                </View>
+              </View>
+            )}
           </View>
         )}
 
@@ -364,13 +473,10 @@ const styles = StyleSheet.create({
     color: COLORS.TEXT_SECONDARY,
     marginBottom: SPACING.XS,
   },
-  bankDetails: {
-    backgroundColor: COLORS.WHITE,
+  bankTransferContainer: {
     marginHorizontal: SPACING.LG,
     marginBottom: SPACING.LG,
-    padding: SPACING.LG,
-    borderRadius: 12,
-    ...SHADOWS.SM,
+    marginVertical: 0,
   },
   sectionTitle: {
     fontSize: TYPOGRAPHY.FONT_SIZES.LG,
@@ -382,21 +488,6 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.FONT_SIZES.SM,
     color: COLORS.TEXT_SECONDARY,
     marginBottom: SPACING.MD,
-  },
-  bankInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.SM,
-  },
-  bankLabel: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
-    color: COLORS.TEXT_SECONDARY,
-  },
-  bankValue: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
-    color: COLORS.TEXT_PRIMARY,
   },
   uploadSection: {
     backgroundColor: COLORS.WHITE,
@@ -461,6 +552,24 @@ const styles = StyleSheet.create({
   submitContainer: {
     margin: SPACING.LG,
     marginBottom: SPACING.XL,
+  },
+  progressSection: {
+    marginHorizontal: SPACING.LG,
+    marginVertical: SPACING.MD,
+  },
+  progressBarContainer: {
+    marginTop: SPACING.SM,
+  },
+  progressBarBackground: {
+    height: 4,
+    backgroundColor: COLORS.GRAY_200,
+    borderRadius: 2,
+    overflow: 'hidden',
+  },
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 2,
   },
 });
 

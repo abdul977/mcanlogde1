@@ -51,6 +51,9 @@ const CreateCommunity = () => {
     return null;
   }
 
+  // Debug authentication
+  console.log('Auth state:', { user: !!user, token: !!auth?.token, tokenLength: auth?.token?.length });
+
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
     
@@ -149,16 +152,35 @@ const CreateCommunity = () => {
         submitData.append('banner', files.banner);
       }
 
-      const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/chat-communities/create`,
-        submitData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+      // Create axios instance with proper auth handling
+      const apiClient = axios.create({
+        baseURL: import.meta.env.VITE_BASE_URL,
+        headers: {
+          'Content-Type': 'multipart/form-data'
         }
-      );
+      });
+
+      // Add auth token from localStorage (consistent with userService)
+      const authData = localStorage.getItem('auth');
+      if (authData) {
+        try {
+          const { token } = JSON.parse(authData);
+          if (token) {
+            apiClient.defaults.headers.Authorization = `Bearer ${token}`;
+          }
+        } catch (error) {
+          console.error('Error parsing auth token:', error);
+          toast.error("Authentication error. Please login again.");
+          navigate('/login');
+          return;
+        }
+      } else {
+        toast.error("Authentication required. Please login.");
+        navigate('/login');
+        return;
+      }
+
+      const response = await apiClient.post('/api/chat-communities/create', submitData);
 
       if (response.data.success) {
         toast.success("Community created successfully! It's pending admin approval.");

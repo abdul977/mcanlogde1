@@ -2,7 +2,7 @@
  * Checkout Flow Screen - Multi-step checkout process
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -17,7 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, API_CONFIG, ENDPOINTS } from '../../constants';
-import { SafeAreaScreen, ValidatedInput, AnimatedButton } from '../../components';
+import { SafeAreaScreen, ValidatedInput, AnimatedButton, BankTransferDetails } from '../../components';
 import { useAuth, useCart, useProfileStats } from '../../context';
 import { formatPrice, calculateShipping, calculatePriceBreakdown } from '../../utils/priceUtils';
 
@@ -29,11 +29,11 @@ const CheckoutFlowScreen: React.FC = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
 
-  const steps = [
+  const steps = useMemo(() => [
     { id: 1, title: 'Shipping', icon: 'location-outline' },
     { id: 2, title: 'Payment', icon: 'card-outline' },
     { id: 3, title: 'Review', icon: 'checkmark-circle-outline' },
-  ];
+  ], []);
 
   const [formData, setFormData] = useState({
     fullName: user?.name || '',
@@ -46,28 +46,53 @@ const CheckoutFlowScreen: React.FC = () => {
 
   // Update form data when user data changes
   useEffect(() => {
-    if (user) {
+    if (user?.name || user?.phone) {
       setFormData(prev => ({
         ...prev,
         fullName: user.name || prev.fullName,
         phone: user.phone || prev.phone,
       }));
     }
-  }, [user]);
+  }, [user?.name, user?.phone]);
 
-  const handleNext = () => {
+  // Memoized form handlers
+  const handleFullNameChange = useCallback((text: string) => {
+    setFormData(prev => ({ ...prev, fullName: text }));
+  }, []);
+
+  const handlePhoneChange = useCallback((text: string) => {
+    setFormData(prev => ({ ...prev, phone: text }));
+  }, []);
+
+  const handleAddressChange = useCallback((text: string) => {
+    setFormData(prev => ({ ...prev, address: text }));
+  }, []);
+
+  const handleCityChange = useCallback((text: string) => {
+    setFormData(prev => ({ ...prev, city: text }));
+  }, []);
+
+  const handleStateChange = useCallback((text: string) => {
+    setFormData(prev => ({ ...prev, state: text }));
+  }, []);
+
+  const handlePaymentMethodChange = useCallback((method: string) => {
+    setFormData(prev => ({ ...prev, paymentMethod: method }));
+  }, []);
+
+  const handleNext = useCallback(() => {
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
-  };
+  }, [currentStep, steps.length]);
 
-  const handlePrevious = () => {
+  const handlePrevious = useCallback(() => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
     }
-  };
+  }, [currentStep]);
 
-  const handlePlaceOrder = async () => {
+  const handlePlaceOrder = useCallback(async () => {
     try {
       setIsLoading(true);
 
@@ -176,7 +201,7 @@ const CheckoutFlowScreen: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [formData, user, items, totalAmount, token, incrementOrderCount, clearCart, navigation]);
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -200,7 +225,7 @@ const CheckoutFlowScreen: React.FC = () => {
               label="Full Name"
               placeholder="Enter your full name"
               value={formData.fullName}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, fullName: text }))}
+              onChangeText={handleFullNameChange}
               leftIcon="person-outline"
               required
             />
@@ -209,7 +234,7 @@ const CheckoutFlowScreen: React.FC = () => {
               label="Phone Number"
               placeholder="Enter your phone number"
               value={formData.phone}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, phone: text }))}
+              onChangeText={handlePhoneChange}
               leftIcon="call-outline"
               keyboardType="phone-pad"
               required
@@ -219,7 +244,7 @@ const CheckoutFlowScreen: React.FC = () => {
               label="Address"
               placeholder="Enter your address"
               value={formData.address}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, address: text }))}
+              onChangeText={handleAddressChange}
               leftIcon="location-outline"
               multiline
               numberOfLines={2}
@@ -230,7 +255,7 @@ const CheckoutFlowScreen: React.FC = () => {
               label="City"
               placeholder="Enter your city"
               value={formData.city}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, city: text }))}
+              onChangeText={handleCityChange}
               leftIcon="business-outline"
               required
             />
@@ -239,7 +264,7 @@ const CheckoutFlowScreen: React.FC = () => {
               label="State"
               placeholder="Enter your state"
               value={formData.state}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, state: text }))}
+              onChangeText={handleStateChange}
               leftIcon="map-outline"
               required
             />
@@ -261,7 +286,7 @@ const CheckoutFlowScreen: React.FC = () => {
                   styles.paymentOption,
                   styles.paymentOptionSelected // Always selected since it's the only option
                 ]}
-                onPress={() => setFormData(prev => ({ ...prev, paymentMethod: 'bank_transfer' }))}
+                onPress={() => handlePaymentMethodChange('bank_transfer')}
               >
                 <Ionicons name="card-outline" size={24} color={COLORS.PRIMARY} />
                 <View style={styles.paymentText}>
@@ -275,17 +300,18 @@ const CheckoutFlowScreen: React.FC = () => {
                 />
               </TouchableOpacity>
 
-              {/* Bank Transfer Instructions */}
-              <View style={styles.bankTransferInfo}>
-                <View style={styles.infoHeader}>
-                  <Ionicons name="information-circle-outline" size={20} color={COLORS.PRIMARY} />
-                  <Text style={styles.infoTitle}>Payment Instructions</Text>
-                </View>
-                <Text style={styles.infoText}>
-                  After placing your order, you'll receive bank details to complete your payment.
-                  Please upload your payment screenshot for verification.
-                </Text>
-              </View>
+              {/* Dynamic Bank Transfer Details */}
+              <BankTransferDetails
+                showCopyButtons={true}
+                showInstructions={true}
+                customInstructions={
+                  '1. Transfer the exact order amount to the bank details above\n' +
+                  '2. Use your order number as the transfer description\n' +
+                  '3. Upload your payment receipt after placing the order\n' +
+                  '4. Your order will be processed once payment is verified'
+                }
+                containerStyle={styles.bankTransferContainer}
+              />
             </View>
           </View>
         );
@@ -423,6 +449,7 @@ const CheckoutFlowScreen: React.FC = () => {
               leftIcon="checkmark-outline"
             />
           )}
+        </View>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaScreen>
@@ -653,30 +680,10 @@ const styles = StyleSheet.create({
     marginLeft: SPACING.XS,
     fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
   },
-  bankTransferInfo: {
-    backgroundColor: COLORS.PRIMARY + '10',
-    borderRadius: 8,
-    padding: SPACING.MD,
+  bankTransferContainer: {
     marginTop: SPACING.MD,
-    borderWidth: 1,
-    borderColor: COLORS.PRIMARY + '30',
-  },
-  infoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.XS,
-  },
-  infoTitle: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
-    color: COLORS.PRIMARY,
-    marginLeft: SPACING.XS,
-  },
-  infoText: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
-    color: COLORS.TEXT_SECONDARY,
-    lineHeight: TYPOGRAPHY.FONT_SIZES.SM * 1.4,
+    marginHorizontal: 0,
   },
 });
 
-export default CheckoutFlowScreen;
+export default React.memo(CheckoutFlowScreen);

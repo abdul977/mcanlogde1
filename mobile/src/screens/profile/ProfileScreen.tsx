@@ -22,11 +22,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 
-import { COLORS, TYPOGRAPHY, SPACING, SHADOWS } from '../../constants';
+import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, BORDER_RADIUS } from '../../constants';
 import { useAuth, useMessaging } from '../../context';
 import { useProfileStats } from '../../context/ProfileStatsContext';
-import { SafeAreaScreen } from '../../components';
+import { SafeAreaScreen, EnhancedAvatar, ModernCard, StatsCard, QuickActions } from '../../components';
 import type { ProfileStackParamList } from '../../navigation/types';
+import imagePickerService from '../../utils/imagePicker';
+import profileService from '../../services/api/profileService';
 
 type ProfileScreenNavigationProp = StackNavigationProp<ProfileStackParamList, 'Profile'>;
 
@@ -37,6 +39,7 @@ const ProfileScreen: React.FC = () => {
   const { unreadCount } = useMessaging();
   const { stats, refreshStats } = useProfileStats();
   const [refreshing, setRefreshing] = useState(false);
+  const [uploadingProfilePicture, setUploadingProfilePicture] = useState(false);
 
   // Handle refresh - now uses ProfileStatsContext
   const onRefresh = useCallback(async () => {
@@ -50,6 +53,51 @@ const ProfileScreen: React.FC = () => {
       refreshStats();
     }
   }, [token, refreshStats]); // Include refreshStats in dependencies
+
+  // Handle profile picture upload
+  const handleProfilePictureUpload = useCallback(async () => {
+    try {
+      imagePickerService.showImagePickerOptions(
+        async (image) => {
+          setUploadingProfilePicture(true);
+          try {
+            const response = await profileService.uploadProfilePicture(image.uri);
+
+            if (response.success) {
+              Alert.alert(
+                'Success',
+                'Profile picture updated successfully!',
+                [{ text: 'OK' }]
+              );
+
+              // Refresh the screen to show the new profile picture
+              await onRefresh();
+            } else {
+              throw new Error(response.message || 'Upload failed');
+            }
+          } catch (error: any) {
+            console.error('Profile picture upload error:', error);
+            Alert.alert(
+              'Upload Failed',
+              error.message || 'Failed to update profile picture. Please try again.',
+              [{ text: 'OK' }]
+            );
+          } finally {
+            setUploadingProfilePicture(false);
+          }
+        },
+        {
+          allowsEditing: true,
+          aspect: [1, 1], // Square aspect ratio
+          quality: 0.8,
+          maxFileSize: 5 * 1024 * 1024, // 5MB limit
+        }
+      );
+    } catch (error) {
+      console.error('Error showing image picker:', error);
+      Alert.alert('Error', 'Failed to open image picker. Please try again.');
+    }
+  }, [onRefresh]);
 
   // Handle logout with confirmation
   const handleLogout = () => {
@@ -161,16 +209,29 @@ const ProfileScreen: React.FC = () => {
           <View style={styles.headerContent}>
             <View style={styles.profileSection}>
               <View style={styles.avatarContainer}>
-                <View style={styles.avatar}>
-                  <Ionicons name="person" size={40} color={COLORS.WHITE} />
-                </View>
+                <EnhancedAvatar
+                  source={user?.displayAvatar || user?.profileImage || user?.avatar}
+                  name={user?.name || 'User Name'}
+                  size="xlarge"
+                  showGradientBorder={true}
+                  showEditIcon={true}
+                  showOnlineStatus={true}
+                  isOnline={true}
+                  isLoading={uploadingProfilePicture}
+                  onPress={() => navigation.navigate('ProfileSettings' as never)}
+                  onEditPress={handleProfilePictureUpload}
+                />
               </View>
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>{user?.name || 'User Name'}</Text>
                 <Text style={styles.userEmail}>{user?.email || 'user@email.com'}</Text>
-                <Text style={styles.userRole}>
-                  {user?.role === 'admin' ? 'Administrator' : 'Corps Member'}
-                </Text>
+                <View style={styles.roleContainer}>
+                  <View style={[styles.roleBadge, user?.role === 'admin' && styles.adminBadge]}>
+                    <Text style={[styles.roleText, user?.role === 'admin' && styles.adminText]}>
+                      {user?.role === 'admin' ? 'Administrator' : 'Corps Member'}
+                    </Text>
+                  </View>
+                </View>
               </View>
             </View>
             
@@ -190,63 +251,135 @@ const ProfileScreen: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Quick Stats</Text>
           <View style={styles.statsGrid}>
-            <View style={styles.statCard}>
-              <Ionicons name="bed-outline" size={24} color={COLORS.PRIMARY} />
-              <Text style={styles.statNumber}>{stats.bookings}</Text>
-              <Text style={styles.statLabel}>Bookings</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Ionicons name="storefront-outline" size={24} color={COLORS.SUCCESS} />
-              <Text style={styles.statNumber}>{stats.orders}</Text>
-              <Text style={styles.statLabel}>Orders</Text>
-            </View>
-            <View style={styles.statCard}>
-              <Ionicons name="chatbubble-outline" size={24} color={COLORS.INFO} />
-              <Text style={styles.statNumber}>{stats.messages}</Text>
-              <Text style={styles.statLabel}>Messages</Text>
-            </View>
+            <StatsCard
+              icon="bed-outline"
+              value={stats.bookings}
+              label="Bookings"
+              color={COLORS.PRIMARY}
+              variant="gradient"
+              gradientColors={[COLORS.PRIMARY, COLORS.SECONDARY]}
+              showTrend={true}
+              trendValue={12}
+              trendDirection="up"
+              onPress={() => navigation.navigate('MyBookings' as never)}
+              style={styles.statCard}
+            />
+            <StatsCard
+              icon="storefront-outline"
+              value={stats.orders}
+              label="Orders"
+              color={COLORS.SUCCESS}
+              variant="default"
+              showTrend={true}
+              trendValue={8}
+              trendDirection="up"
+              onPress={() => navigation.navigate('OrderHistory' as never)}
+              style={styles.statCard}
+            />
+            <StatsCard
+              icon="chatbubble-outline"
+              value={unreadCount}
+              label="Messages"
+              color={COLORS.INFO}
+              variant="default"
+              showTrend={true}
+              trendValue={unreadCount > 0 ? unreadCount : 0}
+              trendDirection={unreadCount > 0 ? "up" : "neutral"}
+              onPress={() => navigation.navigate('Messages' as never)}
+              style={styles.statCard}
+            />
           </View>
         </View>
+
+        {/* Quick Actions Section */}
+        <QuickActions
+          title="Quick Actions"
+          layout="grid"
+          columns={2}
+          actions={[
+            {
+              id: 'edit-profile',
+              title: 'Edit Profile',
+              icon: 'person-outline',
+              color: COLORS.PRIMARY,
+              onPress: () => navigation.navigate('ProfileSettings' as never),
+            },
+            {
+              id: 'my-bookings',
+              title: 'My Bookings',
+              icon: 'bed-outline',
+              color: COLORS.SUCCESS,
+              onPress: () => navigation.navigate('MyBookings' as never),
+              badge: stats.bookings > 0 ? stats.bookings : undefined,
+            },
+            {
+              id: 'messages',
+              title: 'Messages',
+              icon: 'chatbubble-outline',
+              color: COLORS.INFO,
+              onPress: () => navigation.navigate('Messages' as never),
+              badge: unreadCount > 0 ? unreadCount : undefined,
+            },
+            {
+              id: 'settings',
+              title: 'Settings',
+              icon: 'settings-outline',
+              color: COLORS.GRAY_600,
+              onPress: () => navigation.navigate('AppSettings' as never),
+            },
+          ]}
+        />
 
         {/* Menu Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account & Settings</Text>
           <View style={styles.menuGrid}>
             {menuItems.map((item) => (
-              <TouchableOpacity
+              <ModernCard
                 key={item.id}
-                style={styles.menuCard}
+                variant="default"
                 onPress={item.onPress}
-                accessibilityLabel={item.title}
-                accessibilityHint={item.subtitle}
+                style={styles.menuCard}
+                padding="large"
+                shadowIntensity="light"
               >
-                <View style={[styles.menuIcon, { backgroundColor: item.color + '15' }]}>
-                  <Ionicons name={item.icon as any} size={24} color={item.color} />
-                  {item.badge && (
-                    <View style={styles.badge}>
-                      <Text style={styles.badgeText}>{item.badge}</Text>
-                    </View>
-                  )}
+                <View style={styles.menuContent}>
+                  <View style={[styles.menuIcon, { backgroundColor: item.color + '15' }]}>
+                    <Ionicons name={item.icon as any} size={24} color={item.color} />
+                    {item.badge && (
+                      <View style={styles.badge}>
+                        <Text style={styles.badgeText}>{item.badge}</Text>
+                      </View>
+                    )}
+                  </View>
+                  <View style={styles.menuText}>
+                    <Text style={styles.menuTitle}>{item.title}</Text>
+                    <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={20} color={COLORS.GRAY_400} />
                 </View>
-                <View style={styles.menuText}>
-                  <Text style={styles.menuTitle}>{item.title}</Text>
-                  <Text style={styles.menuSubtitle}>{item.subtitle}</Text>
-                </View>
-                <Ionicons name="chevron-forward" size={20} color={COLORS.GRAY_400} />
-              </TouchableOpacity>
+              </ModernCard>
             ))}
           </View>
         </View>
 
         {/* Islamic Quote Section */}
         <View style={styles.quoteSection}>
-          <View style={styles.quoteCard}>
-            <Ionicons name="book-outline" size={24} color={COLORS.PRIMARY} style={styles.quoteIcon} />
-            <Text style={styles.quoteText}>
-              "And whoever fears Allah - He will make for him a way out"
-            </Text>
-            <Text style={styles.quoteSource}>- Quran 65:2</Text>
-          </View>
+          <ModernCard
+            variant="gradient"
+            gradientColors={[COLORS.PRIMARY + '20', COLORS.SECONDARY + '10']}
+            style={styles.quoteCard}
+            padding="large"
+            shadowIntensity="medium"
+          >
+            <View style={styles.quoteContent}>
+              <Ionicons name="book-outline" size={24} color={COLORS.PRIMARY} style={styles.quoteIcon} />
+              <Text style={styles.quoteText}>
+                "And whoever fears Allah - He will make for him a way out"
+              </Text>
+              <Text style={styles.quoteSource}>- Quran 65:2</Text>
+            </View>
+          </ModernCard>
         </View>
 
         {/* Bottom Spacing for Tab Bar */}
@@ -272,6 +405,10 @@ const styles = StyleSheet.create({
     paddingTop: SPACING.LG,
     paddingBottom: SPACING.XL,
     paddingHorizontal: SPACING.LG,
+    borderBottomLeftRadius: BORDER_RADIUS.XL,
+    borderBottomRightRadius: BORDER_RADIUS.XL,
+    ...SHADOWS.MD,
+    elevation: 8, // For Android shadow
   },
   headerContent: {
     flexDirection: 'row',
@@ -314,6 +451,27 @@ const styles = StyleSheet.create({
     color: COLORS.WHITE,
     opacity: 0.8,
     fontStyle: 'italic',
+  },
+  roleContainer: {
+    marginTop: SPACING.XS,
+  },
+  roleBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: SPACING.SM,
+    paddingVertical: SPACING.XS,
+    borderRadius: BORDER_RADIUS.SM,
+    alignSelf: 'flex-start',
+  },
+  adminBadge: {
+    backgroundColor: COLORS.WARNING + '30',
+  },
+  roleText: {
+    fontSize: TYPOGRAPHY.FONT_SIZES.XS,
+    color: COLORS.WHITE,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
+  },
+  adminText: {
+    color: COLORS.WARNING,
   },
   logoutButton: {
     padding: SPACING.SM,
@@ -358,12 +516,11 @@ const styles = StyleSheet.create({
     gap: SPACING.MD,
   },
   menuCard: {
+    marginBottom: SPACING.MD,
+  },
+  menuContent: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
-    padding: SPACING.LG,
-    borderRadius: 12,
-    ...SHADOWS.SM,
   },
   menuIcon: {
     width: 48,
@@ -391,11 +548,10 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.LG,
   },
   quoteCard: {
-    backgroundColor: COLORS.PRIMARY + '10',
-    padding: SPACING.LG,
-    borderRadius: 12,
     borderLeftWidth: 4,
     borderLeftColor: COLORS.PRIMARY,
+  },
+  quoteContent: {
     alignItems: 'center',
   },
   quoteIcon: {

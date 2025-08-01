@@ -14,11 +14,16 @@ export { BiometricButton } from './ui/BiometricButton';
 export { AccessibleButton } from './ui/AccessibleButton';
 export { AnimatedButton } from './ui/AnimatedButton';
 export { default as SafeAreaWrapper, SafeAreaScreen, SafeAreaHeader, SafeAreaContent } from './ui/SafeAreaWrapper';
+export { default as EnhancedAvatar } from './ui/EnhancedAvatar';
+export { default as ModernCard } from './ui/ModernCard';
+export { default as StatsCard } from './ui/StatsCard';
+export { default as QuickActions } from './ui/QuickActions';
 export { default as Icon } from './ui/Icon';
 export * from './ui/Icon';
 export { default as Header } from './ui/Header';
 export { default as Avatar } from './ui/Avatar';
 export { default as ErrorBoundary } from './ui/ErrorBoundary';
+export { default as BankTransferDetails } from './ui/BankTransferDetails';
 
 // Layout Components
 // export { default as Screen } from './layout/Screen';

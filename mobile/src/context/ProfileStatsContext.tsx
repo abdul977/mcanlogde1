@@ -58,7 +58,12 @@ export const ProfileStatsProvider: React.FC<ProfileStatsProviderProps> = ({ chil
       let bookingsCount = 0;
       if (bookingsResponse.ok) {
         const bookingsData = await bookingsResponse.json();
-        bookingsCount = bookingsData.bookings ? bookingsData.bookings.length : (Array.isArray(bookingsData) ? bookingsData.length : 0);
+        if (bookingsData.success && bookingsData.bookings) {
+          // Use total count from pagination if available, otherwise use array length
+          bookingsCount = bookingsData.pagination?.totalBookings || bookingsData.pagination?.count || bookingsData.bookings.length;
+        } else if (Array.isArray(bookingsData)) {
+          bookingsCount = bookingsData.length;
+        }
       }
 
       // Fetch orders count
@@ -74,7 +79,27 @@ export const ProfileStatsProvider: React.FC<ProfileStatsProviderProps> = ({ chil
       if (ordersResponse.ok) {
         const ordersData = await ordersResponse.json();
         if (ordersData.success && ordersData.orders) {
-          ordersCount = ordersData.orders.length;
+          // Use total count from pagination if available, otherwise use array length
+          ordersCount = ordersData.pagination?.total || ordersData.orders.length;
+        }
+      }
+
+      // Fetch messages count
+      const messagesResponse = await fetch(`${API_CONFIG.BASE_URL}${ENDPOINTS.CONVERSATIONS}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      let messagesCount = 0;
+      if (messagesResponse.ok) {
+        const messagesData = await messagesResponse.json();
+        if (messagesData.success && messagesData.conversations) {
+          messagesCount = messagesData.conversations.length;
+        } else if (Array.isArray(messagesData)) {
+          messagesCount = messagesData.length;
         }
       }
 
@@ -83,6 +108,7 @@ export const ProfileStatsProvider: React.FC<ProfileStatsProviderProps> = ({ chil
         ...prevStats,
         bookings: bookingsCount,
         orders: ordersCount,
+        messages: messagesCount,
       }));
 
     } catch (error) {

@@ -43,6 +43,7 @@ The following storage buckets need to be created in your Supabase project:
 7. **mcan-authors** - For author and instructor images
 8. **mcan-participants** - For participant images
 9. **mcan-thumbnails** - For thumbnail images
+10. **mcan-users** - For user profile pictures and avatars
 
 ### Creating Buckets
 

@@ -20,7 +20,7 @@ import * as DocumentPicker from 'expo-document-picker';
 
 import { COLORS, TYPOGRAPHY, SPACING, SHADOWS, API_CONFIG, ENDPOINTS } from '../../constants';
 import { useAuth } from '../../context';
-import { SafeAreaScreen, ValidatedInput, AnimatedButton } from '../../components';
+import { SafeAreaScreen, ValidatedInput, AnimatedButton, BankTransferDetails } from '../../components';
 import { useFormValidation } from '../../hooks/useFormValidation';
 import { ValidationConfig } from '../../utils/validation';
 
@@ -32,7 +32,6 @@ const BookingFlowScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'transfer' | 'card' | null>(null);
-  const [paymentDetails, setPaymentDetails] = useState(null);
   const [paymentProof, setPaymentProof] = useState(null);
   const [paymentData, setPaymentData] = useState({
     transactionReference: '',
@@ -46,25 +45,6 @@ const BookingFlowScreen: React.FC = () => {
     { id: 3, title: 'Payment', icon: 'card-outline' },
     { id: 4, title: 'Confirmation', icon: 'checkmark-circle-outline' },
   ];
-
-  // Fetch payment details when reaching payment step
-  useEffect(() => {
-    if (currentStep === 3 && !paymentDetails) {
-      fetchPaymentDetails();
-    }
-  }, [currentStep]);
-
-  const fetchPaymentDetails = async () => {
-    try {
-      const response = await fetch(`${API_CONFIG.BASE_URL}/api/payment-config/details`);
-      const result = await response.json();
-      if (result.success) {
-        setPaymentDetails(result.data);
-      }
-    } catch (error) {
-      console.error('Error fetching payment details:', error);
-    }
-  };
 
   const pickPaymentProof = async () => {
     try {
@@ -92,7 +72,7 @@ const BookingFlowScreen: React.FC = () => {
   const openCamera = async () => {
     try {
       const result = await ImagePicker.launchCameraAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -109,7 +89,7 @@ const BookingFlowScreen: React.FC = () => {
   const openGallery = async () => {
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: ['images'],
         allowsEditing: true,
         aspect: [4, 3],
         quality: 0.8,
@@ -692,47 +672,19 @@ const BookingFlowScreen: React.FC = () => {
               </View>
             </View>
 
-            {/* Bank Transfer Details */}
-            {selectedPaymentMethod === 'transfer' && paymentDetails?.bankDetails && (
-              <View style={styles.bankDetailsCard}>
-                <View style={styles.bankDetailsHeader}>
-                  <Ionicons name="business-outline" size={24} color={COLORS.PRIMARY} />
-                  <Text style={styles.bankDetailsTitle}>Bank Transfer Details</Text>
-                </View>
-
-                <View style={styles.bankDetailRow}>
-                  <Text style={styles.bankDetailLabel}>Account Name:</Text>
-                  <TouchableOpacity
-                    style={styles.copyableText}
-                    onPress={() => copyToClipboard(paymentDetails.bankDetails.accountName, 'Account Name')}
-                  >
-                    <Text style={styles.bankDetailValue}>{paymentDetails.bankDetails.accountName}</Text>
-                    <Ionicons name="copy-outline" size={16} color={COLORS.PRIMARY} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.bankDetailRow}>
-                  <Text style={styles.bankDetailLabel}>Account Number:</Text>
-                  <TouchableOpacity
-                    style={styles.copyableText}
-                    onPress={() => copyToClipboard(paymentDetails.bankDetails.accountNumber, 'Account Number')}
-                  >
-                    <Text style={styles.bankDetailValue}>{paymentDetails.bankDetails.accountNumber}</Text>
-                    <Ionicons name="copy-outline" size={16} color={COLORS.PRIMARY} />
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.bankDetailRow}>
-                  <Text style={styles.bankDetailLabel}>Bank Name:</Text>
-                  <TouchableOpacity
-                    style={styles.copyableText}
-                    onPress={() => copyToClipboard(paymentDetails.bankDetails.bankName, 'Bank Name')}
-                  >
-                    <Text style={styles.bankDetailValue}>{paymentDetails.bankDetails.bankName}</Text>
-                    <Ionicons name="copy-outline" size={16} color={COLORS.PRIMARY} />
-                  </TouchableOpacity>
-                </View>
-              </View>
+            {/* Dynamic Bank Transfer Details */}
+            {selectedPaymentMethod === 'transfer' && (
+              <BankTransferDetails
+                showCopyButtons={true}
+                showInstructions={true}
+                customInstructions={
+                  '1. Transfer the exact booking amount to the bank details above\n' +
+                  '2. Use your booking reference as the transfer description\n' +
+                  '3. Upload your payment receipt or screenshot below\n' +
+                  '4. Your booking will be confirmed once payment is verified'
+                }
+                containerStyle={styles.bankTransferContainer}
+              />
             )}
 
             {/* Payment Instructions */}
@@ -1142,47 +1094,9 @@ const styles = StyleSheet.create({
     fontWeight: TYPOGRAPHY.FONT_WEIGHTS.BOLD as any,
     color: COLORS.PRIMARY,
   },
-  // Bank Details Styles
-  bankDetailsCard: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    padding: SPACING.LG,
+  bankTransferContainer: {
     marginVertical: SPACING.MD,
-    ...SHADOWS.SM,
-  },
-  bankDetailsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: SPACING.MD,
-  },
-  bankDetailsTitle: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.LG,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
-    color: COLORS.TEXT_PRIMARY,
-    marginLeft: SPACING.SM,
-  },
-  bankDetailRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: SPACING.SM,
-  },
-  bankDetailLabel: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
-    color: COLORS.TEXT_SECONDARY,
-    flex: 1,
-  },
-  copyableText: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 2,
-    justifyContent: 'flex-end',
-  },
-  bankDetailValue: {
-    fontSize: TYPOGRAPHY.FONT_SIZES.SM,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
-    color: COLORS.TEXT_PRIMARY,
-    marginRight: SPACING.XS,
+    marginHorizontal: 0,
   },
   // Instructions Styles
   instructionsCard: {

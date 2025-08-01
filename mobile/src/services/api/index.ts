@@ -6,6 +6,7 @@ export * from './authService';
 export * from './accommodationService';
 export * from './bookingService';
 export * from './blogService';
+export * from './paymentConfigService';
 
 // Additional services will be exported here as they are created
 // export * from './productService';
