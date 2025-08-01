@@ -1,4 +1,4 @@
-import { apiClient } from './apiClient';
+import apiClient from './apiClient';
 import { ENDPOINTS } from '../../constants';
 
 export interface ProfilePictureUploadResponse {
@@ -133,11 +133,44 @@ class ProfileService {
    */
   async getProfile(): Promise<any> {
     try {
+      console.log('🔍 [DEBUG] ProfileService.getProfile() called');
+      console.log('🔍 [DEBUG] apiClient available:', !!apiClient);
+      console.log('🔍 [DEBUG] ENDPOINTS.PROFILE:', ENDPOINTS.PROFILE);
+
+      if (!apiClient) {
+        throw new Error('apiClient is not initialized');
+      }
+
+      console.log('🔍 [DEBUG] Making API call to:', ENDPOINTS.PROFILE);
       const response = await apiClient.get(ENDPOINTS.PROFILE);
-      return response.data;
+      console.log('✅ [DEBUG] Profile API response:', response.data);
+
+      // The profile endpoint returns data in response.data.user, not response.data.data
+      if (response.data && response.data.success && response.data.user) {
+        console.log('✅ [DEBUG] Returning user data:', response.data.user);
+        return {
+          success: true,
+          user: response.data.user,
+          message: response.data.message
+        };
+      } else {
+        console.log('⚠️ [DEBUG] Unexpected response format:', response.data);
+        // Return the raw response if it doesn't match expected format
+        return response.data;
+      }
     } catch (error: any) {
-      console.error('Error fetching profile:', error);
-      throw error;
+      console.error('❌ [DEBUG] Error fetching profile:', error);
+      console.error('❌ [DEBUG] Error message:', error.message);
+      console.error('❌ [DEBUG] Error response:', error.response?.data);
+
+      // Re-throw with more context
+      if (error.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      } else if (error.message) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('Failed to fetch profile data');
+      }
     }
   }
 }

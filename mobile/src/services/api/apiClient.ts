@@ -4,6 +4,9 @@ import * as SecureStore from 'expo-secure-store';
 import { API_CONFIG, STORAGE_KEYS, ERROR_MESSAGES } from '../../constants';
 import { ApiResponse } from '../../types';
 
+console.log('🔍 [DEBUG] API_CONFIG:', API_CONFIG);
+console.log('🔍 [DEBUG] Creating apiClient with baseURL:', API_CONFIG.BASE_URL);
+
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
   baseURL: API_CONFIG.BASE_URL, // Always use the configured base URL (Render server)
@@ -12,6 +15,14 @@ const apiClient: AxiosInstance = axios.create({
     'Content-Type': 'application/json',
     'Accept': 'application/json',
   },
+});
+
+console.log('✅ [DEBUG] apiClient created successfully:', !!apiClient);
+console.log('🔍 [DEBUG] apiClient methods available:', {
+  get: typeof apiClient.get,
+  post: typeof apiClient.post,
+  put: typeof apiClient.put,
+  delete: typeof apiClient.delete
 });
 
 // Request interceptor to add auth token

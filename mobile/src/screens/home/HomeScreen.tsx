@@ -171,7 +171,7 @@ const HomeScreen: React.FC = () => {
             <View style={styles.welcomeSection}>
               <Text style={styles.greeting}>{getGreeting()}</Text>
               <Text style={styles.userName}>
-                {user?.name || 'Welcome to MCAN'}
+                {user?.name && user.name.trim() ? user.name : 'Loading...'}
               </Text>
               <Text style={styles.subtitle}>
                 Assalamu Alaikum wa Rahmatullahi wa Barakatuh

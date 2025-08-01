@@ -135,33 +135,39 @@ const styles = StyleSheet.create({
   card: {
     backgroundColor: COLORS.WHITE,
     borderRadius: BORDER_RADIUS.LG,
-    padding: SPACING.LG,
-    ...SHADOWS.MD,
-    minHeight: 100,
+    padding: SPACING.MD,
+    ...SHADOWS.SM,
+    minHeight: 120,
+    // Ensure content stays within bounds
+    overflow: 'hidden',
   },
   minimalCard: {
     backgroundColor: COLORS.GRAY_50,
     ...SHADOWS.SM,
-    padding: SPACING.MD,
+    padding: SPACING.SM,
   },
   content: {
     flex: 1,
+    justifyContent: 'space-between',
   },
   gradientContent: {
     flex: 1,
+    justifyContent: 'space-between',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: SPACING.SM,
+    marginBottom: SPACING.XS,
   },
   iconContainer: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    // Ensure icon stays within container bounds
+    overflow: 'hidden',
   },
   trendContainer: {
     flexDirection: 'row',
@@ -174,23 +180,26 @@ const styles = StyleSheet.create({
   },
   trendText: {
     fontSize: TYPOGRAPHY.FONT_SIZES.XS,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
     marginLeft: 2,
   },
   body: {
     flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
   },
   value: {
-    fontSize: TYPOGRAPHY.FONT_SIZES['2XL'],
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.BOLD,
+    fontSize: TYPOGRAPHY.FONT_SIZES.XL,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.BOLD as any,
     color: COLORS.TEXT_PRIMARY,
     marginBottom: SPACING.XS,
+    textAlign: 'center',
   },
   label: {
     fontSize: TYPOGRAPHY.FONT_SIZES.SM,
     color: COLORS.TEXT_SECONDARY,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
+    textAlign: 'center',
   },
 });
 

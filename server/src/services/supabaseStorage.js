@@ -33,7 +33,8 @@ const validateMimeType = (mimeType, bucketName) => {
     'mcan-participants': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     'mcan-thumbnails': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
     'mcan-products': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
-    'mcan-categories': ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    'mcan-categories': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'],
+    'mcan-users': ['image/jpeg', 'image/png', 'image/webp', 'image/gif'] // Add missing users bucket
   };
 
   const allowedTypes = bucketRestrictions[bucketName];
@@ -61,7 +62,8 @@ class SupabaseStorageService {
       participants: 'mcan-participants',
       thumbnails: 'mcan-thumbnails',
       products: 'mcan-products',
-      categories: 'mcan-categories'
+      categories: 'mcan-categories',
+      users: 'mcan-users' // Add missing users bucket
     };
   }
 

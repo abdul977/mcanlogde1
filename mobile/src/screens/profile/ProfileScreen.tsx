@@ -258,10 +258,10 @@ const ProfileScreen: React.FC = () => {
               </View>
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>
-                  {user?.name && user.name.trim() ? user.name : 'User Name'}
+                  {user?.name && user.name.trim() ? user.name : 'Loading...'}
                 </Text>
                 <Text style={styles.userEmail}>
-                  {user?.email && user.email.trim() ? user.email : 'user@email.com'}
+                  {user?.email && user.email.trim() ? user.email : 'Loading user data...'}
                 </Text>
                 <View style={styles.roleContainer}>
                   <View style={[styles.roleBadge, user?.role === 'admin' && styles.adminBadge]}>
@@ -294,8 +294,7 @@ const ProfileScreen: React.FC = () => {
               value={stats.bookings}
               label="Bookings"
               color={COLORS.PRIMARY}
-              variant="gradient"
-              gradientColors={[COLORS.PRIMARY, COLORS.SECONDARY]}
+              variant="default"
               showTrend={true}
               trendValue={12}
               trendDirection="up"
@@ -530,17 +529,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'stretch', // Ensure all cards have the same height
-    gap: SPACING.SM, // Reduce gap slightly for better spacing
+    gap: SPACING.SM, // Consistent gap between cards
   },
   statCard: {
     flex: 1,
+    maxWidth: '32%', // Ensure cards don't exceed 1/3 of container width
     backgroundColor: COLORS.WHITE,
-    padding: SPACING.MD, // Reduce padding slightly for better proportions
-    borderRadius: 12,
+    padding: SPACING.MD,
+    borderRadius: BORDER_RADIUS.LG,
     alignItems: 'center',
-    justifyContent: 'center', // Center content vertically
-    minHeight: 100, // Ensure minimum height for consistency
+    justifyContent: 'center',
+    minHeight: 120, // Increased minimum height for better proportions
     ...SHADOWS.SM,
+    // Ensure content stays within bounds
+    overflow: 'hidden',
   },
   statNumber: {
     fontSize: TYPOGRAPHY.FONT_SIZES.XL,

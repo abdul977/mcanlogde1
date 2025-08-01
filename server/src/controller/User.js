@@ -126,13 +126,37 @@ export const getUserInfo = (req, res) => {
 // Get user profile (protected route)
 export const getUserProfile = async (req, res) => {
   try {
+    console.log('🔍 [DEBUG] getUserProfile called');
+    console.log('🔍 [DEBUG] req.user:', req.user);
+    console.log('🔍 [DEBUG] req.user.id:', req.user?.id);
+    
+    if (!req.user || !req.user.id) {
+      console.error('❌ [DEBUG] No user ID found in request');
+      return res.status(401).json({
+        success: false,
+        message: "User authentication required"
+      });
+    }
+
     const user = await User.findById(req.user.id).select('-password');
+    console.log('🔍 [DEBUG] Database query result:', user ? 'User found' : 'User not found');
+    
     if (!user) {
+      console.error('❌ [DEBUG] User not found in database for ID:', req.user.id);
       return res.status(404).json({
         success: false,
         message: "User not found"
       });
     }
+
+    console.log('✅ [DEBUG] User profile data:', {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      profileImage: user.profileImage,
+      avatar: user.avatar,
+      displayAvatar: user.displayAvatar
+    });
 
     res.status(200).json({
       success: true,
@@ -162,7 +186,8 @@ export const getUserProfile = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error fetching user profile:', error);
+    console.error('❌ [DEBUG] Error fetching user profile:', error);
+    console.error('❌ [DEBUG] Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: "Server error",
@@ -352,9 +377,19 @@ export const updateUserProfile = async (req, res) => {
 // Update profile picture controller
 export const updateProfilePictureController = async (req, res) => {
   try {
+    console.log('🔍 [DEBUG] updateProfilePictureController called');
     const userId = req.user.id || req.user._id;
+    console.log('🔍 [DEBUG] User ID:', userId);
+    console.log('🔍 [DEBUG] File received:', !!req.file);
+    console.log('🔍 [DEBUG] File details:', req.file ? {
+      name: req.file.name,
+      mimetype: req.file.mimetype,
+      size: req.file.size,
+      tempFilePath: req.file.tempFilePath
+    } : 'No file');
 
     if (!req.file) {
+      console.error('❌ [DEBUG] No image file provided');
       return res.status(400).json({
         success: false,
         message: "No image file provided"
@@ -362,13 +397,17 @@ export const updateProfilePictureController = async (req, res) => {
     }
 
     // Upload image to Supabase Storage
+    console.log('🔍 [DEBUG] Attempting to upload to Supabase...');
     const uploadResult = await supabaseStorage.uploadFromTempFile(
       req.file,
-      'mcan-users', // bucket name
+      'mcan-users', // Now using the properly configured mcan-users bucket
       'profile-pictures' // folder
     );
 
+    console.log('🔍 [DEBUG] Upload result:', uploadResult);
+
     if (!uploadResult.success) {
+      console.error('❌ [DEBUG] Upload failed:', uploadResult.error);
       return res.status(400).json({
         success: false,
         message: "Failed to upload image",
@@ -376,6 +415,7 @@ export const updateProfilePictureController = async (req, res) => {
       });
     }
 
+    console.log('✅ [DEBUG] Upload successful, updating user record...');
     // Update user's profile image
     const updatedUser = await User.findByIdAndUpdate(
       userId,
@@ -387,12 +427,14 @@ export const updateProfilePictureController = async (req, res) => {
     ).select('-password');
 
     if (!updatedUser) {
+      console.error('❌ [DEBUG] User not found for update:', userId);
       return res.status(404).json({
         success: false,
         message: "User not found"
       });
     }
 
+    console.log('✅ [DEBUG] Profile picture updated successfully');
     res.status(200).json({
       success: true,
       message: "Profile picture updated successfully",
@@ -404,7 +446,8 @@ export const updateProfilePictureController = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error updating profile picture:', error);
+    console.error('❌ [DEBUG] Error updating profile picture:', error);
+    console.error('❌ [DEBUG] Error stack:', error.stack);
     res.status(500).json({
       success: false,
       message: "Server error",

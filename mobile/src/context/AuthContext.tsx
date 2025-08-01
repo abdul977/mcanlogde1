@@ -19,6 +19,7 @@ interface AuthContextType extends AuthState {
   register: (userData: RegisterForm) => Promise<void>;
   logout: () => Promise<void>;
   updateProfile: (userData: Partial<User>) => Promise<void>;
+  refreshProfile: () => Promise<void>;
   clearError: () => void;
   error: string | null;
 }
