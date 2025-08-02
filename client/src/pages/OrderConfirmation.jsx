@@ -242,10 +242,10 @@ const OrderConfirmation = () => {
             </Link>
             <span className="hidden sm:inline text-gray-300">|</span>
             <a
-              href="mailto:support@mcanfct.org"
+              href="mailto:support@mcan.ng"
               className="text-blue-600 hover:text-blue-800 transition-colors"
             >
-              support@mcanfct.org
+              support@mcan.ng
             </a>
             <span className="hidden sm:inline text-gray-300">|</span>
             <a

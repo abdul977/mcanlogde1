@@ -78,7 +78,7 @@ const Navbar = () => {
                 <span className="hidden sm:inline">MUSLIM CORPERS' ASSOCIATION OF NIGERIA</span>
                 <span className="sm:hidden">MCAN</span>
               </h1>
-              <p className="text-xs sm:text-sm opacity-90">FCT CHAPTER</p>
+              <p className="text-xs sm:text-sm opacity-90">NIGERIA</p>
             </div>
           </div>
 

@@ -36,7 +36,7 @@ const Banner = () => {
         <div className="flex flex-col sm:flex-row items-center justify-center mb-6">
           <FaMosque className="text-3xl sm:text-4xl mb-2 sm:mb-0 sm:mr-3 text-mcan-light" />
           <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-center">
-            Welcome to MCAN FCT
+            Welcome to MCAN
           </h1>
         </div>
 

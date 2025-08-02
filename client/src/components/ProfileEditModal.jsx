@@ -191,7 +191,7 @@ const ProfileEditModal = ({ isOpen, onClose, userProfile, onProfileUpdate }) => 
                 name="callUpNumber"
                 value={formData.callUpNumber}
                 onChange={handleInputChange}
-                placeholder="e.g., FCT/24A/1234"
+                placeholder="e.g., NG/24A/1234"
                 className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-mcan-primary"
               />
             </div>

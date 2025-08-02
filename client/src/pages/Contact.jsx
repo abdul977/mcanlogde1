@@ -33,20 +33,20 @@ const Contact = () => {
     {
       icon: <FaEnvelope className="text-2xl text-mcan-primary" />,
       title: "Email",
-      details: ["fct@mcan.ng", "info@mcan.ng"],
-      action: "mailto:fct@mcan.ng",
+      details: ["info@mcan.ng", "contact@mcan.ng"],
+      action: "mailto:info@mcan.ng",
     },
     {
       icon: <FaWhatsapp className="text-2xl text-mcan-primary" />,
       title: "WhatsApp",
-      details: ["MCAN FCT Help Desk", "+234 706 555 1234"],
+      details: ["MCAN Help Desk", "+234 706 555 1234"],
       action: "https://wa.me/2347065551234",
     },
     {
       icon: <FaMapMarkerAlt className="text-2xl text-mcan-primary" />,
       title: "Location",
-      details: ["MCAN FCT Secretariat", "Federal Capital Territory, Abuja"],
-      action: "https://maps.google.com/?q=MCAN+FCT+Secretariat+Abuja",
+      details: ["MCAN Secretariat", "Federal Capital Territory, Abuja"],
+      action: "https://maps.google.com/?q=MCAN+Secretariat+Abuja",
     },
   ];
 

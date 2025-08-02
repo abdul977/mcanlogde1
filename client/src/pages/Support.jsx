@@ -137,11 +137,11 @@ const Support = () => {
             <div className="space-y-4">
               <div className="flex justify-between p-4 bg-gray-50 rounded">
                 <span className="font-semibold">Bank Name:</span>
-                <span>MCAN FCT Bank</span>
+                <span>MCAN Bank</span>
               </div>
               <div className="flex justify-between p-4 bg-gray-50 rounded">
                 <span className="font-semibold">Account Name:</span>
-                <span>MCAN FCT Chapter</span>
+                <span>MCAN Chapter</span>
               </div>
               <div className="flex justify-between p-4 bg-gray-50 rounded">
                 <span className="font-semibold">Account Number:</span>

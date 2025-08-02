@@ -33,7 +33,7 @@ const About = () => {
     {
       name: "Ustadh Ahmad Ibrahim",
       position: "State Coordinator",
-      description: "Leading MCAN FCT activities and strategic direction",
+      description: "Leading MCAN activities and strategic direction",
     },
     {
       name: "Hajia Aisha Yusuf",
@@ -65,9 +65,9 @@ const About = () => {
               e.target.src = FALLBACK_LOGO;
             }}
           />
-          <h1 className="text-4xl font-bold text-mcan-primary mb-4">About MCAN FCT</h1>
+          <h1 className="text-4xl font-bold text-mcan-primary mb-4">About MCAN</h1>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Muslim Corpers' Association of Nigeria (MCAN) FCT Chapter is dedicated to serving
+            Muslim Corpers' Association of Nigeria (MCAN) is dedicated to serving
             and supporting Muslim youth corps members throughout their service year.
           </p>
         </div>

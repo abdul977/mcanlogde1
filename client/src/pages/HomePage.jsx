@@ -69,7 +69,7 @@ const HomePage = () => {
       <div className="bg-white py-16">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold text-mcan-primary mb-4">
-            Join MCAN FCT Chapter
+            Join MCAN
           </h2>
           <p className="text-gray-600 mb-8 max-w-2xl mx-auto">
             Be part of a thriving Muslim community during your NYSC year. Connect with fellow corps members, 

@@ -70,7 +70,6 @@ const EditProduct = () => {
   // Brand options
   const brandOptions = [
     { value: "MCAN", label: "MCAN" },
-    { value: "MCAN FCT", label: "MCAN FCT" },
     { value: "MCAN Store", label: "MCAN Store" }
   ];
 

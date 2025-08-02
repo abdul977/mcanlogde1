@@ -28,7 +28,7 @@ const Footer = () => {
               MUSLIM CORPERS' ASSOCIATION OF NIGERIA
             </h2>
             <p className="text-gray-600 mb-2 sm:mb-3 md:mb-4 font-medium text-sm sm:text-base">
-              FCT CHAPTER
+              NIGERIA
             </p>
             <p className="text-gray-600 italic text-xs sm:text-sm leading-relaxed max-w-xs mx-auto sm:mx-0">
               "Say verily, my prayer, my sacrifice, my living, and my dying are for Allah, the lord of the worlds" (Q16:162)
@@ -120,18 +120,16 @@ const Footer = () => {
               </li>
               <li className="flex items-center justify-center sm:justify-start">
                 <FaEnvelope className="mr-2 text-mcan-secondary flex-shrink-0 text-xs sm:text-sm" />
-                <a href="mailto:fct@mcan.ng" className="text-gray-600 hover:text-mcan-primary transition text-xs sm:text-sm md:text-base">
-                  fct@mcan.ng
+                <a href="mailto:info@mcan.ng" className="text-gray-600 hover:text-mcan-primary transition text-xs sm:text-sm md:text-base">
+                  info@mcan.ng
                 </a>
               </li>
               <li className="flex items-start justify-center sm:justify-start">
                 <FaMapMarkerAlt className="mr-2 mt-1 text-mcan-secondary flex-shrink-0 text-xs sm:text-sm" />
                 <span className="text-gray-600 text-xs sm:text-sm md:text-base leading-relaxed text-center sm:text-left">
-                  MCAN FCT Secretariat,
+                  MCAN Secretariat,
                   <br />
-                  Federal Capital Territory,
-                  <br />
-                  Abuja, Nigeria
+                  Nigeria
                 </span>
               </li>
             </ul>
@@ -143,7 +141,7 @@ const Footer = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
             <div className="text-center sm:text-left">
               <p className="text-gray-600 text-xs sm:text-sm">
-                © {new Date().getFullYear()} MCAN FCT Chapter. All rights reserved.
+                © {new Date().getFullYear()} MCAN. All rights reserved.
               </p>
             </div>
             <div className="text-center sm:text-right">

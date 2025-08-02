@@ -43,7 +43,7 @@ const Navbar = ({ onItemClick }) => {
     <div className="bg-white w-64 h-full min-h-screen border-r border-gray-200 flex flex-col shadow-lg">
       {/* Header */}
       <div className="flex-shrink-0 p-4 border-b border-gray-200 bg-gradient-to-r from-mcan-primary to-mcan-secondary text-white">
-        <h2 className="text-lg font-semibold text-center">MCAN FCT</h2>
+        <h2 className="text-lg font-semibold text-center">MCAN</h2>
         <p className="text-sm text-center opacity-90">User Portal</p>
       </div>
 

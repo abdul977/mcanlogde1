@@ -1,4 +1,4 @@
-// Prayer times utility for Abuja, Nigeria (FCT)
+// Prayer times utility for Abuja, Nigeria
 // Coordinates: Latitude 9.0579, Longitude 7.4951
 
 export const PRAYER_TIMES = {

@@ -114,7 +114,7 @@ const Register = () => {
           />
           <h2 className="text-2xl font-bold text-white">Join MCAN Lodge</h2>
           <p className="mt-2 text-white/90 text-sm">
-            Muslim Corpers' Association of Nigeria - FCT Chapter
+            Muslim Corpers' Association of Nigeria
           </p>
         </div>
 
