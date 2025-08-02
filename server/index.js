@@ -5,6 +5,8 @@ import cors from "cors";
 import fileUpload from "express-fileupload";
 import bodyParser from "body-parser";
 import { createServer } from "http";
+import fs from "fs";
+import path from "path";
 
 import { connectToDb } from "./src/config/db.js";
 import { connectRedis } from "./src/config/redis.js";
@@ -85,21 +87,73 @@ app.use(cors({
   ].filter(Boolean), // Remove any undefined values
   credentials: true
 }));
-app.use(express.json());
 app.use(morgan("dev"));
+
+// Ensure temp directory exists for file uploads
+const tempDir = './tmp/';
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+  console.log('📁 Created temp directory:', tempDir);
+}
+
+// File upload middleware - MUST come before other body parsers
 app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: './tmp/',
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-  abortOnLimit: true,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+    files: 10 // Maximum number of files
+  },
+  abortOnLimit: false, // Don't abort on limit, let validation handle it
   preserveExtension: true,
   safeFileNames: true,
-  debug: process.env.NODE_ENV === 'development'
+  debug: process.env.NODE_ENV === 'development',
+  createParentPath: true,
+  parseNested: true,
+  // Add timeout and error handling
+  uploadTimeout: 60000, // 60 seconds timeout
+  // Handle multipart parsing errors gracefully
+  defCharset: 'utf8',
+  defParamCharset: 'utf8'
 }));
 
-// Middleware
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+// Body parsing middleware - MUST come after fileUpload
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Global error handler for file upload errors
+app.use((error, req, res, next) => {
+  if (error) {
+    console.error('🚨 Global error handler:', error);
+
+    // Handle express-fileupload specific errors
+    if (error.message && error.message.includes('Unexpected end of form')) {
+      return res.status(400).json({
+        success: false,
+        message: 'Form data parsing error. Please check your file uploads and try again.',
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Form parsing failed'
+      });
+    }
+
+    if (error.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({
+        success: false,
+        message: 'File too large. Please use smaller files.',
+        error: process.env.NODE_ENV === 'development' ? error.message : 'File size limit exceeded'
+      });
+    }
+
+    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({
+        success: false,
+        message: 'Unexpected file field. Please check your form configuration.',
+        error: process.env.NODE_ENV === 'development' ? error.message : 'Unexpected file'
+      });
+    }
+  }
+
+  next(error);
+});
 
 // Serve static files for uploads
 app.use('/uploads', express.static('src/uploads'));

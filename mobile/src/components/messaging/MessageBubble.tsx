@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, Dimensions } from 'react-native';
 import { format, isToday, isYesterday } from 'date-fns';
 import { COLORS, TYPOGRAPHY, SPACING } from '../../constants';
 import { Message } from '../../services/api/messagingService';
@@ -64,6 +64,18 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
 
   const getMessageContent = () => {
     return isCommunityMessage ? (message as CommunityMessage).content : (message as Message).content;
+  };
+
+  const getMessageAttachments = () => {
+    if (isCommunityMessage) {
+      return (message as CommunityMessage).attachments || [];
+    } else {
+      return (message as Message).attachments || [];
+    }
+  };
+
+  const getMessageType = () => {
+    return isCommunityMessage ? (message as CommunityMessage).messageType : (message as Message).messageType;
   };
 
   const getMessageTime = () => {
@@ -134,9 +146,35 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
         )}
 
         {/* Message content */}
-        <Text style={getTextStyle()}>
-          {getMessageContent()}
-        </Text>
+        {getMessageType() === 'image' && getMessageAttachments().length > 0 ? (
+          <View style={styles.imageContainer}>
+            {getMessageAttachments().map((attachment, index) => (
+              <TouchableOpacity
+                key={index}
+                onPress={() => {
+                  // TODO: Open image in full screen
+                  console.log('Open image:', attachment.url);
+                }}
+                style={styles.imageWrapper}
+              >
+                <Image
+                  source={{ uri: attachment.url }}
+                  style={styles.messageImage}
+                  resizeMode="cover"
+                />
+              </TouchableOpacity>
+            ))}
+            {getMessageContent() && getMessageContent().trim() !== '' && (
+              <Text style={getTextStyle()}>
+                {getMessageContent()}
+              </Text>
+            )}
+          </View>
+        ) : (
+          <Text style={getTextStyle()}>
+            {getMessageContent()}
+          </Text>
+        )}
 
         {/* Timestamp */}
         {showTimestamp && (
@@ -308,6 +346,18 @@ const styles = StyleSheet.create({
     fontSize: TYPOGRAPHY.FONT_SIZES.XS,
     color: COLORS.GRAY_600,
     fontStyle: 'italic',
+  },
+  imageContainer: {
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  imageWrapper: {
+    marginBottom: SPACING.XS,
+  },
+  messageImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 12,
   },
 });
 

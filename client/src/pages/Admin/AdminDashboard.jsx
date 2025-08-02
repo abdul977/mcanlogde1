@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaPlus, FaEye, FaSync, FaBars, FaTimes, FaTachometerAlt, FaChartBar, FaShoppingBag, FaShoppingCart } from "react-icons/fa";
+import { FaHandsHelping, FaChalkboardTeacher, FaQuran, FaBook, FaUsers, FaDonate, FaPlus, FaEye, FaSync, FaBars, FaTimes, FaTachometerAlt, FaChartBar, FaShoppingBag, FaShoppingCart, FaComments } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
 import Navbar from "./Navbar";
@@ -15,6 +15,7 @@ const AdminDashboard = () => {
     quranClasses: 0,
     resources: 0,
     community: 0,
+    chatCommunities: 0,
     donations: 0,
     products: 0,
     orders: 0
@@ -32,6 +33,7 @@ const AdminDashboard = () => {
         { key: 'quranClasses', url: '/api/quran-classes/admin/get-all-classes' },
         { key: 'resources', url: '/api/resources/admin/get-all-resources' },
         { key: 'community', url: '/api/community/admin/get-all-community' },
+        { key: 'chatCommunities', url: '/api/chat-communities/admin/all' },
         { key: 'donations', url: '/api/donations/admin/get-all-donations' },
         { key: 'products', url: '/api/products/admin/stats' },
         { key: 'orders', url: '/api/orders/admin/stats' }
@@ -116,6 +118,15 @@ const AdminDashboard = () => {
       createLink: "/admin/create-community",
       viewLink: "/admin/community",
       description: "Manage community initiatives and testimonials"
+    },
+    {
+      title: "Chat Communities",
+      count: stats.chatCommunities || 0,
+      icon: <FaComments className="text-4xl text-white" />,
+      color: "from-purple-500 to-purple-600",
+      createLink: "/admin/create-chat-community",
+      viewLink: "/admin/chat-communities",
+      description: "Manage chat communities and moderation"
     },
     {
       title: "Donations",

@@ -243,6 +243,7 @@ export interface CommunityMessage {
   deletedAt?: string;
   createdAt: string;
   updatedAt: string;
+  __isOptimistic?: boolean; // Flag for optimistic updates
 }
 
 export interface ModerationLog {

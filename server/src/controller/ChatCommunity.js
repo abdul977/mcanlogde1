@@ -7,6 +7,26 @@ import supabaseStorage from "../services/supabaseStorage.js";
 // Create new community (authenticated users)
 export const createCommunityController = async (req, res) => {
   try {
+    // Debug logging for multipart form data
+    console.log('🐛 DEBUG: Chat Community Creation Request');
+    console.log('👤 User Role:', req.user?.role);
+    console.log('🔐 User ID:', req.user?._id);
+    console.log('📋 Request body:', req.body);
+    console.log('📁 Request files:', req.files ? Object.keys(req.files) : 'No files');
+    console.log('🔍 Request headers:', {
+      'content-type': req.headers['content-type'],
+      'content-length': req.headers['content-length']
+    });
+
+    // Validate that we have the required data
+    if (!req.body || Object.keys(req.body).length === 0) {
+      console.error('❌ Empty request body received');
+      return res.status(400).json({
+        success: false,
+        message: "No form data received. Please ensure your form is properly configured."
+      });
+    }
+
     const {
       name,
       description,
@@ -110,7 +130,7 @@ export const createCommunityController = async (req, res) => {
       avatar: avatarUrl,
       banner: bannerUrl,
       tags: parsedTags,
-      status: "pending", // All user-created communities start as pending
+      status: req.user?.role === 'admin' ? "approved" : "pending", // Admin-created communities are auto-approved
       memberCount: 1 // Creator is automatically a member
     });
 
@@ -155,9 +175,13 @@ export const createCommunityController = async (req, res) => {
       }
     });
 
+    const statusMessage = req.user?.role === 'admin'
+      ? "Community created successfully and is now live"
+      : "Community created successfully and is pending approval";
+
     res.status(201).json({
       success: true,
-      message: "Community created successfully and is pending approval",
+      message: statusMessage,
       community: {
         _id: newCommunity._id,
         name: newCommunity.name,
@@ -172,11 +196,41 @@ export const createCommunityController = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Error creating community:", error);
-    res.status(500).json({
+    console.error("❌ Error creating community:", error);
+    console.error("📋 Request body at error:", req.body);
+    console.error("📁 Request files at error:", req.files);
+    console.error("🔍 Error stack:", error.stack);
+
+    // Provide more specific error messages
+    let errorMessage = "Error creating community";
+    let statusCode = 500;
+
+    if (error.message.includes('multipart') || error.message.includes('Unexpected end of form')) {
+      errorMessage = "Error processing form data. Please check your file uploads and try again.";
+      statusCode = 400;
+    } else if (error.message.includes('validation') || error.name === 'ValidationError') {
+      errorMessage = "Validation error. Please check your input data.";
+      statusCode = 400;
+    } else if (error.message.includes('duplicate') || error.code === 11000) {
+      errorMessage = "A community with this name already exists.";
+      statusCode = 409;
+    } else if (error.message.includes('timeout')) {
+      errorMessage = "Request timeout. Please try again with smaller files.";
+      statusCode = 408;
+    } else if (error.message.includes('File too large') || error.message.includes('LIMIT_FILE_SIZE')) {
+      errorMessage = "File size too large. Please use smaller files.";
+      statusCode = 413;
+    }
+
+    res.status(statusCode).json({
       success: false,
-      message: "Error creating community",
-      error: error.message
+      message: errorMessage,
+      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? {
+        stack: error.stack,
+        body: req.body,
+        files: req.files ? Object.keys(req.files) : null
+      } : undefined
     });
   }
 };

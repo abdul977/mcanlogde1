@@ -147,6 +147,44 @@ class SocketService {
   }
 
   /**
+   * Join a community room
+   */
+  joinCommunity(communityId: string): void {
+    if (this.socket && this.isConnected) {
+      this.socket.emit('join_community', { communityId });
+      console.log(`📥 Joined community: ${communityId}`);
+    }
+  }
+
+  /**
+   * Leave a community room
+   */
+  leaveCommunity(communityId: string): void {
+    if (this.socket && this.isConnected) {
+      this.socket.emit('leave_community', { communityId });
+      console.log(`📤 Left community: ${communityId}`);
+    }
+  }
+
+  /**
+   * Start typing in community
+   */
+  startCommunityTyping(communityId: string): void {
+    if (this.socket && this.isConnected) {
+      this.socket.emit('community_typing_start', { communityId });
+    }
+  }
+
+  /**
+   * Stop typing in community
+   */
+  stopCommunityTyping(communityId: string): void {
+    if (this.socket && this.isConnected) {
+      this.socket.emit('community_typing_stop', { communityId });
+    }
+  }
+
+  /**
    * Listen for new messages
    */
   onNewMessage(callback: (message: Message) => void): () => void {

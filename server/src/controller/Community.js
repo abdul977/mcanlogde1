@@ -218,6 +218,10 @@ export const getCommunityItemByIdController = async (req, res) => {
 // Create community item (admin only)
 export const createCommunityController = async (req, res) => {
   try {
+    console.log('🐛 DEBUG: Admin Community Creation Request');
+    console.log('📝 Request Body:', JSON.stringify(req.body, null, 2));
+    console.log('📁 Request Files:', req.files ? Object.keys(req.files) : 'No files');
+    
     const {
       title,
       description,
@@ -235,8 +239,19 @@ export const createCommunityController = async (req, res) => {
       visibility = "public"
     } = req.body;
 
+    console.log('🔍 Extracted Fields:');
+    console.log('  - title:', title);
+    console.log('  - description:', description);
+    console.log('  - type:', type);
+    console.log('  - category:', category);
+
     // Validate required fields
     if (!title || !description || !type) {
+      console.log('❌ Validation Failed: Missing required fields');
+      console.log('  - title present:', !!title);
+      console.log('  - description present:', !!description);
+      console.log('  - type present:', !!type);
+      
       return res.status(400).json({
         success: false,
         message: "Title, description, and type are required"

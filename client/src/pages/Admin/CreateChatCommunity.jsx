@@ -120,7 +120,7 @@ const CreateChatCommunity = () => {
       }
 
       const { data } = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/chat-communities/create`,
+        `${import.meta.env.VITE_BASE_URL}/api/chat-communities/admin/create`,
         submitData,
         {
           headers: {

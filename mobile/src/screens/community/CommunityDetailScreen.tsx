@@ -207,7 +207,12 @@ const CommunityDetailScreen: React.FC = () => {
       }
 
       console.log('✅ Adding new community message to state');
-      const newMessages = [...prevMessages, data.message];
+
+      // Remove any optimistic messages that match this real message
+      const filteredMessages = prevMessages.filter(msg => !msg.__isOptimistic);
+      const newMessages = [...filteredMessages, data.message].sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
 
       // Auto-scroll to bottom for new messages
       setTimeout(() => {
@@ -267,21 +272,105 @@ const CommunityDetailScreen: React.FC = () => {
 
     try {
       setSending(true);
-      
+
       const messageData = {
         content: content.trim(),
         messageType: attachments && attachments.length > 0 ? 'image' : 'text',
         replyTo: replyToMessage?._id || null,
       };
 
+      // Create optimistic message for immediate display (text messages only)
+      if (!attachments || attachments.length === 0) {
+        const optimisticMessage: CommunityMessage = {
+          _id: `temp_${Date.now()}`, // Temporary ID
+          content: content.trim(),
+          sender: {
+            _id: user?._id || '',
+            name: user?.name || '',
+            email: user?.email || '',
+            profilePicture: user?.profilePicture || null,
+          },
+          community: communityId,
+          createdAt: new Date().toISOString(),
+          messageType: 'text',
+          attachments: [],
+          replyTo: replyToMessage || null,
+          isPinned: false,
+          reactions: [],
+          __isOptimistic: true, // Flag to identify optimistic messages
+        } as any;
+
+        // Add optimistic message immediately
+        setMessages(prevMessages => {
+          const updatedMessages = [...prevMessages, optimisticMessage].sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+          return updatedMessages;
+        });
+
+        // Auto-scroll to bottom immediately
+        setTimeout(() => {
+          flatListRef.current?.scrollToEnd({ animated: true });
+        }, 50);
+      }
+
       await communityService.sendMessage(communityId, messageData, attachments);
-      
+
       // Clear reply
       setReplyToMessage(null);
-      
+
     } catch (error) {
       console.error('Error sending message:', error);
+
+      // Remove optimistic message on error
+      setMessages(prevMessages =>
+        prevMessages.filter(msg => !msg.__isOptimistic)
+      );
+
       Alert.alert('Error', 'Failed to send message');
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const handleSendImage = async (imageUri: string, caption?: string) => {
+    try {
+      setSending(true);
+
+      // Create FormData for image upload
+      const formData = new FormData();
+
+      // Add the image file
+      const filename = imageUri.split('/').pop() || 'image.jpg';
+      const match = /\.(\w+)$/.exec(filename);
+      const type = match ? `image/${match[1]}` : 'image/jpeg';
+
+      // React Native FormData format for file uploads
+      const imageFile = {
+        uri: imageUri,
+        name: filename,
+        type: type,
+      } as any;
+
+      const messageData = {
+        content: caption || '',
+        messageType: 'image' as const,
+        replyTo: replyToMessage?._id || null,
+      };
+
+      await communityService.sendMessage(communityId, messageData, [imageFile]);
+
+      // Clear reply
+      setReplyToMessage(null);
+
+      // Auto-scroll to bottom
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+
+    } catch (error) {
+      console.error('Error sending image:', error);
+      Alert.alert('Error', 'Failed to send image. Please try again.');
     } finally {
       setSending(false);
     }
@@ -369,37 +458,36 @@ const CommunityDetailScreen: React.FC = () => {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 140 : 20}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <Header
-          title={communityName}
-          showBackButton
-          backgroundColor={COLORS.PRIMARY}
-          titleColor={COLORS.WHITE}
-          rightComponent={
-            <TouchableOpacity onPress={handleCommunitySettings}>
-              <Ionicons name="settings-outline" size={24} color={COLORS.WHITE} />
-            </TouchableOpacity>
-          }
-        />
+    <SafeAreaView style={styles.safeArea}>
+      <Header
+        title={communityName}
+        showBackButton
+        backgroundColor={COLORS.PRIMARY}
+        titleColor={COLORS.WHITE}
+        rightComponent={
+          <TouchableOpacity onPress={handleCommunitySettings}>
+            <Ionicons name="settings-outline" size={24} color={COLORS.WHITE} />
+          </TouchableOpacity>
+        }
+      />
 
-        {loading ? (
-          <View style={styles.loadingContainer}>
-            <LoadingSpinner />
-          </View>
-        ) : (
-          <View style={styles.chatContainer}>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <LoadingSpinner />
+        </View>
+      ) : (
+        <KeyboardAvoidingView
+          style={styles.chatContainer}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 140 : 20}
+        >
           <FlatList
             ref={flatListRef}
             data={messages}
             renderItem={renderMessage}
             keyExtractor={(item) => item._id}
             style={styles.messagesList}
-            contentContainerStyle={[styles.messagesContainer, { paddingBottom: totalBottomSpace + 80 }]}
+            contentContainerStyle={[styles.messagesContainer, { paddingBottom: totalBottomSpace + 100 }]}
             onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: false })}
             onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })}
             showsVerticalScrollIndicator={false}
@@ -408,15 +496,18 @@ const CommunityDetailScreen: React.FC = () => {
             updateCellsBatchingPeriod={50}
             initialNumToRender={20}
             windowSize={10}
+            ListFooterComponent={() => (
+              <>
+                {/* Typing Indicator */}
+                {typingUsers.length > 0 && (
+                  <TypingIndicator
+                    isVisible={typingUsers.length > 0}
+                    userName={typingUsers.length === 1 ? 'Someone' : `${typingUsers.length} people`}
+                  />
+                )}
+              </>
+            )}
           />
-
-          {/* Typing Indicator */}
-          {typingUsers.length > 0 && (
-            <TypingIndicator
-              isVisible={typingUsers.length > 0}
-              userName={typingUsers.length === 1 ? 'Someone' : `${typingUsers.length} people`}
-            />
-          )}
 
           {/* Reply Preview */}
           {replyToMessage && (
@@ -439,9 +530,10 @@ const CommunityDetailScreen: React.FC = () => {
           )}
 
           {/* Message Input */}
-          <View style={styles.inputWrapper}>
+          <View style={[styles.inputWrapper, { bottom: totalBottomSpace }]}>
             <MessageInput
               onSendMessage={handleSendMessage}
+              onSendImage={handleSendImage}
               onTypingStart={() => handleTyping(true)}
               onTypingStop={() => handleTyping(false)}
               sending={sending}
@@ -449,10 +541,9 @@ const CommunityDetailScreen: React.FC = () => {
               placeholder={`Message ${communityName}...`}
             />
           </View>
-          </View>
-        )}
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      )}
+    </SafeAreaView>
   );
 };
 
@@ -490,7 +581,6 @@ const styles = StyleSheet.create({
     paddingBottom: SPACING.MD,
     minHeight: 60,
     position: 'absolute',
-    bottom: 0,
     left: 0,
     right: 0,
     zIndex: 1000,

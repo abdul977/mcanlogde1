@@ -222,7 +222,7 @@ const Communities = () => {
                 <div className="p-6">
                   {/* Community Avatar and Info */}
                   <div className="flex items-start gap-4 mb-4">
-                    <div className="w-16 h-16 bg-mcan-primary rounded-full flex items-center justify-center text-white font-bold text-xl">
+                    <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-white font-bold text-xl">
                       {community.avatar ? (
                         <img
                           src={community.avatar}

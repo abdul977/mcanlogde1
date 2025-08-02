@@ -217,7 +217,15 @@ const CreateCommunity = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log('🐛 DEBUG: Admin Create Community Form Submission');
+    console.log('📝 Form Data:', JSON.stringify(formData, null, 2));
+    console.log('📄 Content:', JSON.stringify(content, null, 2));
+    console.log('👥 Participants:', JSON.stringify(participants, null, 2));
+    
     if (!formData.title || !formData.description) {
+      console.log('❌ Form Validation Failed:');
+      console.log('  - title:', formData.title);
+      console.log('  - description:', formData.description);
       toast.error("Please fill in all required fields");
       return;
     }
@@ -227,8 +235,11 @@ const CreateCommunity = () => {
     try {
       const submitData = new FormData();
       
+      console.log('🔧 Building FormData...');
+      
       // Add form data
       Object.keys(formData).forEach(key => {
+        console.log(`  Adding ${key}:`, formData[key]);
         submitData.append(key, formData[key]);
       });
       
@@ -309,10 +320,82 @@ const CreateCommunity = () => {
                 name="title"
                 value={formData.title}
                 onChange={handleInputChange}
-                placeholder="Community title"
+                placeholder="Enter community title"
                 required
               />
             </FormField>
+
+            <FormField label="Description *" required>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                placeholder="Describe the community initiative, project, or story"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none"
+                rows={4}
+                maxLength={1000}
+                required
+              />
+              <div className="text-xs text-gray-500 mt-1">
+                {formData.description.length}/1000 characters
+              </div>
+            </FormField>
+
+            <FormField label="Type *" required>
+              <ResponsiveSelect
+                name="type"
+                value={formData.type}
+                onChange={handleInputChange}
+                options={types}
+                required
+              />
+            </FormField>
+
+            <FormField label="Category">
+              <ResponsiveSelect
+                name="category"
+                value={formData.category}
+                onChange={handleInputChange}
+                options={categories}
+              />
+            </FormField>
+
+            <FormField label="Priority">
+              <ResponsiveSelect
+                name="priority"
+                value={formData.priority}
+                onChange={handleInputChange}
+                options={priorities}
+              />
+            </FormField>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormField label="Status">
+                <ResponsiveSelect
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                  options={[
+                    { value: "draft", label: "Draft" },
+                    { value: "published", label: "Published" },
+                    { value: "archived", label: "Archived" }
+                  ]}
+                />
+              </FormField>
+
+              <FormField>
+                <label className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    name="featured"
+                    checked={formData.featured}
+                    onChange={handleInputChange}
+                    className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Featured Community</span>
+                </label>
+              </FormField>
+            </div>
           </FormSection>
         </ResponsiveForm>
       </div>
