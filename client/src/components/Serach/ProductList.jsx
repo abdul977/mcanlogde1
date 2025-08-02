@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaMapMarkerAlt, FaBed, FaUsers, FaMosque, FaEye } from "react-icons/fa";
+import BookingStatsDisplay from "../BookingStatsDisplay";
 
 const ProductList = ({ products }) => {
   return (
@@ -36,11 +37,28 @@ const ProductList = ({ products }) => {
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute top-3 right-3">
-                  <span className={`px-3 py-1 rounded-full text-xs font-medium text-white ${
-                    post.isAvailable ? 'bg-green-500' : 'bg-red-500'
-                  }`}>
-                    {post.isAvailable ? 'Available' : 'Booked'}
-                  </span>
+                  {/* Admin status takes priority */}
+                  {post.adminStatus === 'coming_soon' ? (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium text-white bg-blue-500">
+                      Coming Soon
+                    </span>
+                  ) : post.adminStatus === 'maintenance' ? (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium text-white bg-yellow-500">
+                      Maintenance
+                    </span>
+                  ) : post.adminStatus === 'not_available' ? (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium text-white bg-red-500">
+                      Not Available
+                    </span>
+                  ) : (
+                    /* Show booking statistics for active accommodations */
+                    <BookingStatsDisplay
+                      accommodation={post}
+                      showDetails={false}
+                      size="sm"
+                      className="bg-white/90 backdrop-blur-sm rounded-full shadow-sm"
+                    />
+                  )}
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
               </div>

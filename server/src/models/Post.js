@@ -37,6 +37,36 @@ const postSchema = new Schema({
     required: true,
     default: true,
   },
+  // Configurable booking limits
+  maxBookings: {
+    type: Number,
+    default: 20,
+    min: [1, "Maximum bookings must be at least 1"],
+    max: [100, "Maximum bookings cannot exceed 100"],
+    required: true
+  },
+  // Booking statistics for performance optimization
+  bookingStats: {
+    approvedCount: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    pendingCount: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    totalCount: {
+      type: Number,
+      default: 0,
+      min: 0
+    },
+    lastUpdated: {
+      type: Date,
+      default: Date.now
+    }
+  },
   // Admin-controlled status management
   adminStatus: {
     type: String,
@@ -142,6 +172,21 @@ postSchema.pre('save', function(next) {
   this.price = Math.round(this.price);
   next();
 });
+
+// Pre-save middleware to update availability based on booking statistics
+postSchema.pre('save', function(next) {
+  // Update isAvailable based on approved bookings vs max bookings
+  if (this.bookingStats && typeof this.bookingStats.approvedCount === 'number') {
+    this.isAvailable = this.bookingStats.approvedCount < this.maxBookings;
+  }
+  next();
+});
+
+// Indexes for booking statistics and limits
+postSchema.index({ 'bookingStats.approvedCount': 1 });
+postSchema.index({ 'bookingStats.totalCount': 1 });
+postSchema.index({ maxBookings: 1 });
+postSchema.index({ isAvailable: 1, maxBookings: 1 });
 
 const Post = model("Post", postSchema, "posts");
 export default Post;

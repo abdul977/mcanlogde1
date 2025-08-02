@@ -7,7 +7,9 @@ import {
   getBookingController,
   cancelBookingController,
   syncAccommodationAvailability,
-  getOverduePayments
+  getOverduePayments,
+  getAccommodationBookingStats,
+  getBookingOverview
 } from "../controller/Booking.js";
 import { requireSignIn, isAdmin } from "../middlewares/Auth.js";
 
@@ -49,5 +51,11 @@ router.post("/admin/sync-availability", requireSignIn, isAdmin, async (req, res)
     });
   }
 });
+
+// Get booking statistics for a specific accommodation
+router.get("/stats/:accommodationId", requireSignIn, isAdmin, getAccommodationBookingStats);
+
+// Get booking overview for all accommodations (admin only)
+router.get("/admin/overview", requireSignIn, isAdmin, getBookingOverview);
 
 export default router;

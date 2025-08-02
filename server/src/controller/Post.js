@@ -2,6 +2,7 @@ import Post from "../models/Post.js";
 import supabaseStorage from "../services/supabaseStorage.js";
 import slug from "slugify";
 import mongoose from "mongoose";
+import { updateBookingStats } from "../utils/bookingStatsUtils.js";
 
 // Get accommodations by gender
 export const getAccommodationsByGender = async (req, res) => {
@@ -48,9 +49,10 @@ export const getAllPostController = async (req, res) => {
       query.adminStatus = { $in: ['active', 'coming_soon'] };
     }
 
-    // Get all posts with populated category
+    // Get all posts with populated category and booking statistics
     const posts = await Post.find(query)
       .populate('category')
+      .select('title accommodationType location description category images slug isAvailable maxBookings bookingStats adminStatus adminNotes isVisible guest price mosqueProximity prayerFacilities genderRestriction nearbyFacilities nearArea facilities rules landlordContact createdAt updatedAt')
       .sort({ createdAt: -1 }); // Sort by newest first
 
     // Set cache control headers
@@ -640,6 +642,329 @@ export const searchAccommodationsController = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error searching accommodations",
+      error: error.message
+    });
+  }
+};
+
+// Update booking limits for an accommodation (admin only)
+export const updateBookingLimitsController = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { maxBookings } = req.body;
+
+    // Validate maxBookings
+    if (!maxBookings || typeof maxBookings !== 'number') {
+      return res.status(400).json({
+        success: false,
+        message: "maxBookings is required and must be a number"
+      });
+    }
+
+    if (maxBookings < 1 || maxBookings > 100) {
+      return res.status(400).json({
+        success: false,
+        message: "maxBookings must be between 1 and 100"
+      });
+    }
+
+    // Find the accommodation
+    const accommodation = await Post.findById(postId);
+    if (!accommodation) {
+      return res.status(404).json({
+        success: false,
+        message: "Accommodation not found"
+      });
+    }
+
+    const oldMaxBookings = accommodation.maxBookings;
+
+    // Update the booking limit
+    accommodation.maxBookings = maxBookings;
+    await accommodation.save();
+
+    // Refresh booking statistics to ensure availability is correctly calculated
+    const updatedStats = await updateBookingStats(postId);
+
+    console.log(`Updated booking limits for accommodation ${postId}:`, {
+      title: accommodation.title,
+      oldMaxBookings,
+      newMaxBookings: maxBookings,
+      approvedCount: updatedStats.approvedCount,
+      isAvailable: updatedStats.isAvailable,
+      availableSlots: maxBookings - updatedStats.approvedCount
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Booking limits updated successfully",
+      accommodation: {
+        id: accommodation._id,
+        title: accommodation.title,
+        maxBookings: accommodation.maxBookings,
+        bookingStats: updatedStats,
+        availableSlots: maxBookings - updatedStats.approvedCount
+      }
+    });
+
+  } catch (error) {
+    console.error("Error updating booking limits:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating booking limits",
+      error: error.message
+    });
+  }
+};
+
+// Get booking overview for all accommodations (admin only)
+export const getAdminBookingOverview = async (req, res) => {
+  try {
+    const {
+      page = 1,
+      limit = 20,
+      sortBy = 'occupancyRate',
+      sortOrder = 'desc',
+      filter = 'all' // all, available, full, critical
+    } = req.query;
+
+    const skip = (page - 1) * limit;
+
+    // Build base query
+    let query = {};
+    
+    // Apply filters
+    switch (filter) {
+      case 'available':
+        // Accommodations with available slots
+        query = { $expr: { $lt: ['$bookingStats.approvedCount', '$maxBookings'] } };
+        break;
+      case 'full':
+        // Fully booked accommodations
+        query = { $expr: { $gte: ['$bookingStats.approvedCount', '$maxBookings'] } };
+        break;
+      case 'critical':
+        // Accommodations with less than 20% availability
+        query = { $expr: { $gte: ['$bookingStats.approvedCount', { $multiply: ['$maxBookings', 0.8] }] } };
+        break;
+      default:
+        // All accommodations
+        break;
+    }
+
+    // Get accommodations with booking statistics
+    const accommodations = await Post.find(query)
+      .select('title location maxBookings bookingStats isAvailable createdAt adminStatus')
+      .sort({ createdAt: -1 });
+
+    // Calculate detailed statistics for each accommodation
+    const accommodationStats = accommodations.map(accommodation => {
+      const approvedCount = accommodation.bookingStats?.approvedCount || 0;
+      const pendingCount = accommodation.bookingStats?.pendingCount || 0;
+      const totalCount = accommodation.bookingStats?.totalCount || 0;
+      const availableSlots = accommodation.maxBookings - approvedCount;
+      const occupancyRate = ((approvedCount / accommodation.maxBookings) * 100);
+
+      // Determine status
+      let status = 'available';
+      if (approvedCount >= accommodation.maxBookings) {
+        status = 'full';
+      } else if (occupancyRate >= 80) {
+        status = 'critical';
+      } else if (occupancyRate >= 60) {
+        status = 'high';
+      }
+
+      return {
+        accommodationId: accommodation._id,
+        title: accommodation.title,
+        location: accommodation.location,
+        maxBookings: accommodation.maxBookings,
+        bookingCounts: {
+          approved: approvedCount,
+          pending: pendingCount,
+          total: totalCount
+        },
+        availability: {
+          availableSlots,
+          occupancyRate: parseFloat(occupancyRate.toFixed(2)),
+          status,
+          isAvailable: accommodation.isAvailable,
+          canAcceptBookings: availableSlots > 0
+        },
+        adminStatus: accommodation.adminStatus,
+        lastUpdated: accommodation.bookingStats?.lastUpdated || accommodation.createdAt
+      };
+    });
+
+    // Sort the results
+    accommodationStats.sort((a, b) => {
+      let aValue, bValue;
+      
+      if (sortBy === 'occupancyRate') {
+        aValue = a.availability.occupancyRate;
+        bValue = b.availability.occupancyRate;
+      } else if (sortBy === 'availableSlots') {
+        aValue = a.availability.availableSlots;
+        bValue = b.availability.availableSlots;
+      } else if (sortBy === 'approved') {
+        aValue = a.bookingCounts.approved;
+        bValue = b.bookingCounts.approved;
+      } else if (sortBy === 'maxBookings') {
+        aValue = a.maxBookings;
+        bValue = b.maxBookings;
+      } else {
+        aValue = a.title;
+        bValue = b.title;
+      }
+      
+      if (sortOrder === 'desc') {
+        return typeof aValue === 'string' ? bValue.localeCompare(aValue) : bValue - aValue;
+      }
+      return typeof aValue === 'string' ? aValue.localeCompare(bValue) : aValue - bValue;
+    });
+
+    // Apply pagination
+    const paginatedStats = accommodationStats.slice(skip, skip + parseInt(limit));
+
+    // Calculate summary statistics
+    const summary = {
+      totalAccommodations: accommodations.length,
+      availableAccommodations: accommodationStats.filter(acc => acc.availability.canAcceptBookings).length,
+      fullyBookedAccommodations: accommodationStats.filter(acc => !acc.availability.canAcceptBookings).length,
+      criticalAccommodations: accommodationStats.filter(acc => acc.availability.status === 'critical').length,
+      totalBookingSlots: accommodationStats.reduce((sum, acc) => sum + acc.maxBookings, 0),
+      totalApprovedBookings: accommodationStats.reduce((sum, acc) => sum + acc.bookingCounts.approved, 0),
+      totalPendingBookings: accommodationStats.reduce((sum, acc) => sum + acc.bookingCounts.pending, 0),
+      averageOccupancyRate: accommodations.length > 0 ? parseFloat(
+        (accommodationStats.reduce((sum, acc) => sum + acc.availability.occupancyRate, 0) / accommodations.length).toFixed(2)
+      ) : 0,
+      statusBreakdown: {
+        available: accommodationStats.filter(acc => acc.availability.status === 'available').length,
+        high: accommodationStats.filter(acc => acc.availability.status === 'high').length,
+        critical: accommodationStats.filter(acc => acc.availability.status === 'critical').length,
+        full: accommodationStats.filter(acc => acc.availability.status === 'full').length
+      }
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "Admin booking overview retrieved successfully",
+      summary,
+      accommodations: paginatedStats,
+      pagination: {
+        current: parseInt(page),
+        total: Math.ceil(accommodations.length / limit),
+        count: paginatedStats.length,
+        totalAccommodations: accommodations.length
+      },
+      filters: {
+        applied: filter,
+        sortBy,
+        sortOrder
+      }
+    });
+
+  } catch (error) {
+    console.error("Error fetching admin booking overview:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching admin booking overview",
+      error: error.message
+    });
+  }
+};
+
+// Bulk update booking limits (admin only)
+export const bulkUpdateBookingLimitsController = async (req, res) => {
+  try {
+    const { updates } = req.body; // Array of { postId, maxBookings }
+
+    if (!Array.isArray(updates) || updates.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Updates array is required and must not be empty"
+      });
+    }
+
+    // Validate all updates
+    for (const update of updates) {
+      if (!update.postId || !update.maxBookings) {
+        return res.status(400).json({
+          success: false,
+          message: "Each update must have postId and maxBookings"
+        });
+      }
+
+      if (update.maxBookings < 1 || update.maxBookings > 100) {
+        return res.status(400).json({
+          success: false,
+          message: `maxBookings must be between 1 and 100 for accommodation ${update.postId}`
+        });
+      }
+    }
+
+    const results = [];
+    let successCount = 0;
+    let errorCount = 0;
+
+    // Process each update
+    for (const update of updates) {
+      try {
+        const accommodation = await Post.findById(update.postId);
+        if (!accommodation) {
+          results.push({
+            postId: update.postId,
+            success: false,
+            error: "Accommodation not found"
+          });
+          errorCount++;
+          continue;
+        }
+
+        const oldMaxBookings = accommodation.maxBookings;
+        accommodation.maxBookings = update.maxBookings;
+        await accommodation.save();
+
+        // Refresh booking statistics
+        const updatedStats = await updateBookingStats(update.postId);
+
+        results.push({
+          postId: update.postId,
+          title: accommodation.title,
+          success: true,
+          oldMaxBookings,
+          newMaxBookings: update.maxBookings,
+          bookingStats: updatedStats
+        });
+        successCount++;
+
+      } catch (error) {
+        results.push({
+          postId: update.postId,
+          success: false,
+          error: error.message
+        });
+        errorCount++;
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      message: `Bulk update completed. ${successCount} successful, ${errorCount} failed.`,
+      summary: {
+        total: updates.length,
+        successful: successCount,
+        failed: errorCount
+      },
+      results
+    });
+
+  } catch (error) {
+    console.error("Error in bulk update booking limits:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error in bulk update booking limits",
       error: error.message
     });
   }

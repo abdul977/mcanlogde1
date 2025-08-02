@@ -6,6 +6,7 @@ import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import { useMobileResponsive } from "../hooks/useMobileResponsive";
 import { MobileButton } from "./Mobile/MobileLayout";
+import BookingStatsDisplay from "./BookingStatsDisplay";
 
 const Accommodations = () => {
   const { isMobile, isTablet } = useMobileResponsive();
@@ -153,16 +154,29 @@ const Accommodations = () => {
                       e.target.src = 'https://via.placeholder.com/400x200?text=Accommodation';
                     }}
                   />
-                  <div className={`absolute top-3 right-3 px-2 py-1 rounded-full text-xs font-medium text-white ${
-                    post.adminStatus === 'coming_soon' ? 'bg-blue-500' :
-                    post.adminStatus === 'maintenance' ? 'bg-yellow-500' :
-                    post.adminStatus === 'not_available' ? 'bg-red-500' :
-                    post.isAvailable ? 'bg-green-500' : 'bg-red-500'
-                  } ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                    {post.adminStatus === 'coming_soon' ? 'Coming Soon' :
-                     post.adminStatus === 'maintenance' ? 'Maintenance' :
-                     post.adminStatus === 'not_available' ? 'Not Available' :
-                     post.isAvailable ? 'Available' : 'Booked'}
+                  <div className="absolute top-3 right-3">
+                    {/* Admin status takes priority */}
+                    {post.adminStatus === 'coming_soon' ? (
+                      <div className="px-2 py-1 rounded-full text-xs font-medium text-white bg-blue-500">
+                        Coming Soon
+                      </div>
+                    ) : post.adminStatus === 'maintenance' ? (
+                      <div className="px-2 py-1 rounded-full text-xs font-medium text-white bg-yellow-500">
+                        Maintenance
+                      </div>
+                    ) : post.adminStatus === 'not_available' ? (
+                      <div className="px-2 py-1 rounded-full text-xs font-medium text-white bg-red-500">
+                        Not Available
+                      </div>
+                    ) : (
+                      /* Show booking statistics for active accommodations */
+                      <BookingStatsDisplay
+                        accommodation={post}
+                        showDetails={false}
+                        size={isMobile ? 'sm' : 'md'}
+                        className="bg-white/90 backdrop-blur-sm rounded-full shadow-sm"
+                      />
+                    )}
                   </div>
                 </div>
 

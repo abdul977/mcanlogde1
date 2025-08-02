@@ -8,6 +8,7 @@ import {
   FaPrayingHands
 } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import BookingStatsDisplay from "../BookingStatsDisplay";
 
 const RelatedProduct = ({ product }) => {
   const navigate = useNavigate();
@@ -30,10 +31,29 @@ const RelatedProduct = ({ product }) => {
           alt={`Image of ${product.title}`}
           className="w-full h-48 object-cover"
         />
-        <div className={`absolute top-4 right-4 px-4 py-2 rounded-full text-sm font-medium text-white ${
-          product.isAvailable ? 'bg-green-500' : 'bg-red-500'
-        }`}>
-          {product.isAvailable ? 'Available' : 'Booked'}
+        <div className="absolute top-4 right-4">
+          {/* Admin status takes priority */}
+          {product.adminStatus === 'coming_soon' ? (
+            <div className="px-3 py-1 rounded-full text-xs font-medium text-white bg-blue-500">
+              Coming Soon
+            </div>
+          ) : product.adminStatus === 'maintenance' ? (
+            <div className="px-3 py-1 rounded-full text-xs font-medium text-white bg-yellow-500">
+              Maintenance
+            </div>
+          ) : product.adminStatus === 'not_available' ? (
+            <div className="px-3 py-1 rounded-full text-xs font-medium text-white bg-red-500">
+              Not Available
+            </div>
+          ) : (
+            /* Show booking statistics for active accommodations */
+            <BookingStatsDisplay
+              accommodation={product}
+              showDetails={false}
+              size="sm"
+              className="bg-white/90 backdrop-blur-sm rounded-full shadow-sm"
+            />
+          )}
         </div>
       </div>
 

@@ -6,6 +6,7 @@ import Event from "../models/Event.js";
 import Message from "../models/Message.js";
 import PaymentReminder from "../models/PaymentReminder.js";
 import mongoose from "mongoose";
+import { checkAccommodationAvailability, updateBookingStats, incrementBookingStats } from "../utils/bookingStatsUtils.js";
 
 // Utility function to generate payment schedule for yearly bookings
 const generatePaymentSchedule = (startDate, duration, monthlyAmount) => {
@@ -27,34 +28,49 @@ const generatePaymentSchedule = (startDate, duration, monthlyAmount) => {
   return schedule;
 };
 
-// Utility function to sync accommodation availability based on approved bookings
+// Enhanced utility function to sync accommodation availability using count-based system
 export const syncAccommodationAvailability = async () => {
   try {
-    console.log("Starting accommodation availability sync...");
+    console.log("Starting accommodation availability sync with count-based system...");
 
     // Get all accommodations
     const accommodations = await Post.find({});
+    console.log(`Found ${accommodations.length} accommodations to sync`);
+
+    let syncedCount = 0;
+    let errorCount = 0;
 
     for (const accommodation of accommodations) {
-      // Check if there are any approved bookings for this accommodation
-      const approvedBooking = await Booking.findOne({
-        accommodation: accommodation._id,
-        status: 'approved'
-      });
-
-      const shouldBeAvailable = !approvedBooking;
-
-      // Update if status doesn't match
-      if (accommodation.isAvailable !== shouldBeAvailable) {
-        await Post.findByIdAndUpdate(accommodation._id, {
-          isAvailable: shouldBeAvailable
+      try {
+        // Update booking statistics for this accommodation
+        const updatedStats = await updateBookingStats(accommodation._id);
+        
+        syncedCount++;
+        console.log(`Synced accommodation ${accommodation._id} (${accommodation.title}):`, {
+          approvedCount: updatedStats.approvedCount,
+          maxBookings: updatedStats.maxBookings,
+          isAvailable: updatedStats.isAvailable,
+          availableSlots: updatedStats.maxBookings - updatedStats.approvedCount
         });
-        console.log(`Updated accommodation ${accommodation._id} availability to ${shouldBeAvailable}`);
+
+      } catch (error) {
+        errorCount++;
+        console.error(`Error syncing accommodation ${accommodation._id}:`, error.message);
       }
     }
 
     console.log("Accommodation availability sync completed");
-    return { success: true, message: "Sync completed successfully" };
+    console.log(`Successfully synced: ${syncedCount}, Errors: ${errorCount}`);
+    
+    return {
+      success: true,
+      message: "Sync completed successfully",
+      stats: {
+        total: accommodations.length,
+        synced: syncedCount,
+        errors: errorCount
+      }
+    };
   } catch (error) {
     console.error("Error syncing accommodation availability:", error);
     return { success: false, error: error.message };
@@ -102,7 +118,7 @@ export const createBookingController = async (req, res) => {
         });
       }
 
-      // Check if accommodation exists and is available
+      // Check if accommodation exists and is available using new count-based logic
       const accommodation = await Post.findById(accommodationId);
       if (!accommodation) {
         return res.status(404).json({
@@ -111,10 +127,14 @@ export const createBookingController = async (req, res) => {
         });
       }
 
-      if (!accommodation.isAvailable) {
+      // Use the new availability checking utility
+      const availabilityInfo = await checkAccommodationAvailability(accommodationId);
+      
+      if (!availabilityInfo.canBook) {
         return res.status(400).json({
           success: false,
-          message: "This accommodation is not currently available"
+          message: `This accommodation is fully booked. ${availabilityInfo.approvedCount}/${availabilityInfo.maxBookings} slots are occupied.`,
+          availabilityInfo
         });
       }
 
@@ -424,31 +444,32 @@ export const updateBookingStatusController = async (req, res) => {
     if (adminNotes) booking.adminNotes = adminNotes;
     await booking.save();
 
-    // Update accommodation availability if this is an accommodation booking
+    // Update accommodation booking statistics if this is an accommodation booking
     if (booking.bookingType === 'accommodation' && booking.accommodation) {
-      const Post = mongoose.model('Post');
+      try {
+        const oldStatus = booking.status;
+        
+        // Update booking statistics using the new count-based system
+        const updatedStats = await incrementBookingStats(
+          booking.accommodation._id,
+          oldStatus,
+          status
+        );
 
-      if (status === 'approved') {
-        // Mark accommodation as unavailable when booking is approved
-        await Post.findByIdAndUpdate(booking.accommodation._id, {
-          isAvailable: false
-        });
-        console.log(`Accommodation ${booking.accommodation._id} marked as unavailable due to approved booking`);
-      } else if (status === 'rejected' || status === 'cancelled') {
-        // Check if there are any other approved bookings for this accommodation
-        const otherApprovedBookings = await Booking.findOne({
-          accommodation: booking.accommodation._id,
-          status: 'approved',
-          _id: { $ne: booking._id } // Exclude current booking
+        console.log(`Updated booking statistics for accommodation ${booking.accommodation._id}:`, {
+          oldStatus,
+          newStatus: status,
+          approvedCount: updatedStats.approvedCount,
+          maxBookings: updatedStats.maxBookings,
+          isAvailable: updatedStats.isAvailable,
+          availableSlots: updatedStats.maxBookings - updatedStats.approvedCount
         });
 
-        // If no other approved bookings, mark accommodation as available
-        if (!otherApprovedBookings) {
-          await Post.findByIdAndUpdate(booking.accommodation._id, {
-            isAvailable: true
-          });
-          console.log(`Accommodation ${booking.accommodation._id} marked as available - no other approved bookings`);
-        }
+      } catch (statsError) {
+        console.error(`Error updating booking statistics for accommodation ${booking.accommodation._id}:`, statsError);
+        // Don't fail the booking status update if stats update fails
+        // Fall back to the old method as a safety measure
+        await updateBookingStats(booking.accommodation._id);
       }
     }
 
@@ -564,23 +585,31 @@ export const cancelBookingController = async (req, res) => {
     booking.status = 'cancelled';
     await booking.save();
 
-    // Update accommodation availability if this is an accommodation booking
+    // Update accommodation booking statistics if this is an accommodation booking
     if (booking.bookingType === 'accommodation' && booking.accommodation) {
-      const Post = mongoose.model('Post');
+      try {
+        const oldStatus = booking.status;
+        
+        // Update booking statistics using the new count-based system
+        const updatedStats = await incrementBookingStats(
+          booking.accommodation,
+          oldStatus,
+          'cancelled'
+        );
 
-      // Check if there are any other approved bookings for this accommodation
-      const otherApprovedBookings = await Booking.findOne({
-        accommodation: booking.accommodation,
-        status: 'approved',
-        _id: { $ne: booking._id } // Exclude current booking
-      });
-
-      // If no other approved bookings, mark accommodation as available
-      if (!otherApprovedBookings) {
-        await Post.findByIdAndUpdate(booking.accommodation, {
-          isAvailable: true
+        console.log(`Updated booking statistics after user cancellation for accommodation ${booking.accommodation}:`, {
+          oldStatus,
+          newStatus: 'cancelled',
+          approvedCount: updatedStats.approvedCount,
+          maxBookings: updatedStats.maxBookings,
+          isAvailable: updatedStats.isAvailable,
+          availableSlots: updatedStats.maxBookings - updatedStats.approvedCount
         });
-        console.log(`Accommodation ${booking.accommodation} marked as available after user cancellation`);
+
+      } catch (statsError) {
+        console.error(`Error updating booking statistics for accommodation ${booking.accommodation}:`, statsError);
+        // Fall back to the old method as a safety measure
+        await updateBookingStats(booking.accommodation);
       }
     }
 
@@ -716,6 +745,174 @@ export const getOverduePayments = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error fetching overdue payments",
+      error: error.message
+    });
+  }
+};
+
+// Get booking statistics for a specific accommodation
+export const getAccommodationBookingStats = async (req, res) => {
+  try {
+    const { accommodationId } = req.params;
+
+    // Validate accommodation exists
+    const accommodation = await Post.findById(accommodationId).select('title maxBookings bookingStats isAvailable');
+    if (!accommodation) {
+      return res.status(404).json({
+        success: false,
+        message: "Accommodation not found"
+      });
+    }
+
+    // Get detailed booking breakdown
+    const [approvedBookings, pendingBookings, rejectedBookings, cancelledBookings] = await Promise.all([
+      Booking.find({ accommodation: accommodationId, status: 'approved' })
+        .populate('user', 'name email')
+        .select('user checkInDate checkOutDate requestDate totalAmount'),
+      Booking.find({ accommodation: accommodationId, status: 'pending' })
+        .populate('user', 'name email')
+        .select('user checkInDate checkOutDate requestDate totalAmount'),
+      Booking.find({ accommodation: accommodationId, status: 'rejected' })
+        .populate('user', 'name email')
+        .select('user checkInDate checkOutDate requestDate totalAmount adminNotes'),
+      Booking.find({ accommodation: accommodationId, status: 'cancelled' })
+        .populate('user', 'name email')
+        .select('user checkInDate checkOutDate requestDate totalAmount')
+    ]);
+
+    const stats = {
+      accommodationInfo: {
+        id: accommodation._id,
+        title: accommodation.title,
+        maxBookings: accommodation.maxBookings,
+        isAvailable: accommodation.isAvailable
+      },
+      bookingCounts: {
+        approved: approvedBookings.length,
+        pending: pendingBookings.length,
+        rejected: rejectedBookings.length,
+        cancelled: cancelledBookings.length,
+        total: approvedBookings.length + pendingBookings.length + rejectedBookings.length + cancelledBookings.length
+      },
+      availability: {
+        availableSlots: accommodation.maxBookings - approvedBookings.length,
+        occupancyRate: ((approvedBookings.length / accommodation.maxBookings) * 100).toFixed(2),
+        canAcceptBookings: approvedBookings.length < accommodation.maxBookings
+      },
+      bookingDetails: {
+        approved: approvedBookings,
+        pending: pendingBookings,
+        rejected: rejectedBookings,
+        cancelled: cancelledBookings
+      },
+      lastUpdated: accommodation.bookingStats?.lastUpdated || new Date()
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "Booking statistics retrieved successfully",
+      stats
+    });
+
+  } catch (error) {
+    console.error("Error fetching accommodation booking stats:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching booking statistics",
+      error: error.message
+    });
+  }
+};
+
+// Get booking overview for all accommodations (admin only)
+export const getBookingOverview = async (req, res) => {
+  try {
+    const { page = 1, limit = 20, sortBy = 'occupancyRate', sortOrder = 'desc' } = req.query;
+    const skip = (page - 1) * limit;
+
+    // Get all accommodations with their booking statistics
+    const accommodations = await Post.find({})
+      .select('title location maxBookings bookingStats isAvailable createdAt')
+      .sort({ createdAt: -1 });
+
+    // Calculate detailed statistics for each accommodation
+    const accommodationStats = await Promise.all(
+      accommodations.map(async (accommodation) => {
+        const [approvedCount, pendingCount, totalCount] = await Promise.all([
+          Booking.countDocuments({ accommodation: accommodation._id, status: 'approved' }),
+          Booking.countDocuments({ accommodation: accommodation._id, status: 'pending' }),
+          Booking.countDocuments({ accommodation: accommodation._id })
+        ]);
+
+        const availableSlots = accommodation.maxBookings - approvedCount;
+        const occupancyRate = ((approvedCount / accommodation.maxBookings) * 100);
+
+        return {
+          accommodationId: accommodation._id,
+          title: accommodation.title,
+          location: accommodation.location,
+          maxBookings: accommodation.maxBookings,
+          bookingCounts: {
+            approved: approvedCount,
+            pending: pendingCount,
+            total: totalCount
+          },
+          availability: {
+            availableSlots,
+            occupancyRate: parseFloat(occupancyRate.toFixed(2)),
+            isAvailable: accommodation.isAvailable,
+            canAcceptBookings: availableSlots > 0
+          },
+          lastUpdated: accommodation.bookingStats?.lastUpdated || accommodation.createdAt
+        };
+      })
+    );
+
+    // Sort the results
+    accommodationStats.sort((a, b) => {
+      const aValue = a.availability[sortBy] || a.bookingCounts[sortBy] || 0;
+      const bValue = b.availability[sortBy] || b.bookingCounts[sortBy] || 0;
+      
+      if (sortOrder === 'desc') {
+        return bValue - aValue;
+      }
+      return aValue - bValue;
+    });
+
+    // Apply pagination
+    const paginatedStats = accommodationStats.slice(skip, skip + parseInt(limit));
+
+    // Calculate summary statistics
+    const summary = {
+      totalAccommodations: accommodations.length,
+      availableAccommodations: accommodationStats.filter(acc => acc.availability.canAcceptBookings).length,
+      fullyBookedAccommodations: accommodationStats.filter(acc => !acc.availability.canAcceptBookings).length,
+      totalBookingSlots: accommodationStats.reduce((sum, acc) => sum + acc.maxBookings, 0),
+      totalApprovedBookings: accommodationStats.reduce((sum, acc) => sum + acc.bookingCounts.approved, 0),
+      totalPendingBookings: accommodationStats.reduce((sum, acc) => sum + acc.bookingCounts.pending, 0),
+      averageOccupancyRate: parseFloat(
+        (accommodationStats.reduce((sum, acc) => sum + acc.availability.occupancyRate, 0) / accommodations.length).toFixed(2)
+      )
+    };
+
+    res.status(200).json({
+      success: true,
+      message: "Booking overview retrieved successfully",
+      summary,
+      accommodations: paginatedStats,
+      pagination: {
+        current: parseInt(page),
+        total: Math.ceil(accommodations.length / limit),
+        count: paginatedStats.length,
+        totalAccommodations: accommodations.length
+      }
+    });
+
+  } catch (error) {
+    console.error("Error fetching booking overview:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching booking overview",
       error: error.message
     });
   }

@@ -3,11 +3,14 @@ import Navbar from "./Navbar";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate, Link } from "react-router-dom";
-import { FaHome, FaEdit, FaTrash, FaEye, FaPlus, FaFilter, FaSearch, FaUsers, FaMapMarkerAlt, FaEyeSlash, FaCog, FaCheck, FaTimes, FaClock } from "react-icons/fa";
+import { FaHome, FaEdit, FaTrash, FaEye, FaPlus, FaFilter, FaSearch, FaUsers, FaMapMarkerAlt, FaEyeSlash, FaCog, FaCheck, FaTimes, FaClock, FaChartBar, FaCheckSquare } from "react-icons/fa";
 import { useAuth } from "../../context/UserContext";
 import MobileLayout, { MobilePageHeader, MobileButton, MobileInput } from "../../components/Mobile/MobileLayout";
 import { ResponsiveDataDisplay } from "../../components/Mobile/ResponsiveDataDisplay";
 import { FormField, ResponsiveSelect } from "../../components/Mobile/ResponsiveForm";
+import BookingLimitModal from "../../components/BookingLimitModal";
+import BulkBookingLimitModal from "../../components/BulkBookingLimitModal";
+import BookingStatsDisplay, { BookingStatsSummary } from "../../components/BookingStatsDisplay";
 
 const AllPost = () => {
   const [auth] = useAuth();
@@ -18,6 +21,17 @@ const AllPost = () => {
   const [filterGender, setFilterGender] = useState("");
   const [filterAvailability, setFilterAvailability] = useState("");
   const navigate = useNavigate();
+
+  // Booking limit modal states
+  const [bookingLimitModal, setBookingLimitModal] = useState({
+    isOpen: false,
+    accommodation: null
+  });
+  const [bulkBookingLimitModal, setBulkBookingLimitModal] = useState({
+    isOpen: false
+  });
+  const [selectedAccommodations, setSelectedAccommodations] = useState(new Set());
+  const [bulkMode, setBulkMode] = useState(false);
 
   // Fetch all posts
   const fetchPosts = async () => {
@@ -115,6 +129,70 @@ const AllPost = () => {
     }
   };
 
+  // Booking limit handlers
+  const handleEditBookingLimit = (accommodation) => {
+    setBookingLimitModal({
+      isOpen: true,
+      accommodation
+    });
+  };
+
+  const handleBookingLimitSuccess = (updatedAccommodation) => {
+    // Update the accommodation in the posts list
+    setPosts(prevPosts =>
+      prevPosts.map(post =>
+        post._id === updatedAccommodation.id
+          ? { ...post, maxBookings: updatedAccommodation.maxBookings, bookingStats: updatedAccommodation.bookingStats }
+          : post
+      )
+    );
+    
+    // Refresh the posts to get updated booking statistics
+    fetchPosts();
+  };
+
+  const handleBulkModeToggle = () => {
+    setBulkMode(!bulkMode);
+    setSelectedAccommodations(new Set());
+  };
+
+  const handleAccommodationSelect = (accommodationId) => {
+    setSelectedAccommodations(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(accommodationId)) {
+        newSet.delete(accommodationId);
+      } else {
+        newSet.add(accommodationId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleBulkUpdateBookingLimits = () => {
+    if (selectedAccommodations.size === 0) {
+      toast.warn('Please select at least one accommodation');
+      return;
+    }
+
+    const selectedAccommodationData = posts.filter(post =>
+      selectedAccommodations.has(post._id)
+    );
+
+    setBulkBookingLimitModal({
+      isOpen: true,
+      accommodations: selectedAccommodationData
+    });
+  };
+
+  const handleBulkBookingLimitSuccess = () => {
+    // Reset bulk mode and selections
+    setBulkMode(false);
+    setSelectedAccommodations(new Set());
+    
+    // Refresh the posts to get updated booking statistics
+    fetchPosts();
+  };
+
   // Status badge helper functions
   const getStatusBadge = (adminStatus, isVisible) => {
     const statusConfig = {
@@ -172,6 +250,34 @@ const AllPost = () => {
 
   // Define columns for table view
   const columns = [
+    // Bulk selection column (only shown in bulk mode)
+    ...(bulkMode ? [{
+      key: 'select',
+      header: (
+        <div className="flex items-center">
+          <input
+            type="checkbox"
+            checked={selectedAccommodations.size === filteredPosts.length && filteredPosts.length > 0}
+            onChange={() => {
+              if (selectedAccommodations.size === filteredPosts.length) {
+                setSelectedAccommodations(new Set());
+              } else {
+                setSelectedAccommodations(new Set(filteredPosts.map(post => post._id)));
+              }
+            }}
+            className="rounded border-gray-300 text-mcan-primary focus:ring-mcan-primary"
+          />
+        </div>
+      ),
+      render: (value, item) => (
+        <input
+          type="checkbox"
+          checked={selectedAccommodations.has(item._id)}
+          onChange={() => handleAccommodationSelect(item._id)}
+          className="rounded border-gray-300 text-mcan-primary focus:ring-mcan-primary"
+        />
+      )
+    }] : []),
     {
       key: 'title',
       header: 'Title',
@@ -203,6 +309,22 @@ const AllPost = () => {
       render: (value, item) => `₦${value?.toLocaleString()}/month`
     },
     {
+      key: 'bookingLimits',
+      header: 'Booking Limits',
+      render: (value, item) => (
+        <div className="flex items-center space-x-2">
+          <BookingStatsDisplay accommodation={item} showDetails={false} size="sm" />
+          <button
+            onClick={() => handleEditBookingLimit(item)}
+            className="text-mcan-primary hover:text-mcan-secondary transition-colors"
+            title="Edit Booking Limit"
+          >
+            <FaChartBar />
+          </button>
+        </div>
+      )
+    },
+    {
       key: 'adminStatus',
       header: 'Admin Status',
       render: (value, item) => {
@@ -231,6 +353,18 @@ const AllPost = () => {
   // Custom card component for accommodations
   const AccommodationCard = ({ item, onView, onEdit, onDelete }) => (
     <div className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+      {/* Bulk selection checkbox */}
+      {bulkMode && (
+        <div className="absolute top-2 left-2 z-10">
+          <input
+            type="checkbox"
+            checked={selectedAccommodations.has(item._id)}
+            onChange={() => handleAccommodationSelect(item._id)}
+            className="w-5 h-5 rounded border-gray-300 text-mcan-primary focus:ring-mcan-primary bg-white shadow-lg"
+          />
+        </div>
+      )}
+
       {/* Image */}
       <div className="relative h-48">
         <img
@@ -261,7 +395,7 @@ const AllPost = () => {
             );
           })()}
         </div>
-        <div className="absolute top-2 left-2">
+        <div className={`absolute top-2 ${bulkMode ? 'left-8' : 'left-2'}`}>
           <span className="px-2 py-1 text-xs font-semibold rounded-full bg-mcan-primary text-white">
             {item.genderRestriction === 'brothers' ? 'Brothers' :
              item.genderRestriction === 'sisters' ? 'Sisters' :
@@ -283,6 +417,12 @@ const AllPost = () => {
           <FaUsers className="mr-2 text-mcan-secondary" />
           <span className="text-sm">Up to {item.guest} guests</span>
         </div>
+        
+        {/* Booking Statistics */}
+        <div className="mb-4">
+          <BookingStatsDisplay accommodation={item} showDetails={true} size="sm" />
+        </div>
+        
         <p className="text-gray-600 text-sm mb-4 line-clamp-3">
           {item.description}
         </p>
@@ -314,6 +454,14 @@ const AllPost = () => {
               icon={FaEdit}
               className="text-mcan-primary hover:text-mcan-secondary"
               title="Edit Accommodation"
+            />
+            <MobileButton
+              onClick={() => handleEditBookingLimit(item)}
+              variant="ghost"
+              size="sm"
+              icon={FaChartBar}
+              className="text-green-600 hover:text-green-900"
+              title="Edit Booking Limit"
             />
             <MobileButton
               onClick={() => onDelete(item)}
@@ -413,9 +561,38 @@ const AllPost = () => {
           }
         />
 
+        {/* Booking Statistics Summary */}
+        <BookingStatsSummary accommodations={filteredPosts} />
+
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-lg p-4 lg:p-6 mb-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Filters</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-800">Filters & Actions</h3>
+            <div className="flex items-center space-x-2">
+              {/* Bulk Mode Toggle */}
+              <MobileButton
+                onClick={handleBulkModeToggle}
+                variant={bulkMode ? "primary" : "secondary"}
+                size="sm"
+                icon={FaCheckSquare}
+              >
+                {bulkMode ? 'Exit Bulk Mode' : 'Bulk Mode'}
+              </MobileButton>
+              
+              {/* Bulk Update Button */}
+              {bulkMode && selectedAccommodations.size > 0 && (
+                <MobileButton
+                  onClick={handleBulkUpdateBookingLimits}
+                  variant="primary"
+                  size="sm"
+                  icon={FaChartBar}
+                >
+                  Update Limits ({selectedAccommodations.size})
+                </MobileButton>
+              )}
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <FormField label="Search">
               <MobileInput
@@ -458,14 +635,31 @@ const AllPost = () => {
                   setSearchTerm("");
                   setFilterGender("");
                   setFilterAvailability("");
+                  setBulkMode(false);
+                  setSelectedAccommodations(new Set());
                 }}
                 variant="secondary"
                 fullWidth
               >
-                Clear Filters
+                Clear All
               </MobileButton>
             </FormField>
           </div>
+
+          {/* Bulk Mode Info */}
+          {bulkMode && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-blue-700">
+                  <FaCheckSquare className="inline mr-2" />
+                  Bulk mode active - Select accommodations to update booking limits
+                </span>
+                <span className="text-sm font-medium text-blue-900">
+                  {selectedAccommodations.size} selected
+                </span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Data Display */}
@@ -480,6 +674,21 @@ const AllPost = () => {
           onDelete={handleDelete}
           cardComponent={AccommodationCard}
           showViewToggle={true}
+        />
+
+        {/* Booking Limit Modals */}
+        <BookingLimitModal
+          isOpen={bookingLimitModal.isOpen}
+          onClose={() => setBookingLimitModal({ isOpen: false, accommodation: null })}
+          accommodation={bookingLimitModal.accommodation}
+          onSuccess={handleBookingLimitSuccess}
+        />
+
+        <BulkBookingLimitModal
+          isOpen={bulkBookingLimitModal.isOpen}
+          onClose={() => setBulkBookingLimitModal({ isOpen: false })}
+          accommodations={posts.filter(post => selectedAccommodations.has(post._id))}
+          onSuccess={handleBulkBookingLimitSuccess}
         />
       </div>
     </MobileLayout>

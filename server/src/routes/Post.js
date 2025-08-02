@@ -9,7 +9,10 @@ import {
   getAccommodationsByGender,
   getRelatedPostController,
   searchAccommodationsController,
-  updateAccommodationStatusController
+  updateAccommodationStatusController,
+  updateBookingLimitsController,
+  getAdminBookingOverview,
+  bulkUpdateBookingLimitsController
 } from "../controller/Post.js";
 import { requireSignIn, isAdmin } from "../middlewares/Auth.js";
 
@@ -41,5 +44,18 @@ router.get("/near-mosque", nearMosqueController);
 
 // Search accommodations
 router.get("/search/:keyword", searchAccommodationsController);
+
+// Get related posts
+router.get("/related/:pid/:cid", getRelatedPostController);
+
+// Admin booking limit management routes
+// Update booking limits for a specific accommodation (admin only)
+router.put("/admin/booking-limits/:postId", requireSignIn, isAdmin, updateBookingLimitsController);
+
+// Get booking overview for all accommodations (admin only)
+router.get("/admin/booking-overview", requireSignIn, isAdmin, getAdminBookingOverview);
+
+// Bulk update booking limits (admin only)
+router.put("/admin/booking-limits/bulk", requireSignIn, isAdmin, bulkUpdateBookingLimitsController);
 
 export default router;

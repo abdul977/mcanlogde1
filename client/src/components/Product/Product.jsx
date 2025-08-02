@@ -34,6 +34,7 @@ import { useAuth } from "../../context/UserContext";
 import BookingConfirmation from "../BookingConfirmation";
 import MobileLayout, { MobilePageHeader, MobileButton } from "../Mobile/MobileLayout";
 import { FormSection, FormField } from "../Mobile/ResponsiveForm";
+import BookingStatsDisplay from "../BookingStatsDisplay";
 
 const Product = () => {
   const params = useParams();
@@ -293,16 +294,29 @@ const Product = () => {
                     alt="Main Image"
                     className="w-full h-[250px] lg:h-[400px] object-cover rounded-lg shadow-md"
                   />
-                  <div className={`absolute top-4 right-4 px-3 py-1 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium text-white ${
-                    postDetails.adminStatus === 'coming_soon' ? 'bg-blue-500' :
-                    postDetails.adminStatus === 'maintenance' ? 'bg-yellow-500' :
-                    postDetails.adminStatus === 'not_available' ? 'bg-red-500' :
-                    postDetails.isAvailable ? 'bg-green-500' : 'bg-red-500'
-                  }`}>
-                    {postDetails.adminStatus === 'coming_soon' ? 'Coming Soon' :
-                     postDetails.adminStatus === 'maintenance' ? 'Maintenance' :
-                     postDetails.adminStatus === 'not_available' ? 'Not Available' :
-                     postDetails.isAvailable ? 'Available' : 'Booked'}
+                  <div className="absolute top-4 right-4">
+                    {/* Admin status takes priority */}
+                    {postDetails.adminStatus === 'coming_soon' ? (
+                      <div className="px-3 py-1 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium text-white bg-blue-500">
+                        Coming Soon
+                      </div>
+                    ) : postDetails.adminStatus === 'maintenance' ? (
+                      <div className="px-3 py-1 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium text-white bg-yellow-500">
+                        Maintenance
+                      </div>
+                    ) : postDetails.adminStatus === 'not_available' ? (
+                      <div className="px-3 py-1 lg:px-4 lg:py-2 rounded-full text-xs lg:text-sm font-medium text-white bg-red-500">
+                        Not Available
+                      </div>
+                    ) : (
+                      /* Show booking statistics for active accommodations */
+                      <BookingStatsDisplay
+                        accommodation={postDetails}
+                        showDetails={false}
+                        size="md"
+                        className="bg-white/90 backdrop-blur-sm rounded-full shadow-lg"
+                      />
+                    )}
                   </div>
                 </div>
                 <div className="grid grid-cols-3 lg:grid-cols-4 gap-2">
@@ -418,17 +432,36 @@ const Product = () => {
                   </div>
                 </div>
 
+                {/* Booking Statistics Section */}
+                {postDetails.adminStatus === 'active' && (
+                  <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                    <h3 className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                      <FaUsers className="mr-2 text-mcan-primary" />
+                      Booking Availability
+                    </h3>
+                    <BookingStatsDisplay
+                      accommodation={postDetails}
+                      showDetails={true}
+                      size="md"
+                      className="w-full"
+                    />
+                  </div>
+                )}
+
                 {/* Action Buttons */}
                 <div className="space-y-3 mt-6">
                   <MobileButton
                     onClick={handleCheckIn}
-                    disabled={!postDetails.isAvailable}
+                    disabled={!postDetails.isAvailable || postDetails.adminStatus !== 'active'}
                     variant="primary"
                     size="lg"
                     fullWidth
-                    className={!postDetails.isAvailable ? 'opacity-50 cursor-not-allowed' : ''}
+                    className={(!postDetails.isAvailable || postDetails.adminStatus !== 'active') ? 'opacity-50 cursor-not-allowed' : ''}
                   >
-                    {postDetails.isAvailable ? 'Book Now' : 'Not Available'}
+                    {postDetails.adminStatus === 'coming_soon' ? 'Coming Soon' :
+                     postDetails.adminStatus === 'maintenance' ? 'Under Maintenance' :
+                     postDetails.adminStatus === 'not_available' ? 'Not Available' :
+                     postDetails.isAvailable ? 'Book Now' : 'Fully Booked'}
                   </MobileButton>
 
                   <MobileButton
