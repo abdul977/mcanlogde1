@@ -98,7 +98,11 @@ const CommunityDetailScreen: React.FC = () => {
     try {
       setLoading(true);
       const messagesData = await communityService.getCommunityMessages(communityId);
-      setMessages(messagesData.reverse()); // Reverse to show newest at bottom
+      // Sort messages to show oldest first, newest at bottom (like WhatsApp)
+      const sortedMessages = messagesData.sort(
+        (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+      setMessages(sortedMessages);
     } catch (error) {
       console.error('Error loading messages:', error);
 
@@ -210,6 +214,7 @@ const CommunityDetailScreen: React.FC = () => {
 
       // Remove any optimistic messages that match this real message
       const filteredMessages = prevMessages.filter(msg => !msg.__isOptimistic);
+      // Add new message at the end (newest at bottom)
       const newMessages = [...filteredMessages, data.message].sort(
         (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
       );
@@ -288,7 +293,7 @@ const CommunityDetailScreen: React.FC = () => {
             _id: user?._id || '',
             name: user?.name || '',
             email: user?.email || '',
-            profilePicture: user?.profilePicture || null,
+            profilePicture: user?.avatar || user?.profileImage || null,
           },
           community: communityId,
           createdAt: new Date().toISOString(),
@@ -300,7 +305,7 @@ const CommunityDetailScreen: React.FC = () => {
           __isOptimistic: true, // Flag to identify optimistic messages
         } as any;
 
-        // Add optimistic message immediately
+        // Add optimistic message immediately at the end (newest at bottom)
         setMessages(prevMessages => {
           const updatedMessages = [...prevMessages, optimisticMessage].sort(
             (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
@@ -479,7 +484,8 @@ const CommunityDetailScreen: React.FC = () => {
         <KeyboardAvoidingView
           style={styles.chatContainer}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 140 : 20}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+          enabled={true}
         >
           <FlatList
             ref={flatListRef}
@@ -530,7 +536,7 @@ const CommunityDetailScreen: React.FC = () => {
           )}
 
           {/* Message Input */}
-          <View style={[styles.inputWrapper, { bottom: totalBottomSpace }]}>
+          <View style={[styles.inputWrapper, { bottom: 0 }]}>
             <MessageInput
               onSendMessage={handleSendMessage}
               onSendImage={handleSendImage}
@@ -575,14 +581,13 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   inputWrapper: {
-    backgroundColor: COLORS.WHITE,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.GRAY_200,
+    backgroundColor: 'transparent',
     paddingBottom: SPACING.MD,
     minHeight: 60,
     position: 'absolute',
     left: 0,
     right: 0,
+    bottom: 0,
     zIndex: 1000,
   },
   replyPreview: {

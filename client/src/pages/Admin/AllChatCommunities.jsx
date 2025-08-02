@@ -13,7 +13,8 @@ import {
   FaTimesCircle,
   FaBan,
   FaFilter,
-  FaTrash
+  FaTrash,
+  FaEdit
 } from "react-icons/fa";
 import axios from "axios";
 import { useAuth } from "../../context/UserContext";
@@ -535,6 +536,15 @@ const AllChatCommunities = () => {
                     >
                       <FaEye className="mr-1" />
                       View
+                    </button>
+
+                    {/* Edit button - available for all statuses */}
+                    <button
+                      onClick={() => window.location.href = `/admin/edit-chat-community/${community._id}`}
+                      className="flex items-center px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors duration-200"
+                    >
+                      <FaEdit className="mr-1" />
+                      Edit
                     </button>
 
                     {/* Delete button - available for all statuses */}

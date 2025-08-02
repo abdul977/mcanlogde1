@@ -148,6 +148,14 @@ router.post("/admin/create",
   validateCommunityFiles,
   createCommunityController
 );
+router.get("/admin/:id", requireAuth, requireAdmin, getCommunityByIdController);
+router.put("/admin/:id/edit",
+  requireAuth,
+  requireAdmin,
+  handleMultipartErrors,
+  validateCommunityFiles,
+  updateCommunityController
+);
 router.put("/admin/:id/approve", requireAuth, requireAdmin, approveCommunityController);
 router.put("/admin/:id/reject", requireAuth, requireAdmin, rejectCommunityController);
 router.put("/admin/:id/suspend", requireAuth, requireAdmin, suspendCommunityController);

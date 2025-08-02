@@ -85,17 +85,33 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({
   const getSenderInfo = () => {
     if (isCommunityMessage) {
       const communityMsg = message as CommunityMessage;
+      const avatar = (communityMsg.sender as any)?.profilePicture ||
+                    (communityMsg.sender as any)?.avatar ||
+                    (communityMsg.sender as any)?.profileImage ||
+                    (communityMsg.sender as any)?.displayAvatar;
+      
+      console.log('Community message sender info:', {
+        name: communityMsg.sender?.name,
+        avatar: avatar,
+        hasAvatar: !!avatar
+      });
+      
       return {
         name: communityMsg.sender?.name || 'Unknown User',
-        avatar: communityMsg.sender?.displayAvatar || communityMsg.sender?.avatar || communityMsg.sender?.profileImage,
-        initials: communityMsg.sender?.initials
+        avatar: avatar,
+        initials: (communityMsg.sender as any)?.initials
       };
     } else {
       const directMsg = message as Message;
+      const avatar = (directMsg.sender as any)?.profilePicture ||
+                    (directMsg.sender as any)?.avatar ||
+                    (directMsg.sender as any)?.profileImage ||
+                    (directMsg.sender as any)?.displayAvatar;
+      
       return {
         name: directMsg.sender?.name || 'Unknown User',
-        avatar: directMsg.sender?.displayAvatar || directMsg.sender?.avatar || directMsg.sender?.profileImage,
-        initials: directMsg.sender?.initials
+        avatar: avatar,
+        initials: (directMsg.sender as any)?.initials
       };
     }
   };
@@ -276,7 +292,7 @@ const styles = StyleSheet.create({
   messageText: {
     fontSize: TYPOGRAPHY.FONT_SIZES.BASE,
     lineHeight: TYPOGRAPHY.FONT_SIZES.BASE * 1.4,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL as any,
   },
   sentText: {
     color: COLORS.WHITE,
@@ -292,7 +308,7 @@ const styles = StyleSheet.create({
   },
   timestamp: {
     fontSize: 11, // Smaller timestamp like WhatsApp
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.NORMAL as any,
   },
   sentTimestamp: {
     color: COLORS.WHITE,
@@ -317,7 +333,7 @@ const styles = StyleSheet.create({
   // Community message styles
   senderName: {
     fontSize: TYPOGRAPHY.FONT_SIZES.XS,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
     color: COLORS.PRIMARY,
     marginBottom: 2,
     marginLeft: SPACING.XS,
@@ -338,7 +354,7 @@ const styles = StyleSheet.create({
   },
   replyAuthor: {
     fontSize: TYPOGRAPHY.FONT_SIZES.XS,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.MEDIUM as any,
     color: COLORS.PRIMARY,
     marginBottom: 1,
   },
@@ -358,7 +374,7 @@ const styles = StyleSheet.create({
     width: 200,
     height: 200,
     borderRadius: 12,
-  },
+  } as any,
 });
 
 export default MessageBubble;

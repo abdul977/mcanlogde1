@@ -60,7 +60,7 @@ const MessageAvatar: React.FC<MessageAvatarProps> = memo(({
 
   const textStyles = {
     fontSize: size * 0.4,
-    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD,
+    fontWeight: TYPOGRAPHY.FONT_WEIGHTS.SEMIBOLD as any,
     color: textColor,
   };
 
@@ -70,8 +70,9 @@ const MessageAvatar: React.FC<MessageAvatarProps> = memo(({
     borderRadius: size / 2,
   };
 
-  // Show initials if no image source, image failed to load, or still loading
-  const showInitials = !source || imageError || imageLoading;
+  // Show initials if no image source or image failed to load
+  // Don't show initials while loading if we have a source
+  const showInitials = !source || imageError;
 
   return (
     <View style={avatarStyle}>
@@ -81,8 +82,6 @@ const MessageAvatar: React.FC<MessageAvatarProps> = memo(({
           style={imageStyles}
           onError={handleImageError}
           onLoad={handleImageLoad}
-          // Enable caching for better performance
-          cache="force-cache"
           // Reduce memory usage for small avatars
           resizeMode="cover"
         />
