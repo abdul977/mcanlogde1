@@ -13,11 +13,19 @@ export const sendMessageController = async (req, res) => {
     const { content, messageType = "text", replyTo = null } = req.body;
     const userId = req.user._id;
 
-    // Validate content
-    if (!content || content.trim().length === 0) {
+    // Validate content - allow empty content for image messages with attachments
+    if ((!content || content.trim().length === 0) && messageType === 'text') {
       return res.status(400).json({
         success: false,
-        message: "Message content is required"
+        message: "Message content is required for text messages"
+      });
+    }
+
+    // For image messages, content is optional but we need attachments
+    if (messageType === 'image' && (!req.files || !req.files.attachments)) {
+      return res.status(400).json({
+        success: false,
+        message: "Image attachment is required for image messages"
       });
     }
 
@@ -123,7 +131,7 @@ export const sendMessageController = async (req, res) => {
     const newMessage = new CommunityMessage({
       community: communityId,
       sender: userId,
-      content: content.trim(),
+      content: content ? content.trim() : '', // Allow empty content for image messages
       messageType,
       attachments,
       replyTo,
