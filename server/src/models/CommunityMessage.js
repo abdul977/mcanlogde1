@@ -16,9 +16,10 @@ const communityMessageSchema = new Schema({
   // Message content
   content: {
     type: String,
-    required: [true, "Message content is required"],
+    required: false, // Handle validation in controller instead
     trim: true,
-    maxlength: [2000, "Message cannot exceed 2000 characters"]
+    maxlength: [2000, "Message cannot exceed 2000 characters"],
+    default: '' // Allow empty content for image messages
   },
   // Message type
   messageType: {
