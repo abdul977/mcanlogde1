@@ -1,6 +1,6 @@
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
-import StagewiseToolbar from "./components/StagewiseToolbar";
+// import StagewiseToolbar from "./components/StagewiseToolbar"; // Temporarily hidden
 import { ToastContainer } from "react-toastify";
 import { Route, Routes, useLocation } from "react-router-dom";
 import React from "react";
@@ -97,8 +97,8 @@ function App() {
   return (
     <SocketProvider>
       <div className="min-h-screen bg-gray-50">
-        {/* Stagewise Toolbar - Development Only */}
-        <StagewiseToolbar />
+        {/* Stagewise Toolbar - Development Only - Temporarily hidden */}
+        {/* <StagewiseToolbar /> */}
 
         {/* Main Navigation */}
         <Navbar />
