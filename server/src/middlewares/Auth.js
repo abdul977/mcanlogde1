@@ -1,5 +1,6 @@
 import UserModel from "../models/User.js";
 import JWT from "jsonwebtoken";
+import tokenManager from "../utils/tokenManager.js";
 
 export const requireSignIn = async (req, res, next) => {
   try {
@@ -12,21 +13,30 @@ export const requireSignIn = async (req, res, next) => {
         .send({ success: false, message: "Authorization header is missing" });
     }
 
-    // Support for both "Bearer <token>" and token without "Bearer" prefix
-    const token = authHeader.startsWith("Bearer ")
-      ? authHeader.split(" ")[1]
-      : authHeader;
+    // Extract token using token manager
+    const token = tokenManager.extractTokenFromHeader(authHeader);
     if (!token) {
       return res
         .status(401)
         .send({ success: false, message: "No token provided" });
     }
 
-    const decode = JWT.verify(token, process.env.JWT_SECRET);
+    // Verify access token using new token manager
+    const verification = tokenManager.verifyAccessToken(token);
+
+    if (!verification.valid) {
+      return res.status(401).send({
+        success: false,
+        message: "Invalid or expired token",
+        error: verification.error
+      });
+    }
+
+    const decode = verification.decoded;
     console.log("Decoded Token Object:", decode);
 
     // Ensure we have a user ID (support both _id and id formats)
-    const userId = decode._id || decode.id;
+    const userId = decode._id || decode.id || decode.userId;
     if (!userId) {
       return res
         .status(401)

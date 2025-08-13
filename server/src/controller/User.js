@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import JWT from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import supabaseStorage from "../services/supabaseStorage.js";
+import tokenManager from "../utils/tokenManager.js";
 
 // Register controller
 export const registerController = async (req, res) => {
@@ -51,12 +52,12 @@ export const loginController = async (req, res) => {
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
-    const token = JWT.sign({
-      _id: user._id,
-      id: user._id,
-      role: user.role
-    }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+    // Generate access token using new token manager
+    const token = tokenManager.generateAccessToken({
+      _id: user._id.toString(),
+      id: user._id.toString(),
+      role: user.role,
+      email: user.email
     });
     res.status(200).send({
       success: true,
@@ -230,13 +231,12 @@ export const refreshTokenController = async (req, res) => {
       });
     }
 
-    // Generate new token
-    const newToken = JWT.sign({
-      _id: user._id,
-      id: user._id,
-      role: user.role
-    }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+    // Generate new token using token manager
+    const newToken = tokenManager.generateAccessToken({
+      _id: user._id.toString(),
+      id: user._id.toString(),
+      role: user.role,
+      email: user.email
     });
 
     res.status(200).json({

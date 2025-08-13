@@ -1,5 +1,7 @@
 import express from "express";
-import { isAdmin, requireSignIn } from "../middlewares/Auth.js";
+import { requireSignIn } from "../middlewares/Auth.js";
+import { requirePermission } from "../middlewares/PermissionAuth.js";
+import { adminRateLimit } from "../middlewares/RateLimit.js";
 import {
   categoryControlller,
   createCategoryController,
@@ -12,19 +14,21 @@ import {
 const router = express.Router();
 
 //routes
-// create category (admin only)
+// create category (admin only) with RBAC
 router.post(
   "/create-category",
   requireSignIn,
-  isAdmin,
+  adminRateLimit,
+  requirePermission('categories', 'create'),
   createCategoryController
 );
 
-//update category (admin only)
+//update category (admin only) with RBAC
 router.put(
   "/update-category/:id",
   requireSignIn,
-  isAdmin,
+  adminRateLimit,
+  requirePermission('categories', 'update'),
   updateCategoryController
 );
 
@@ -35,11 +39,12 @@ router.get("/get-category", categoryControlller);
 router.get("/single-category/:slug", singleCategoryController);
 router.get("/select-category/:slug", selectedCategoryController);
 
-//delete category (admin only)
+//delete category (admin only) with RBAC
 router.delete(
   "/delete-category/:id",
   requireSignIn,
-  isAdmin,
+  adminRateLimit,
+  requirePermission('categories', 'delete'),
   deleteCategoryCOntroller
 );
 

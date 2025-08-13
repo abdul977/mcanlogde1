@@ -13,6 +13,8 @@ import { connectRedis } from "./src/config/redis.js";
 import { initializeSocket } from "./src/config/socket.js";
 import PaymentReminderJob from "./src/jobs/paymentReminderJob.js";
 import authRoutes from "./src/routes/User.js";
+import mfaRoutes from "./src/routes/MFA.js";
+import adminRoutes from "./src/routes/AdminUserManagement.js";
 import postRoutes from "./src/routes/Post.js";
 import categoryRoutes from "./src/routes/Category.js";
 import eventRoutes from "./src/routes/Event.js";
@@ -185,6 +187,8 @@ app.get('/api/status', (req, res) => {
 
 // Routes
 app.use("/auth/api", authRoutes);
+app.use("/api/mfa", mfaRoutes);
+app.use("/api/admin", adminRoutes);
 app.use("/api/post", postRoutes);
 app.use("/api/category", categoryRoutes);
 app.use("/api/events", eventRoutes);

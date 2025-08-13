@@ -8,6 +8,11 @@
     "start": "node index.js",
     "dev": "nodemon index.js",
     "seed": "node src/scripts/seedLodges.js",
+    "seed:roles": "node src/scripts/seedRoles.js",
+    "seed:permissions": "node src/scripts/seedPermissions.js",
+    "validate:rbac": "node src/scripts/validateRBAC.js",
+    "test:rbac": "mocha src/tests/rbac.test.js --timeout 10000",
+    "setup:rbac": "node src/scripts/setupRBAC.js",
     "check": "node src/scripts/checkData.js",
     "migrate:community": "node src/scripts/migrateCommunitySystem.js",
     "seed:community": "node src/scripts/seedCommunityData.js"
@@ -18,6 +23,7 @@
   "description": "",
   "dependencies": {
     "@supabase/supabase-js": "^2.50.3",
+    "argon2": "^0.44.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
@@ -25,6 +31,8 @@
     "exceljs": "^4.4.0",
     "express": "^4.21.1",
     "express-fileupload": "^1.5.1",
+    "express-rate-limit": "^8.0.1",
+    "express-slow-down": "^3.0.0",
     "jsonwebtoken": "^9.0.2",
     "moment-hijri": "^3.0.0",
     "mongodb": "^6.13.0",
@@ -35,8 +43,10 @@
     "nodemailer": "^7.0.5",
     "nodemon": "^3.1.7",
     "pdfkit": "^0.17.1",
+    "qrcode": "^1.5.4",
     "redis": "^4.6.0",
     "slugify": "^1.6.6",
-    "socket.io": "^4.7.0"
+    "socket.io": "^4.7.0",
+    "speakeasy": "^2.0.0"
   }
 }
